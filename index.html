@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHS Prostate Cancer Follow-Up — Prototype</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+    .hidden { display: none !important; }
+    .header { background: #fff; border-bottom: 2px solid #333; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .header h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+    .header-actions { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+    .view-toggle { display: flex; border: 1px solid #333; border-radius: 0; }
+    .view-toggle a { padding: 8px 16px; text-decoration: none; color: #333; background: #fff; }
+    .view-toggle a.active { background: #333; color: #fff; }
+    .view-toggle a:not(.active):hover { background: #eee; }
+    .btn { display: inline-block; padding: 8px 16px; border: 2px solid #333; background: #fff; cursor: pointer; font-size: 1rem; text-decoration: none; color: #333; }
+    .btn:hover { background: #333; color: #fff; }
+    .btn-primary { background: #007f3b; color: #fff; border-color: #007f3b; }
+    .btn-primary:hover { background: #004d24; border-color: #004d24; color: #fff; }
+    .btn-secondary { background: #fff; color: #333; }
+    main { padding: 24px; max-width: 1600px; margin: 0 auto; }
+
+    /* Board */
+    .board { display: flex; gap: 12px; overflow-x: auto; min-height: 400px; padding-bottom: 6px; }
+    .column { flex: 0 0 268px; background: #e8e8e8; display: flex; flex-direction: column; }
+    .column-header { padding: 8px 10px; font-weight: 700; font-size: 13px; background: transparent; }
+    .column.alert { background: #f5e6e9; }
+    .column.alert .column-header { color: #7d3c47; }
+    .column.completed { background: #e8f5e9; }
+    .column.completed .column-header { color: #1b5e20; }
+    .column.completed .column-note { color: #2e7d32; }
+    .column-cards { padding: 6px; flex: 1; overflow-y: auto; }
+    .column-note { font-size: 11px; color: #555; line-height: 1.4; padding: 6px 8px; height: 80px; flex-shrink: 0; box-sizing: border-box; overflow: hidden; }
+    .card { background: #fff; border: 2px solid transparent; border-radius: 0; padding: 8px 38px 8px 10px; margin-bottom: 6px; cursor: pointer; display: flex; flex-direction: column; position: relative; }
+    .card:hover { border-color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    /* Compact left-aligned stack: NHS → Name • Age → Chips → PSA → Due → Last updated */
+    .card-nhs { font-size: 11px; font-variant-numeric: tabular-nums; color: #333; margin: 0 0 1px; line-height: 1.3; }
+    .card-name { font-size: 15px; font-weight: 700; color: #333; margin: 0 0 4px; line-height: 1.3; }
+    .card-chips { display: flex; flex-wrap: wrap; gap: 3px; margin: 0 0 4px; }
+    .card-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 2px 6px; font-size: 10px; font-weight: 700; border: 2px solid #333; border-radius: 0; }
+    .card-chip-phase { display: inline-block; background: #fff; color: #555; padding: 2px 6px; font-size: 10px; font-weight: 600; border: 1px solid #999; border-radius: 0; }
+    .card-psa-line { font-size: 13px; margin: 0 0 2px; line-height: 1.3; }
+    .card-psa-line strong { font-weight: 700; }
+    .card-threshold { font-size: 12px; color: #666; }
+    .card-psa-trend-row { margin-top: 10px; margin-bottom: 10px; }
+    .card-context { margin-top: 2px; margin-bottom: 10px; }
+    .card-due-line { font-size: 11px; color: #666; margin: 0 0 4px; line-height: 1.3; }
+    .card-last-updated { margin-top: auto; padding-top: 4px; font-size: 10px; color: #999; line-height: 1.3; }
+    /* PSA + sparkline on one row; chart aligned right with menu */
+    .card-psa-trend-row { display: flex; align-items: center; margin: 0 0 2px; position: relative; padding-top: 10px; padding-bottom: 10px; }
+    .card-psa-trend-row .card-psa-line { margin: 0; flex: 1 1 auto; min-width: 0; padding-right: 56px; }
+    .card-psa-trend-row .sparkline-wrap { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 48px; height: 12px; }
+    .card-psa-trend-row .sparkline-threshold-line { position: absolute; left: 0; right: 0; height: 1px; background: #888; pointer-events: none; z-index: 1; }
+    .card-psa-trend-row .card-sparkline { height: 12px; width: 48px; margin: 0; background: transparent; border: none; display: flex; align-items: flex-end; gap: 1px; padding: 0; }
+    .card-psa-trend-row .card-sparkline span { display: inline-block; background: #333; flex: 1; min-width: 2px; max-width: 10px; min-height: 2px; border-radius: 0; }
+    .card-psa-trend-row .card-psa-row { margin: 0; flex: 1 1 auto; min-width: 0; font-size: 13px; }
+    .card-psa-trend-row .card-psa-row strong { font-weight: 700; }
+    .card-context { font-size: 11px; color: #c00; margin: 0 0 4px; }
+    .card-context-icon { font-weight: 700; margin-right: 2px; }
+    .card-context-delta { font-variant-numeric: tabular-nums; margin-left: 4px; color: #721c24; }
+    .card-actions { margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; }
+    .card-actions .btn { padding: 4px 8px; font-size: 11px; margin-right: 4px; }
+    .card-actions-menu-btn { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 1px solid #ccc; background: #fff; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 0; font-size: 18px; line-height: 1; color: #000; flex-shrink: 0; font-weight: 800; }
+    .card-actions-menu-btn:hover { background: #f0f0f0; }
+    .card-actions-menu-btn:focus { outline: 2px solid #333; outline-offset: 2px; }
+    .card-actions-dropdown { position: fixed; z-index: 100; background: #fff; border: 1px solid #999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; display: none; padding: 4px 0; }
+    .card-actions-dropdown.show { display: block; }
+    .card-actions-dropdown button { display: block; width: 100%; padding: 8px 12px; text-align: left; background: none; border: none; cursor: pointer; font-size: 13px; }
+    .card-actions-dropdown button:hover { background: #f0f0f0; }
+    .card-actions-dropdown .dropdown-title { padding: 6px 12px; font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #eee; margin-bottom: 4px; }
+
+    /* List view */
+    .list-view .tabs { display: flex; gap: 0; border-bottom: 1px solid #ccc; margin-bottom: 0; }
+    .list-view .tabs button { padding: 10px 20px; border: 1px solid #ccc; border-bottom: none; background: #eee; cursor: pointer; font-size: 14px; font-weight: 400; margin-bottom: -1px; }
+    .list-view .tabs button.active { background: #e0e0e0; border-bottom: 1px solid #e0e0e0; font-weight: 400; }
+    .list-view .tabs button:hover:not(.active) { background: #e8e8e8; }
+    .list-view table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ccc; border-top: none; }
+    .list-view th, .list-view td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    .list-view tbody td:first-child { font-size: 16px; font-weight: 700; }
+    .list-view th { background: #e0e0e0; font-weight: 700; }
+    .list-view tr:hover { background: #f9f9f9; }
+    .list-view tr[data-detail] { cursor: pointer; }
+    .list-view .sparkline-wrap { position: relative; display: inline-block; height: 24px; }
+    .list-view .sparkline-threshold-line { position: absolute; left: 0; right: 0; height: 1px; background: #888; pointer-events: none; z-index: 1; }
+    .list-view .sparkline-inline { display: flex; align-items: flex-end; height: 24px; gap: 2px; }
+    .list-view .sparkline-inline span { min-width: 4px; max-width: 8px; width: 6px; background: #333; border-radius: 0; min-height: 4px; flex: 0 1 6px; }
+    .list-view .status-badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 2px solid; border-radius: 0; white-space: nowrap; background: transparent; }
+    .list-view .status-upcoming { color: #0d47a1; border-color: #0d47a1; }
+    .list-view .status-awaiting { color: #e65100; border-color: #e65100; }
+    .list-view .status-action { color: #b71c1c; border-color: #b71c1c; }
+    .list-view .status-completed { color: #1b5e20; border-color: #1b5e20; }
+    .list-view .status-recall { color: #4a148c; border-color: #4a148c; }
+    .list-view th:nth-child(7), .list-view td:nth-child(7),
+    .list-view th:nth-child(8), .list-view td:nth-child(8),
+    .list-view th:nth-child(9), .list-view td:nth-child(9) { text-align: right; }
+    .list-view .threshold-cell { font-variant-numeric: tabular-nums; }
+    .list-view .list-delta-cell { font-variant-numeric: tabular-nums; font-size: 13px; }
+    .list-view .list-delta-above { font-weight: 700; color: #b71c1c; }
+    .list-view .list-delta-below { color: #1b5e20; }
+    .list-view .th-delta-legend { font-weight: 400; font-size: 11px; color: #666; }
+    .list-view .threshold-legend { font-size: 11px; color: #666; margin-top: 8px; }
+
+    /* Wizard */
+    .wizard { background: #fff; border: 1px solid #999; border-radius: 4px; padding: 32px; max-width: 560px; margin: 0 auto; }
+    .wizard h2 { margin: 0 0 8px; font-size: 1.25rem; }
+    .wizard .step-label { font-size: 12px; color: #666; margin-bottom: 24px; }
+    .wizard .form-group { margin-bottom: 20px; }
+    .wizard label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .wizard input, .wizard select { width: 100%; max-width: 320px; padding: 8px 12px; border: 1px solid #333; font-size: 1rem; }
+    .diagnosis-select-wrap { position: relative; display: inline-block; width: 100%; max-width: 320px; min-width: 200px; }
+    .diagnosis-select-wrap input { width: 100%; padding-right: 28px; box-sizing: border-box; }
+    .diagnosis-select-wrap .diagnosis-chevron { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #555; font-size: 11px; line-height: 1; }
+    .detail-view .diagnosis-select-wrap { max-width: 320px; min-width: 200px; flex: 1 1 200px; }
+    .detail-view .diagnosis-select-wrap input { border: 2px solid #333; padding: 6px 28px 6px 10px; font-size: 14px; min-width: 0; }
+    .wizard .readonly { background: #eee; color: #555; }
+    .wizard .confirm-box { background: #f0f0f0; padding: 12px; margin: 16px 0; border-left: 4px solid #007f3b; }
+    .wizard .actions { margin-top: 28px; display: flex; gap: 12px; }
+    .wizard .wizard-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .wizard .wizard-nav-right { display: flex; gap: 8px; }
+    .wizard #step1-result { margin-top: 12px; }
+    .phase-output { margin-top: 12px; padding: 10px; background: #e8f5e9; border: 1px solid #007f3b; display: none; }
+    .phase-output.visible { display: block; }
+    .wizard-hint { font-size: 12px; color: #555; margin: 6px 0 0; }
+    .wizard .protocol-radios { border: 0; padding: 0; margin: 0 0 20px; }
+    .wizard .protocol-option { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .wizard .protocol-option input { width: auto; margin: 0; }
+    .wizard .protocol-option label { margin: 0; font-weight: 600; cursor: pointer; }
+    .wizard .protocol-help { font-size: 13px; color: #333; line-height: 1.5; margin: 0 0 16px; padding: 10px 12px; background: #f0f4f8; border-left: 4px solid #007f3b; }
+    .wizard .wizard-5ari { border: 0; padding: 0; margin: 0; }
+
+    /* Detail view */
+    .detail-view { background: #fff; border: 1px solid #999; border-radius: 4px; padding: 24px; max-width: 720px; margin: 0 auto; }
+    .detail-view h2 { margin: 0 0 8px; font-size: 1.35rem; }
+    .detail-view .back { margin-bottom: 16px; }
+    .detail-view .section { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ddd; }
+    .detail-view .section:last-of-type { border-bottom: none; }
+    .detail-view .section-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 8px; letter-spacing: 0.02em; }
+    .detail-view .detail-chart-wrap { position: relative; margin: 8px 0; width: 50%; max-width: 100%; }
+    .detail-view .detail-sparkline { position: relative; height: 48px; background: #f5f5f5; display: flex; align-items: flex-end; padding: 8px; gap: 4px; }
+    .detail-view .detail-sparkline .detail-sparkline-bar { flex: 1; background: #666; border-radius: 2px; min-height: 4px; }
+    .detail-view .detail-sparkline-threshold { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #333; pointer-events: none; z-index: 2; border: none; }
+    .detail-view .detail-sparkline-labels { display: flex; gap: 4px; margin-top: 4px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
+    .detail-view .detail-sparkline-labels span { flex: 1; text-align: center; }
+    .detail-view .detail-sparkline-empty { margin: 0; padding: 12px; font-size: 13px; color: #666; background: #f5f5f5; }
+    .detail-view .detail-psa-unit { font-size: 12px; font-weight: 400; color: #666; margin-left: 2px; }
+    .detail-view .detail-grid { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 14px; }
+    .detail-view .detail-grid dt { color: #666; }
+    .detail-view .detail-grid dd { margin: 0; }
+    .detail-view .detail-protocol-rules { margin-top: 12px; border: 1px solid #999; border-radius: 0; }
+    .detail-view .detail-protocol-rules-summary { padding: 10px 12px; font-size: 14px; font-weight: 600; cursor: pointer; list-style: none; background: #f0f0f0; }
+    .detail-view .detail-protocol-rules-summary::-webkit-details-marker { display: none; }
+    .detail-view .detail-protocol-rules-summary::before { content: '▸ '; display: inline-block; width: 1em; }
+    .detail-view .detail-protocol-rules[open] .detail-protocol-rules-summary::before { content: '▾ '; }
+    .detail-view .detail-protocol-rules-content { padding: 12px; border-top: 1px solid #ddd; background: #fff; }
+    .detail-view .detail-protocol-rules-content .detail-grid { margin: 0; }
+    .detail-view .next-steps { background: #f8f9fa; border: 2px solid #333; padding: 14px; margin-top: 8px; }
+    .detail-view .next-steps h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; color: #333; }
+    .detail-view .next-steps p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: #333; }
+    .detail-view .next-steps p:last-child { margin-bottom: 0; }
+    .detail-view .next-steps .actions { margin-top: 10px; padding-top: 10px; border-top: 1px solid #ccc; }
+    .detail-view .actions .btn { margin-right: 8px; margin-bottom: 8px; }
+    .detail-view .detail-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+    .detail-view .detail-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border: 2px solid #333; border-radius: 0; }
+    .detail-view .detail-chip-phase { display: inline-block; background: #fff; color: #555; padding: 4px 10px; font-size: 12px; font-weight: 600; border: 1px solid #999; border-radius: 0; }
+    .detail-view .status-badge-detail { display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 700; border: 2px solid; border-radius: 0; background: transparent; }
+    .detail-view .status-badge-detail.status-upcoming { color: #0d47a1; border-color: #0d47a1; }
+    .detail-view .status-badge-detail.status-awaiting { color: #e65100; border-color: #e65100; }
+    .detail-view .status-badge-detail.status-action { color: #b71c1c; border-color: #b71c1c; }
+    .detail-view .status-badge-detail.status-completed { color: #1b5e20; border-color: #1b5e20; }
+    .detail-view .status-badge-detail.status-recall { color: #4a148c; border-color: #4a148c; }
+    .detail-view .threshold-edit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .detail-view .threshold-edit input { width: 80px; padding: 6px 10px; border: 2px solid #333; font-size: 14px; }
+    .detail-view .threshold-edit .btn { padding: 6px 12px; font-size: 14px; }
+    .detail-view #detail-psa-edit { margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; }
+    .detail-view .detail-psa-edit-hint { font-size: 13px; color: #333; margin: 0 0 12px; line-height: 1.5; font-weight: 500; }
+    .detail-view .psa-result-form { display: grid; grid-template-columns: auto 1fr auto; gap: 12px 20px; align-items: end; max-width: 440px; }
+    .detail-view .psa-result-form .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .detail-view .psa-result-form .form-field label { font-size: 13px; font-weight: 600; color: #333; }
+    .detail-view .psa-result-form input[type="text"] { width: 88px; min-width: 88px; padding: 8px 12px; border: 2px solid #333; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .detail-view .psa-result-form input[type="date"] { min-width: 11rem; padding: 8px 12px; border: 2px solid #333; font-size: 14px; }
+    .detail-view .psa-result-form .btn { padding: 8px 16px; font-size: 14px; align-self: end; }
+    @media (max-width: 380px) {
+      .detail-view .psa-result-form { grid-template-columns: 1fr; }
+      .detail-view .psa-result-form .btn { align-self: start; }
+    }
+    .detail-view .detail-edit-hint { font-size: 11px; color: #666; margin: 0; line-height: 1.3; }
+    .detail-view .detail-edit-label { font-size: 12px; color: #666; margin: 0; align-self: center; }
+    .detail-view .threshold-legend { font-size: 11px; color: #666; margin: 8px 0 0; }
+    .detail-view .threshold-asterisk { font-weight: 700; color: #333; }
+    .detail-view .detail-edit-inline { margin-left: 8px; padding: 4px 10px; font-size: 12px; }
+    .detail-view .detail-editable-grid { margin: 0; }
+    .detail-view .detail-editable-row { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+    .detail-view .detail-editable-value { flex: 1 1 auto; min-width: 0; }
+    .detail-view .detail-editable-btn { flex-shrink: 0; padding: 4px 10px; font-size: 12px; }
+    .detail-view .detail-editable-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; margin-top: 4px; }
+    .detail-view .detail-editable-edit.hidden { display: none !important; }
+    .detail-view .detail-editable-input { padding: 6px 10px; border: 2px solid #333; font-size: 14px; max-width: 320px; }
+    .detail-view .detail-editable-input[type="text"] { min-width: 200px; }
+    .detail-view .detail-editable-save { padding: 6px 12px; font-size: 13px; }
+    .detail-view .detail-psa-delta { font-size: 13px; font-variant-numeric: tabular-nums; margin-left: 8px; }
+    .detail-view .detail-psa-delta.detail-delta-above { font-weight: 600; color: #b71c1c; }
+    .detail-view .detail-psa-delta.detail-delta-below { color: #1b5e20; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 12px 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: none; z-index: 1000; }
+
+    /* Detail modal overlay */
+    #view-detail.detail-modal { position: fixed; inset: 0; z-index: 500; display: flex; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; background: rgba(0,0,0,0.4); }
+    #view-detail.detail-modal.hidden { display: none; }
+    #view-detail .modal-dialog { background: #fff; border: 2px solid #333; border-radius: 0; width: 100%; max-width: 720px; margin: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.2); position: relative; }
+    #view-detail .modal-body { padding: 24px; padding-top: 48px; max-height: calc(100vh - 48px); overflow-y: auto; }
+    #view-detail .modal-close { position: absolute; top: 12px; right: 12px; padding: 6px 12px; font-size: 14px; }
+    #view-detail .detail-view { border: none; margin: 0; max-width: none; padding: 0; }
+
+    /* Wizard */
+    #view-wizard .header-wizard { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    #view-wizard .wizard-close { padding: 6px 12px; font-size: 14px; }
+    #view-wizard .wizard-wrap { position: relative; max-width: 560px; margin: 0 auto; }
+    #view-wizard .wizard-stepper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 24px; padding: 12px 0; border-bottom: none; }
+    #view-wizard .wizard-stepper .step { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; border: 2px solid #999; background: #fff; color: #666; }
+    #view-wizard .wizard-stepper .step.active { border-color: #333; background: #333; color: #fff; }
+    #view-wizard .wizard-stepper .step.done { border-color: #333; color: #333; background: #fff; }
+    #view-wizard .wizard-stepper .step-connector { width: 24px; height: 2px; background: #999; }
+    #view-wizard .wizard h2 { margin: 0 0 4px; font-size: 1.2rem; }
+    #view-wizard .step-label { font-size: 12px; color: #555; margin-bottom: 16px; }
+
+    /* Discard modal */
+    #wizard-discard-modal { position: fixed; inset: 0; z-index: 600; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,0.4); }
+    #wizard-discard-modal.visible { display: flex; }
+    #wizard-discard-modal .modal-inner { background: #fff; border: 2px solid #333; padding: 24px; max-width: 360px; }
+    #wizard-discard-modal h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    #wizard-discard-modal p { margin: 0 0 16px; font-size: 14px; color: #555; }
+    #wizard-discard-modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+  <!-- Dashboard -->
+  <div id="view-dashboard">
+    <header class="header">
+      <h1>PSA Monitoring</h1>
+      <div class="header-actions">
+        <div class="view-toggle">
+          <a href="#" id="link-kanban" class="active">Board</a>
+          <a href="#" id="link-list">List</a>
+        </div>
+        <a href="#" class="btn btn-primary" id="btn-add-patient">Add New Patient</a>
+      </div>
+    </header>
+    <main>
+      <!-- Board view -->
+      <div id="kanban-view" class="board-container">
+        <div class="board">
+          <div class="column">
+            <div class="column-header">Upcoming</div>
+            <div class="column-note">PSA test due in the next 4 weeks. Generate blood forms or send reminders. Due dates come from treatment start and protocol.</div>
+            <div class="column-cards">
+              <div class="card" data-detail="john-smith" data-status="upcoming">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">123 456 7890</div>
+                <div class="card-name">Smith, John • 68</div>
+                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>0.02</strong> <span class="card-threshold">/ 0.03</span></div>
+                  <div class="card-sparkline"><span style="height:93%"></span><span style="height:83%"></span><span style="height:70%"></span><span style="height:67%"></span></div>
+                </div>
+                <div class="card-due-line">Due 12 Apr 2025 · 4‑monthly</div>
+                <div class="card-last-updated">Last updated: 28 Jan 2025</div>
+              </div>
+              <div class="card" data-detail="alan-jones" data-status="upcoming">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">987 654 3210</div>
+                <div class="card-name">Jones, Alan • 72</div>
+                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>1.2</strong> <span class="card-threshold">/ 2.0</span></div>
+                  <div class="card-sparkline"><span style="height:60%"></span></div>
+                </div>
+                <div class="card-due-line">Due 28 Mar 2025 · 6‑monthly</div>
+                <div class="card-last-updated">Last updated: 5 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="nicholas-bell" data-status="upcoming">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">111 333 5555</div>
+                <div class="card-name">Bell, Nicholas • 67</div>
+                <div class="card-chips"><span class="card-chip-protocol">Brachy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>0.15</strong> <span class="card-threshold">/ 0.5</span></div>
+                  <div class="card-sparkline"><span style="height:40%"></span><span style="height:30%"></span></div>
+                </div>
+                <div class="card-due-line">Due 28 Mar 2025 · 6‑monthly</div>
+                <div class="card-last-updated">Last updated: 6 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="david-patel" data-status="upcoming">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">300 400 5002</div>
+                <div class="card-name">Patel, David • 61</div>
+                <div class="card-chips"><span class="card-chip-protocol">Intermittent hormones</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>6.0</strong> <span class="card-threshold">/ 10.0</span></div>
+                  <div class="card-sparkline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div>
+                </div>
+                <div class="card-due-line">Due 1 Mar 2025 · 6‑monthly</div>
+                <div class="card-last-updated">Last updated: 3 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="frank-wright" data-status="upcoming">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">400 500 6003</div>
+                <div class="card-name">Wright, Frank • 76</div>
+                <div class="card-chips"><span class="card-chip-protocol">Watchful waiting</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>18</strong> <span class="card-threshold">/ 30.0 ✓</span></div>
+                  <div class="card-sparkline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div>
+                </div>
+                <div class="card-due-line">Next due Jun 2025</div>
+                <div class="card-last-updated">Last updated: 2 Feb 2025</div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="column-header">Awaiting Results</div>
+            <div class="column-note">Blood taken or sample received. When the result arrives, the system moves the card to Completed (PSA ≤ threshold) or Review Required (above).</div>
+            <div class="column-cards">
+              <div class="card" data-detail="david-brown" data-status="awaiting">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">555 111 2233</div>
+                <div class="card-name">Brown, David • 65</div>
+                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 3</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>0.025</strong></div>
+                  <div class="card-sparkline"><span style="height:100%"></span><span style="height:91%"></span><span style="height:86%"></span><span style="height:83%"></span><span style="height:83%"></span></div>
+                </div>
+                <div class="card-due-line">Waiting for 5 days ago</div>
+                <div class="card-last-updated">Last updated: 2 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="robert-wilson" data-status="awaiting">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">444 555 6677</div>
+                <div class="card-name">Wilson, Robert • 70</div>
+                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA —</div>
+                  <div class="card-sparkline" aria-label="No PSA results on record"></div>
+                </div>
+                <div class="card-due-line">Waiting for 12 days ago</div>
+                <div class="card-last-updated">Last updated: 27 Jan 2025</div>
+              </div>
+            </div>
+          </div>
+          <div class="column alert">
+            <div class="column-header">Review Required</div>
+            <div class="column-note">Latest PSA is above this patient’s threshold. Review trend and result; then mark Completed (acceptable) or move to Recall (back to clinic).</div>
+            <div class="column-cards">
+              <div class="card" data-detail="michael-clark" data-status="action">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">777 888 9900</div>
+                <div class="card-name">Clark, Michael • 69</div>
+                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line"><strong>PSA 0.06</strong> <span class="card-threshold">/ 0.03</span></div>
+                  <div class="card-sparkline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div>
+                </div>
+                <div class="card-context"><span class="card-context-icon" aria-hidden="true">↑</span> Δ +0.03 vs threshold</div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary" data-action="move-recall">Move to Recall</button>
+                </div>
+                <div class="card-last-updated">Last updated: 28 Jan 2025</div>
+              </div>
+            </div>
+          </div>
+          <div class="column completed">
+            <div class="column-header">Completed</div>
+            <div class="column-note">PSA at or below threshold. Card leaves the board after 48h; patient reappears in Upcoming when next test is due. <em>See List → Completed for all completed patients (not all shown on board).</em></div>
+            <div class="column-cards">
+              <div class="card" data-detail="peter-green" data-status="completed">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">222 333 4455</div>
+                <div class="card-name">Green, Peter • 67</div>
+                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 4</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">PSA <strong>0.02</strong> <span class="card-threshold">/ 0.03 ✓</span></div>
+                  <div class="card-sparkline"><span style="height:100%"></span><span style="height:88%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:69%"></span><span style="height:63%"></span></div>
+                </div>
+                <div class="card-due-line">Next due Sep 2025</div>
+                <div class="card-last-updated">Last updated: 5 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="ian-collins" data-status="completed">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">200 300 4001</div>
+                <div class="card-name">Collins, Ian • 64</div>
+                <div class="card-chips"><span class="card-chip-protocol">ADT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">PSA <strong>2.5</strong> <span class="card-threshold">/ 4.0 ✓</span></div>
+                  <div class="card-sparkline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div>
+                </div>
+                <div class="card-due-line">Next due Apr 2025</div>
+                <div class="card-last-updated">Last updated: 4 Feb 2025</div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="column-header">Recall</div>
+            <div class="column-note">No longer on self‑management. Discharge from this list when appropriate; record is kept for audit.</div>
+            <div class="column-cards">
+              <div class="card" data-detail="james-taylor" data-status="recall">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">666 777 8899</div>
+                <div class="card-name">Taylor, James • 71</div>
+                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line"><strong>PSA 0.12</strong> <span class="card-threshold">/ 0.03*</span></div>
+                  <div class="card-sparkline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div>
+                </div>
+                <div class="card-last-updated">Last updated: 30 Jan 2025</div>
+              </div>
+              <div class="card" data-detail="philip-hayes" data-status="recall">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">555 666 7788</div>
+                <div class="card-name">Hayes, Philip • 68</div>
+                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line"><strong>PSA 2.4</strong> <span class="card-threshold">/ 2.0</span></div>
+                  <div class="card-sparkline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div>
+                </div>
+                <div class="card-last-updated">Last updated: 29 Jan 2025</div>
+              </div>
+              <div class="card" data-detail="stephen-webb" data-status="recall">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">999 000 1122</div>
+                <div class="card-name">Webb, Stephen • 70</div>
+                <div class="card-chips"><span class="card-chip-protocol">Brachy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line"><strong>PSA 0.7</strong> <span class="card-threshold">/ 0.5</span></div>
+                  <div class="card-sparkline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div>
+                </div>
+                <div class="card-last-updated">Last updated: 4 Feb 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="card-actions-dropdown" class="card-actions-dropdown" role="menu" aria-label="Card actions"></div>
+      </div>
+
+      <!-- List view -->
+      <div id="list-view" class="list-view hidden">
+        <div class="tabs">
+          <button type="button" data-tab="upcoming" class="active">Upcoming</button>
+          <button type="button" data-tab="awaiting">Awaiting</button>
+          <button type="button" data-tab="action">Action Required</button>
+          <button type="button" data-tab="completed">Completed</button>
+          <button type="button" data-tab="recall">Recall</button>
+          <button type="button" data-tab="all">All</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>NHS No</th>
+              <th class="col-status">Status</th>
+              <th>Protocol</th>
+              <th>Phase</th>
+              <th>Trend</th>
+              <th>Last PSA (ng/mL)</th>
+              <th>Threshold</th>
+              <th>Δ</th>
+              <th>Next Due</th>
+              <th>Last updated</th>
+            </tr>
+          </thead>
+          <tbody id="list-tbody">
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="john-smith"><td>Smith, John (68)</td><td>123 456 7890</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Radical prostatectomy</td><td>Year 1</td><td><div class="sparkline-inline"><span style="height:93%"></span><span style="height:83%"></span><span style="height:70%"></span><span style="height:67%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>12 Apr 2025</td><td>28 Jan 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="alan-jones"><td>Jones, Alan (72)</td><td>987 654 3210</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>EBRT</td><td>Year 1</td><td><div class="sparkline-inline"><span style="height:60%"></span></div></td><td>1.2</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.8 below threshold">↓ −0.8</span></td><td>28 Mar 2025</td><td>5 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="nicholas-bell"><td>Bell, Nicholas (67)</td><td>111 333 5555</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Brachy</td><td>Year 1</td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:30%"></span></div></td><td>0.15</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.35 below threshold">↓ −0.35</span></td><td>28 Mar 2025</td><td>6 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="david-patel"><td>Patel, David (61)</td><td>300 400 5002</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Intermittent hormones</td><td>Year 1</td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div></td><td>6.0</td><td class="threshold-cell">10.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="4.0 below threshold">↓ −4.0</span></td><td>1 Mar 2025</td><td>3 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="frank-wright"><td>Wright, Frank (76)</td><td>400 500 6003</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Watchful waiting</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div></td><td>18</td><td class="threshold-cell">30.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="12 below threshold">↓ −12</span></td><td>Jun 2025</td><td>2 Feb 2025</td></tr>
+            <tr data-tab="awaiting" data-status="awaiting" data-detail="david-brown"><td>Brown, David (65)</td><td>555 111 2233</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td>Radical prostatectomy</td><td>Year 3</td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:91%"></span><span style="height:86%"></span><span style="height:83%"></span><span style="height:83%"></span></div></td><td>0.025</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>—</td><td>2 Feb 2025</td></tr>
+            <tr data-tab="awaiting" data-status="awaiting" data-detail="robert-wilson"><td>Wilson, Robert (70)</td><td>444 555 6677</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td>EBRT</td><td>Year 2</td><td><div class="sparkline-inline" aria-label="No PSA results on record"></div></td><td>—</td><td class="threshold-cell">2.0</td><td class="list-delta-cell">—</td><td>—</td><td>27 Jan 2025</td></tr>
+            <tr data-tab="action" data-status="action" data-detail="michael-clark"><td>Clark, Michael (69)</td><td>777 888 9900</td><td class="col-status"><span class="status-badge status-action">Review required</span></td><td>Radical prostatectomy</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div></td><td>0.06</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.03 above threshold">↑ +0.03</span></td><td>Review</td><td>28 Jan 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="peter-green"><td>Green, Peter (67)</td><td>222 333 4455</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 4</td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:88%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:69%"></span><span style="height:63%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>Sep 2025</td><td>5 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="george-walsh"><td>Walsh, George (69)</td><td>111 222 3344</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 3</td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:48%"></span><span style="height:45%"></span></div></td><td>0.01</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.02 below threshold">↓ −0.02</span></td><td>Sep 2025</td><td>3 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="terence-bennett"><td>Bennett, Terence (74)</td><td>333 444 5566</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>EBRT</td><td>Year 4</td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:28%"></span><span style="height:30%"></span><span style="height:32%"></span></div></td><td>0.8</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.2 below threshold">↓ −1.2</span></td><td>Sep 2025</td><td>1 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="kevin-shaw"><td>Shaw, Kevin (66)</td><td>888 999 0011</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:38%"></span><span style="height:35%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>May 2025</td><td>15 Jan 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="ian-collins"><td>Collins, Ian (64)</td><td>200 300 4001</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>ADT</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div></td><td>2.5</td><td class="threshold-cell">4.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.5 below threshold">↓ −1.5</span></td><td>Apr 2025</td><td>4 Feb 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="james-taylor"><td>Taylor, James (71)</td><td>666 777 8899</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>Radical prostatectomy</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div></td><td>0.12</td><td class="threshold-cell">0.03*</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.09 above threshold">↑ +0.09</span></td><td>Recall</td><td>30 Jan 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>EBRT</td><td>Year 2</td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Recall</td><td>29 Jan 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="stephen-webb"><td>Webb, Stephen (70)</td><td>999 000 1122</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>Brachy</td><td>Year 1</td><td><div class="sparkline-inline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div></td><td>0.7</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.2 above threshold">↑ +0.2</span></td><td>Recall</td><td>4 Feb 2025</td></tr>
+          </tbody>
+        </table>
+        <p class="threshold-legend" id="list-threshold-legend">Δ = difference from threshold (PSA − threshold). ↑ above threshold, ↓ below. Shown when a result is available. * Override of protocol default.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Patient Wizard -->
+  <div id="view-wizard" class="hidden">
+    <header class="header header-wizard">
+      <h1>Add New Patient</h1>
+      <button type="button" class="btn btn-secondary wizard-close" id="wizard-close" aria-label="Close">× Close</button>
+    </header>
+    <main>
+      <div class="wizard-wrap">
+        <div class="wizard-stepper" aria-label="Progress">
+          <span class="step" id="stepper-1" aria-current="true">1</span>
+          <span class="step-connector"></span>
+          <span class="step" id="stepper-2">2</span>
+          <span class="step-connector"></span>
+          <span class="step" id="stepper-3">3</span>
+        </div>
+      <div class="wizard">
+        <!-- Step 1 -->
+        <div id="wizard-step1">
+          <h2>1. Patient identification</h2>
+          <p class="step-label">Search by NHS Number. Demographics are fetched from PAS.</p>
+          <div class="form-group">
+            <label for="nhs-number">NHS Number</label>
+            <input type="text" id="nhs-number" placeholder="e.g. 123 456 7890" value="">
+          </div>
+          <button type="button" class="btn btn-primary" id="wizard-search">Search</button>
+          <div id="step1-result" class="hidden">
+            <div class="confirm-box">
+              <strong>Is this the correct patient?</strong>
+              <p id="pas-name">—</p>
+              <p id="pas-dob">DOB: —</p>
+              <p id="pas-nhs">NHS No: —</p>
+            </div>
+            <div class="actions wizard-nav">
+            <span aria-hidden="true"></span>
+            <button type="button" class="btn btn-primary" id="wizard-step1-next">Continue</button>
+          </div>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div id="wizard-step2" class="hidden">
+          <h2>2. Protocol anchoring</h2>
+          <p class="step-label">Select pathway and date of surgery / treatment start.</p>
+          <div class="form-group">
+            <label for="wizard-diagnoses">Diagnoses (optional)</label>
+            <div class="diagnosis-select-wrap">
+              <input type="text" id="wizard-diagnoses" list="diagnosis-list" placeholder="Choose or type…" aria-describedby="wizard-diagnoses-hint" autocomplete="off" />
+              <span class="diagnosis-chevron" aria-hidden="true">▼</span>
+            </div>
+            <datalist id="diagnosis-list">
+              <option value="Localised prostate cancer">
+              <option value="Locally advanced prostate cancer">
+              <option value="Metastatic prostate cancer">
+              <option value="Recurrent prostate cancer">
+              <option value="Prostate cancer (unspecified)">
+              <option value="BPH">
+              <option value="Localised prostate cancer, BPH">
+              <option value="Prostate cancer on active surveillance">
+              <option value="Prostate cancer on watchful waiting">
+            </datalist>
+            <p id="wizard-diagnoses-hint" class="wizard-hint">Confirm or add diagnoses; used for protocol and triage. Choose from the list or type freely.</p>
+          </div>
+          <fieldset class="protocol-radios" aria-describedby="protocol-help">
+            <legend class="sr-only">Protocol</legend>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-radical" value="radical" />
+              <label for="protocol-radical">Radical Prostatectomy</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-ebrt" value="ebrt" />
+              <label for="protocol-ebrt">EBRT (external beam radiotherapy)</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-brachy" value="brachytherapy" />
+              <label for="protocol-brachy">Brachytherapy</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-adt" value="primary-adt" />
+              <label for="protocol-adt">Primary ADT (androgen deprivation therapy)</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-intermittent" value="intermittent-hormones" />
+              <label for="protocol-intermittent">Intermittent hormones</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-watchful" value="watchful-waiting" />
+              <label for="protocol-watchful">Watchful waiting</label>
+            </div>
+          </fieldset>
+          <p id="protocol-help" class="protocol-help hidden" role="status"></p>
+          <div class="form-group">
+            <label for="anchor-date">Date of surgery / treatment start</label>
+            <input type="date" id="anchor-date" value="2023-06-15">
+          </div>
+          <div id="phase-output" class="phase-output">Current phase: <strong id="phase-text">—</strong></div>
+          <div class="actions wizard-nav">
+            <button type="button" class="btn btn-secondary wizard-back" id="wizard-step2-back">Back</button>
+            <button type="button" class="btn btn-primary" id="wizard-step2-next">Continue</button>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div id="wizard-step3" class="hidden">
+          <h2>3. Threshold & baseline</h2>
+          <p class="step-label">Set personal threshold and last known PSA for the trend.</p>
+          <div class="form-group">
+            <label>On 5‑alpha reductase inhibitor?</label>
+            <fieldset class="wizard-5ari" aria-describedby="wizard-5ari-hint">
+              <legend class="sr-only">5-ARI medication</legend>
+              <div class="protocol-option">
+                <input type="radio" name="wizard-5ari" id="wizard-5ari-none" value="none" checked />
+                <label for="wizard-5ari-none">None</label>
+              </div>
+              <div class="protocol-option">
+                <input type="radio" name="wizard-5ari" id="wizard-5ari-finasteride" value="finasteride" />
+                <label for="wizard-5ari-finasteride">Finasteride</label>
+              </div>
+              <div class="protocol-option">
+                <input type="radio" name="wizard-5ari" id="wizard-5ari-dutasteride" value="dutasteride" />
+                <label for="wizard-5ari-dutasteride">Dutasteride</label>
+              </div>
+            </fieldset>
+            <p id="wizard-5ari-hint" class="wizard-hint">PSA is often lower on 5‑ARI; threshold interpretation will account for this.</p>
+          </div>
+          <div class="form-group">
+            <label>Protocol default threshold</label>
+            <input type="text" id="protocol-threshold" class="readonly" readonly value="0.03">
+          </div>
+          <div class="form-group">
+            <label for="personal-threshold">Threshold</label>
+            <input type="text" id="personal-threshold" value="0.03" placeholder="Same as protocol or override">
+            <p class="wizard-hint">Override the protocol default if needed.</p>
+          </div>
+          <div class="form-group">
+            <label for="last-psa">Last known PSA</label>
+            <input type="text" id="last-psa" placeholder="e.g. 0.02" value="">
+          </div>
+          <div class="form-group">
+            <label for="last-psa-date">Date of last PSA</label>
+            <input type="date" id="last-psa-date" value="">
+          </div>
+          <div class="actions wizard-nav">
+            <button type="button" class="btn btn-secondary wizard-back" id="wizard-step3-back">Back</button>
+            <button type="button" class="btn btn-primary" id="wizard-submit">Add patient</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Wizard discard confirmation -->
+  <div id="wizard-discard-modal" role="dialog" aria-labelledby="discard-modal-title" aria-modal="true">
+    <div class="modal-inner">
+      <h3 id="discard-modal-title">Discard changes?</h3>
+      <p>Your progress will be lost. Are you sure you want to close?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="discard-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="discard-confirm">Discard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card / Patient detail (modal overlay) -->
+  <div id="view-detail" class="detail-modal hidden" aria-modal="true" aria-labelledby="detail-modal-title" role="dialog">
+    <div class="modal-dialog">
+      <button type="button" class="btn btn-secondary modal-close" id="detail-close" aria-label="Close">× Close</button>
+      <div class="modal-body">
+        <h1 id="detail-modal-title" class="sr-only">Patient detail</h1>
+        <div class="detail-view">
+        <div class="section">
+          <div class="section-title">Patient</div>
+          <h2 id="detail-name">—</h2>
+          <dl class="detail-grid">
+            <dt>NHS No</dt><dd id="detail-nhs">—</dd>
+            <dt>DOB</dt><dd id="detail-dob">—</dd>
+            <dt>Last updated</dt><dd id="detail-last-updated">—</dd>
+          </dl>
+          <div class="detail-chips">
+            <span class="detail-chip-protocol" id="detail-chip-protocol">—</span>
+            <span class="detail-chip-phase" id="detail-chip-phase">—</span>
+            <span id="detail-status-badge"></span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Clinical context</div>
+          <dl class="detail-grid detail-editable-grid">
+            <dt>Diagnoses</dt>
+            <dd class="detail-editable-row">
+              <span id="detail-diagnoses-display" class="detail-editable-value">—</span>
+              <div id="detail-diagnoses-edit" class="detail-editable-edit hidden">
+                <div class="diagnosis-select-wrap">
+                  <input type="text" id="detail-diagnoses-input" class="detail-editable-input" list="diagnosis-list" placeholder="Choose or type…" aria-label="Diagnoses" autocomplete="off" />
+                  <span class="diagnosis-chevron" aria-hidden="true">▼</span>
+                </div>
+                <button type="button" class="btn btn-secondary detail-editable-save" id="detail-diagnoses-save">Save</button>
+              </div>
+              <button type="button" class="btn btn-secondary detail-editable-btn" id="detail-diagnoses-edit-btn" aria-label="Edit diagnoses">Edit</button>
+            </dd>
+            <dt>5‑alpha reductase inhibitor</dt>
+            <dd class="detail-editable-row">
+              <span id="detail-5ari-display" class="detail-editable-value">—</span>
+              <div id="detail-5ari-edit" class="detail-editable-edit hidden">
+                <select id="detail-5ari-input" class="detail-editable-input" aria-label="5-alpha reductase inhibitor">
+                  <option value="none">None</option>
+                  <option value="finasteride">Finasteride</option>
+                  <option value="dutasteride">Dutasteride</option>
+                </select>
+                <button type="button" class="btn btn-secondary detail-editable-save" id="detail-5ari-save">Save</button>
+              </div>
+              <button type="button" class="btn btn-secondary detail-editable-btn" id="detail-5ari-edit-btn" aria-label="Edit 5-ARI">Edit</button>
+            </dd>
+          </dl>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Pathway</div>
+          <dl class="detail-grid">
+            <dt>Protocol</dt><dd id="detail-protocol">—</dd>
+            <dt>Phase</dt><dd id="detail-phase">—</dd>
+            <dt>Monitoring</dt><dd id="detail-frequency">—</dd>
+            <dt>Treatment start</dt><dd id="detail-anchor">—</dd>
+          </dl>
+          <details class="detail-protocol-rules" aria-label="Protocol rules (varies by pathway)">
+            <summary class="detail-protocol-rules-summary">Protocol rules (schedule &amp; PSA guideline)</summary>
+            <div class="detail-protocol-rules-content">
+              <dl class="detail-grid">
+                <dt>Schedule (protocol)</dt><dd id="detail-schedule-summary">—</dd>
+                <dt>Protocol guideline</dt><dd id="detail-protocol-guideline">—</dd>
+              </dl>
+            </div>
+          </details>
+        </div>
+
+        <div class="section">
+          <div class="section-title">PSA &amp; threshold</div>
+          <div class="detail-chart-wrap">
+            <p id="detail-sparkline-empty" class="detail-sparkline-empty hidden" aria-live="polite">No PSA results on record.</p>
+            <div class="detail-sparkline" id="detail-sparkline"></div>
+            <div class="detail-sparkline-labels" id="detail-sparkline-labels" aria-hidden="true"></div>
+          </div>
+          <dl class="detail-grid" style="margin-top:12px">
+            <dt>Latest PSA</dt>
+            <dd>
+              <span id="detail-latest-psa-wrap"><strong id="detail-latest-psa">—</strong> <span id="detail-latest-psa-unit" class="detail-psa-unit">ng/mL</span> <span id="detail-psa-delta" class="detail-psa-delta hidden" aria-label="Difference from threshold"></span></span>
+              <div id="detail-psa-edit" class="hidden">
+                <p class="detail-psa-edit-hint" id="detail-psa-edit-hint"></p>
+                <div class="psa-result-form">
+                  <div class="form-field">
+                    <label for="detail-psa-result-input">PSA value (ng/mL)</label>
+                    <input type="text" id="detail-psa-result-input" placeholder="e.g. 0.06" inputmode="decimal" aria-label="PSA result" />
+                  </div>
+                  <div class="form-field">
+                    <label for="detail-psa-result-date">Date of result</label>
+                    <input type="date" id="detail-psa-result-date" aria-label="Date of result" />
+                  </div>
+                  <button type="button" class="btn btn-secondary" id="detail-psa-result-save">Save result</button>
+                </div>
+              </div>
+            </dd>
+            <dt>Protocol threshold</dt><dd id="detail-protocol-threshold">—</dd>
+            <dt>Threshold <span id="detail-threshold-asterisk" class="threshold-asterisk hidden" aria-hidden="true">*</span></dt>
+            <dd>
+              <div class="threshold-edit">
+                <input type="text" id="detail-threshold-input" value="" placeholder="Same as protocol or override" inputmode="decimal" aria-label="Threshold" />
+                <button type="button" class="btn btn-secondary" id="detail-threshold-save">Save threshold</button>
+              </div>
+              <p class="detail-edit-hint" style="margin-top:4px">Override the protocol default if needed.</p>
+            </dd>
+          </dl>
+          <p class="threshold-legend">Δ = PSA − threshold (↑ above, ↓ below). * Override of protocol default</p>
+          <p id="detail-5ari-note" class="threshold-legend detail-5ari-note hidden">Threshold interpretation accounts for 5‑ARI.</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Key dates</div>
+          <dl class="detail-grid">
+            <dt>Next test due</dt><dd id="detail-next-due">—</dd>
+            <dt id="detail-extra-date-label">Last bleed</dt><dd id="detail-extra-date">—</dd>
+          </dl>
+        </div>
+
+        <div class="section" id="detail-next-steps-section">
+          <div class="section-title">Actions</div>
+          <div class="next-steps" id="detail-next-steps">
+            <h3 id="detail-next-steps-title">—</h3>
+            <p id="detail-next-steps-body">—</p>
+            <div class="actions" id="detail-next-steps-actions"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function() {
+      var viewDashboard = document.getElementById('view-dashboard');
+      var viewWizard = document.getElementById('view-wizard');
+      var viewDetail = document.getElementById('view-detail');
+      var kanbanView = document.getElementById('kanban-view');
+      var listView = document.getElementById('list-view');
+      var linkKanban = document.getElementById('link-kanban');
+      var linkList = document.getElementById('link-list');
+      var btnAddPatient = document.getElementById('btn-add-patient');
+      var listTbody = document.getElementById('list-tbody');
+      var listTabs = document.querySelectorAll('.list-view .tabs button');
+      var toastEl = document.getElementById('toast');
+      var currentDetailId = null;
+
+      function showView(view) {
+        viewDashboard.classList.add('hidden');
+        viewWizard.classList.add('hidden');
+        viewDetail.classList.add('hidden');
+        view.classList.remove('hidden');
+      }
+
+      function openDetailModal() { viewDetail.classList.remove('hidden'); }
+      function closeDetailModal() { viewDetail.classList.add('hidden'); }
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('visible');
+        setTimeout(function() { toastEl.classList.remove('visible'); }, 3000);
+      }
+
+      // View toggle: Board / List
+      linkKanban.addEventListener('click', function(e) {
+        e.preventDefault();
+        linkKanban.classList.add('active');
+        linkList.classList.remove('active');
+        kanbanView.classList.remove('hidden');
+        listView.classList.add('hidden');
+      });
+      linkList.addEventListener('click', function(e) {
+        e.preventDefault();
+        linkList.classList.add('active');
+        linkKanban.classList.remove('active');
+        listView.classList.remove('hidden');
+        kanbanView.classList.add('hidden');
+        applyListTab();
+      });
+
+      function applyListTab() {
+        var activeTabBtn = document.querySelector('.list-view .tabs button.active');
+        var tab = activeTabBtn ? activeTabBtn.getAttribute('data-tab') : 'upcoming';
+        var rows = listTbody.querySelectorAll('tr');
+        rows.forEach(function(row) {
+          var rowTab = row.getAttribute('data-tab');
+          row.style.display = (tab === 'all' || rowTab === tab) ? '' : 'none';
+        });
+      }
+
+      var wizardStep1 = document.getElementById('wizard-step1');
+      var wizardStep2 = document.getElementById('wizard-step2');
+      var wizardStep3 = document.getElementById('wizard-step3');
+      var stepper1 = document.getElementById('stepper-1');
+      var stepper2 = document.getElementById('stepper-2');
+      var stepper3 = document.getElementById('stepper-3');
+      var discardModal = document.getElementById('wizard-discard-modal');
+
+      function setWizardStep(step) {
+        stepper1.classList.remove('active', 'done');
+        stepper2.classList.remove('active', 'done');
+        stepper3.classList.remove('active', 'done');
+        stepper1.setAttribute('aria-current', 'false');
+        stepper2.setAttribute('aria-current', 'false');
+        stepper3.setAttribute('aria-current', 'false');
+        if (step >= 1) { stepper1.classList.add(step > 1 ? 'done' : 'active'); stepper1.setAttribute('aria-current', step === 1 ? 'step' : 'false'); }
+        if (step >= 2) { stepper2.classList.add(step > 2 ? 'done' : 'active'); stepper2.setAttribute('aria-current', step === 2 ? 'step' : 'false'); }
+        if (step >= 3) { stepper3.classList.add('active'); stepper3.setAttribute('aria-current', 'step'); }
+      }
+
+      function getWizardStep() {
+        if (!wizardStep1.classList.contains('hidden')) return 1;
+        if (!wizardStep2.classList.contains('hidden')) return 2;
+        return 3;
+      }
+
+      // Add Patient
+      btnAddPatient.addEventListener('click', function(e) {
+        e.preventDefault();
+        showView(viewWizard);
+        wizardStep1.classList.remove('hidden');
+        wizardStep2.classList.add('hidden');
+        wizardStep3.classList.add('hidden');
+        document.getElementById('step1-result').classList.add('hidden');
+        document.getElementById('nhs-number').value = '';
+        var diagEl = document.getElementById('wizard-diagnoses');
+        if (diagEl) diagEl.value = '';
+        var ariNone = document.getElementById('wizard-5ari-none');
+        if (ariNone) ariNone.checked = true;
+        var radicalRadio = document.getElementById('protocol-radical');
+        if (radicalRadio) { radicalRadio.checked = true; }
+        setWizardStep(1);
+      });
+
+      document.getElementById('wizard-close').addEventListener('click', function() {
+        var step = getWizardStep();
+        if (step >= 2) {
+          discardModal.classList.add('visible');
+        } else {
+          showView(viewDashboard);
+        }
+      });
+      document.getElementById('discard-cancel').addEventListener('click', function() { discardModal.classList.remove('visible'); });
+      document.getElementById('discard-confirm').addEventListener('click', function() {
+        discardModal.classList.remove('visible');
+        showView(viewDashboard);
+      });
+      discardModal.addEventListener('click', function(e) { if (e.target === discardModal) discardModal.classList.remove('visible'); });
+
+      // Wizard Step 1: mock search
+      document.getElementById('wizard-search').addEventListener('click', function() {
+        document.getElementById('pas-name').textContent = 'Williams, Margaret';
+        document.getElementById('pas-dob').textContent = 'DOB: 15 March 1956';
+        document.getElementById('pas-nhs').textContent = 'NHS No: ' + (document.getElementById('nhs-number').value || '123 456 7890');
+        document.getElementById('step1-result').classList.remove('hidden');
+      });
+      document.getElementById('wizard-step1-next').addEventListener('click', function() {
+        wizardStep1.classList.add('hidden');
+        wizardStep2.classList.remove('hidden');
+        var r = document.getElementById('protocol-radical');
+        if (r && !document.querySelector('input[name="protocol"]:checked')) { r.checked = true; }
+        updateProtocolOutput();
+        setWizardStep(2);
+      });
+
+      document.getElementById('wizard-step2-back').addEventListener('click', function() {
+        wizardStep2.classList.add('hidden');
+        wizardStep1.classList.remove('hidden');
+        setWizardStep(1);
+      });
+
+      // Wizard Step 2: protocol radios, phase from anchor, schedule/guideline (aligned with Protocol Matrix)
+      // RP Y1 4‑monthly, Y2–5 6‑monthly, Y6–10 annual; EBRT/Brachy per matrix; Primary ADT all years 6‑monthly.
+      var protocolConfig = {
+        radical: {
+          threshold: '0.03',
+          help: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.',
+          scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.',
+          guidelineSummary: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.',
+          getFrequency: function(phaseYear) { return phaseYear === 1 ? '4‑monthly' : phaseYear >= 2 && phaseYear <= 5 ? '6‑monthly' : 'annual'; }
+        },
+        ebrt: {
+          threshold: '2.0',
+          help: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.',
+          scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.',
+          guidelineSummary: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; recall &gt; 2.0 (check for bounce).',
+          getFrequency: function(phaseYear) { return phaseYear >= 1 && phaseYear <= 5 ? '6‑monthly' : 'annual'; }
+        },
+        brachytherapy: {
+          threshold: '0.5',
+          help: 'PSA &lt; 0.5 ng/mL often used; confirm local policy. Matrix alternative: &lt; 2.0 ng/mL, Y1 3‑monthly.',
+          scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.',
+          guidelineSummary: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.',
+          getFrequency: function(phaseYear) { return phaseYear >= 1 && phaseYear <= 5 ? '6‑monthly' : 'annual'; }
+        },
+        'primary-adt': {
+          threshold: '4.0',
+          help: 'PSA &lt; 4.0 ng/mL on ADT. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).',
+          scheduleSummary: 'All years: 6‑monthly.',
+          guidelineSummary: 'PSA &lt; 4.0 ng/mL normal. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).',
+          getFrequency: function() { return '6‑monthly'; }
+        },
+        'intermittent-hormones': {
+          threshold: '10.0',
+          help: 'PSA &lt; 10.0 ng/mL in off‑treatment phase. Review if &gt; 10.0; recall if &gt; 10.0 (restart hormones).',
+          scheduleSummary: 'All years: 6‑monthly.',
+          guidelineSummary: 'PSA &lt; 10.0 ng/mL normal. Review if &gt; 10.0; recall if &gt; 10.0 (restart hormones).',
+          getFrequency: function() { return '6‑monthly'; }
+        },
+        'watchful-waiting': {
+          threshold: '30.0',
+          help: 'PSA &lt; 30.0 ng/mL. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.',
+          scheduleSummary: 'All years: 6‑monthly.',
+          guidelineSummary: 'PSA &lt; 30.0 ng/mL normal. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.',
+          getFrequency: function() { return '6‑monthly'; }
+        }
+      };
+      function getPhaseYearFromAnchor(anchorDateStr) {
+        if (!anchorDateStr) return 1;
+        var anchor = new Date(anchorDateStr);
+        var now = new Date();
+        var years = (now - anchor) / (365.25 * 24 * 60 * 60 * 1000);
+        return Math.min(10, Math.max(1, Math.floor(years) + 1));
+      }
+      var phaseOutput = document.getElementById('phase-output');
+      var phaseText = document.getElementById('phase-text');
+      var protocolHelpEl = document.getElementById('protocol-help');
+      function getSelectedProtocol() {
+        var r = document.querySelector('input[name="protocol"]:checked');
+        return r ? r.value : '';
+      }
+      function updateProtocolOutput() {
+        var v = getSelectedProtocol();
+        var cfg = protocolConfig[v];
+        var anchorInput = document.getElementById('anchor-date');
+        var anchorVal = anchorInput ? anchorInput.value : '';
+        var phaseYear = getPhaseYearFromAnchor(anchorVal);
+        if (cfg) {
+          var freq = cfg.getFrequency(phaseYear);
+          phaseText.textContent = 'Year ' + phaseYear + ' — ' + freq;
+          phaseOutput.classList.add('visible');
+          protocolHelpEl.innerHTML = cfg.help;
+          protocolHelpEl.classList.remove('hidden');
+        } else {
+          phaseText.textContent = '—';
+          phaseOutput.classList.remove('visible');
+          protocolHelpEl.textContent = '';
+          protocolHelpEl.classList.add('hidden');
+        }
+      }
+      document.querySelectorAll('input[name="protocol"]').forEach(function(radio) {
+        radio.addEventListener('change', updateProtocolOutput);
+      });
+      var anchorDateEl = document.getElementById('anchor-date');
+      if (anchorDateEl) anchorDateEl.addEventListener('change', updateProtocolOutput);
+      document.getElementById('wizard-step2-next').addEventListener('click', function() {
+        var v = getSelectedProtocol();
+        var cfg = protocolConfig[v] || { threshold: '0.03', phase: '—' };
+        wizardStep2.classList.add('hidden');
+        wizardStep3.classList.remove('hidden');
+        document.getElementById('protocol-threshold').value = cfg.threshold;
+        document.getElementById('personal-threshold').value = cfg.threshold;
+        setWizardStep(3);
+      });
+
+      document.getElementById('wizard-step3-back').addEventListener('click', function() {
+        wizardStep3.classList.add('hidden');
+        wizardStep2.classList.remove('hidden');
+        setWizardStep(2);
+      });
+
+      // Wizard Step 3: submit / cancel
+      document.getElementById('wizard-submit').addEventListener('click', function() {
+        showView(viewDashboard);
+        showToast('Patient added. Would land in Upcoming.');
+      });
+      // List tabs: filter rows by data-tab
+      listTabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          listTabs.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          applyListTab();
+        });
+      });
+
+      // Mock detail data (keyed by data-detail). psaHistory = chronological (oldest first). Clinician-reviewed: post-RP <0.03; EBRT/brachy higher; one no-result case (Wilson).
+      var detailData = {
+        'john-smith':     { name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 1', protocol: 'Radical Prostatectomy', phase: 'Year 1', frequency: '4‑monthly', anchor: '15 Dec 2024', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: '12 Apr 2025', lastBleed: '', status: 'upcoming', spark: [93,83,70,67], psaHistory: [0.028,0.025,0.021,0.02], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'alan-jones':     { name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2025', badge: 'EBRT | Year 1', protocol: 'EBRT', phase: 'Year 1', frequency: '6‑monthly', anchor: '10 Sep 2024', psa: '1.2', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [60], psaHistory: [1.2], medication5ARI: 'none', diagnoses: '', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'david-brown':    { name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '2 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', frequency: '6‑monthly', anchor: '22 Mar 2022', psa: '0.025', psaDate: '2025-02-02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '5 days ago', status: 'awaiting', spark: [100,91,86,83,83], psaHistory: [0.035,0.032,0.030,0.028,0.025], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'robert-wilson':  { name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '27 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', frequency: '6‑monthly', anchor: '8 Nov 2023', psa: '—', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '12 days ago', status: 'awaiting', spark: [], psaHistory: [], medication5ARI: 'none', diagnoses: '', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'michael-clark':  { name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Review', lastBleed: '', status: 'action', reviewReason: 'PSA above threshold (0.06 &gt; 0.03). Consider bounce vs biochemical recurrence.', spark: [25,62,100], psaHistory: [0.015,0.037,0.06], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'peter-green':    { name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2025', badge: 'Radical prostatectomy | Year 4', protocol: 'Radical Prostatectomy', phase: 'Year 4', frequency: '6‑monthly', anchor: '5 May 2021', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Result normal — card leaves board in 48h', lastBleed: '', status: 'completed', spark: [100,88,78,72,69,63], psaHistory: [0.032,0.028,0.025,0.023,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'james-taylor':   { name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '30 Aug 2023', psa: '0.12', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [33,67,100], psaHistory: [0.04,0.08,0.12], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'george-walsh':   { name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', frequency: '6‑monthly', anchor: '18 Jul 2022', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [55,52,48,45], psaHistory: [0.028,0.025,0.022,0.01], medication5ARI: 'none', diagnoses: '', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'terence-bennett': { name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', badge: 'EBRT | Year 4', protocol: 'EBRT', phase: 'Year 4', frequency: '6‑monthly', anchor: '2 Mar 2021', psa: '0.8', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [25,30,33,36,40], psaHistory: [0.5,0.6,0.65,0.72,0.8], medication5ARI: 'finasteride', diagnoses: 'Localised prostate cancer, BPH', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'kevin-shaw':     { name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '14 Nov 2023', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due May 2025', lastBleed: '', status: 'completed', spark: [83,73,67], psaHistory: [0.025,0.022,0.02], medication5ARI: 'none', diagnoses: '', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', frequency: '6‑monthly', anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'stephen-webb':   { name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', frequency: '6‑monthly', anchor: '25 Jun 2024', psa: '0.7', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [29,50,71,100], psaHistory: [0.2,0.35,0.5,0.7], medication5ARI: 'dutasteride', diagnoses: 'Localised prostate cancer', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
+        'nicholas-bell':  { name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', frequency: '6‑monthly', anchor: '7 Dec 2024', psa: '0.15', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [40,30], psaHistory: [0.2,0.15], medication5ARI: 'none', diagnoses: '', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
+        'ian-collins':    { name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', badge: 'ADT | Year 2', protocol: 'Primary ADT', phase: 'Year 2', frequency: '6‑monthly', anchor: '1 Apr 2023', psa: '2.5', protocolThreshold: '4.0', threshold: '4.0', personalThresholdSet: false, nextDue: 'Next due Apr 2025', lastBleed: '', status: 'completed', spark: [63,58,55], psaHistory: [2.8,2.6,2.5], medication5ARI: 'none', diagnoses: 'Locally advanced prostate cancer', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 4.0 ng/mL normal. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).' },
+        'david-patel':    { name: 'Patel, David (61)', nhs: '300 400 5002', dob: '12 Aug 1963', lastUpdated: '3 Feb 2025', badge: 'Intermittent hormones | Year 1', protocol: 'Intermittent Hormones', phase: 'Year 1', frequency: '6‑monthly', anchor: '1 Sep 2024', psa: '6.0', protocolThreshold: '10.0', threshold: '10.0', personalThresholdSet: false, nextDue: '1 Mar 2025', lastBleed: '', status: 'upcoming', spark: [55,52,60], psaHistory: [5.5,5.2,6.0], medication5ARI: 'none', diagnoses: 'Prostate cancer on intermittent ADT', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 10.0 ng/mL normal. Review if &gt; 10.0; recall if &gt; 10.0 (restart hormones).' },
+        'frank-wright':   { name: 'Wright, Frank (76)', nhs: '400 500 6003', dob: '22 Jan 1948', lastUpdated: '2 Feb 2025', badge: 'Watchful waiting | Year 2', protocol: 'Watchful Waiting', phase: 'Year 2', frequency: '6‑monthly', anchor: '1 Jun 2023', psa: '18', protocolThreshold: '30.0', threshold: '30.0', personalThresholdSet: false, nextDue: 'Next due Jun 2025', lastBleed: '', status: 'upcoming', spark: [52,55,60], psaHistory: [15,16,18], medication5ARI: 'none', diagnoses: 'Localised prostate cancer, watchful waiting', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 30.0 ng/mL normal. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.' }
+      };
+
+      function injectSparklineThresholds() {
+        function addThresholdToWrap(wrap, d) {
+          var history = d.psaHistory || [];
+          if (history.length === 0) return;
+          var nums = history.map(function(v) { return typeof v === 'number' ? v : 0; });
+          var thresh = parseFloat(d.threshold) || 0;
+          var maxVal = Math.max.apply(null, nums.concat([thresh, 0.01]));
+          var pct = (thresh / maxVal * 100);
+          var line = document.createElement('span');
+          line.className = 'sparkline-threshold-line';
+          line.style.bottom = pct + '%';
+          line.setAttribute('aria-hidden', 'true');
+          wrap.appendChild(line);
+        }
+        document.querySelectorAll('.card[data-detail]').forEach(function(card) {
+          var id = card.getAttribute('data-detail');
+          var d = detailData[id];
+          if (!d) return;
+          var sparkEl = card.querySelector('.card-sparkline');
+          if (!sparkEl) return;
+          if (sparkEl.parentNode.classList.contains('sparkline-wrap')) return;
+          var wrap = document.createElement('div');
+          wrap.className = 'sparkline-wrap';
+          sparkEl.parentNode.insertBefore(wrap, sparkEl);
+          wrap.appendChild(sparkEl);
+          addThresholdToWrap(wrap, d);
+        });
+        var tbody = document.getElementById('list-tbody');
+        if (tbody) {
+          tbody.querySelectorAll('tr[data-detail]').forEach(function(tr) {
+            var id = tr.getAttribute('data-detail');
+            var d = detailData[id];
+            if (!d) return;
+            var sparkEl = tr.querySelector('.sparkline-inline');
+            if (!sparkEl) return;
+            if (sparkEl.parentNode.classList.contains('sparkline-wrap')) return;
+            var wrap = document.createElement('div');
+            wrap.className = 'sparkline-wrap';
+            sparkEl.parentNode.insertBefore(wrap, sparkEl);
+            wrap.appendChild(sparkEl);
+            addThresholdToWrap(wrap, d);
+          });
+        }
+      }
+      injectSparklineThresholds();
+
+      var statusLabels = { upcoming: 'Upcoming', awaiting: 'Awaiting results', action: 'Review required', completed: 'Completed', recall: 'Recall' };
+
+      function setDetailDelta(d) {
+        var el = document.getElementById('detail-psa-delta');
+        if (!el) return;
+        var p = parseFloat(d.psa, 10);
+        var t = parseFloat(d.threshold, 10);
+        if (isNaN(p) || isNaN(t) || d.psa === '—' || d.threshold === '') {
+          el.classList.add('hidden');
+          el.textContent = '';
+          return;
+        }
+        var delta = Math.round((p - t) * 100) / 100;
+        el.classList.remove('hidden', 'detail-delta-above', 'detail-delta-below');
+        if (delta > 0) {
+          el.textContent = '↑ Δ +' + delta;
+          el.classList.add('detail-delta-above');
+          el.setAttribute('aria-label', delta + ' above threshold');
+        } else if (delta < 0) {
+          el.textContent = '↓ Δ ' + delta;
+          el.classList.add('detail-delta-below');
+          el.setAttribute('aria-label', Math.abs(delta) + ' below threshold');
+        } else {
+          el.textContent = 'Δ 0';
+          el.setAttribute('aria-label', 'At threshold');
+        }
+      }
+
+      function openDetail(id) {
+        var d = detailData[id];
+        if (!d) return;
+        document.getElementById('detail-name').textContent = d.name;
+        document.getElementById('detail-nhs').textContent = d.nhs;
+        document.getElementById('detail-dob').textContent = d.dob;
+        document.getElementById('detail-last-updated').textContent = d.lastUpdated || '—';
+        document.getElementById('detail-diagnoses-display').textContent = d.diagnoses || '—';
+        document.getElementById('detail-diagnoses-input').value = d.diagnoses || '';
+        document.getElementById('detail-diagnoses-edit').classList.add('hidden');
+        document.getElementById('detail-diagnoses-edit-btn').style.display = '';
+        function fiveARILabel(v) { return v === 'finasteride' ? 'Finasteride' : v === 'dutasteride' ? 'Dutasteride' : 'None'; }
+        document.getElementById('detail-5ari-display').textContent = fiveARILabel(d.medication5ARI || 'none');
+        document.getElementById('detail-5ari-input').value = d.medication5ARI || 'none';
+        document.getElementById('detail-5ari-edit').classList.add('hidden');
+        document.getElementById('detail-5ari-edit-btn').style.display = '';
+        var fiveARINote = document.getElementById('detail-5ari-note');
+        if (fiveARINote) fiveARINote.classList.toggle('hidden', !d.medication5ARI || d.medication5ARI === 'none');
+        function protocolShortLabel(p) { return p === 'Radical Prostatectomy' ? 'Radical prostatectomy' : p === 'EBRT' || p === 'External Beam Radiation Therapy' ? 'EBRT' : p === 'Brachytherapy' ? 'Brachy' : p === 'Primary ADT' ? 'ADT' : p === 'Intermittent Hormones' ? 'Intermittent hormones' : p === 'Watchful Waiting' ? 'Watchful waiting' : p || '—'; }
+        document.getElementById('detail-chip-protocol').textContent = protocolShortLabel(d.protocol);
+        document.getElementById('detail-chip-phase').textContent = d.phase;
+        document.getElementById('detail-protocol').textContent = d.protocol;
+        document.getElementById('detail-phase').textContent = d.phase;
+        document.getElementById('detail-frequency').textContent = d.frequency;
+        document.getElementById('detail-anchor').textContent = d.anchor;
+        var scheduleEl = document.getElementById('detail-schedule-summary');
+        var guidelineEl = document.getElementById('detail-protocol-guideline');
+        if (scheduleEl) scheduleEl.textContent = d.scheduleSummary || '—';
+        if (guidelineEl) guidelineEl.innerHTML = d.protocolGuideline || '—';
+        document.getElementById('detail-latest-psa').textContent = d.psa;
+        var psaUnitEl = document.getElementById('detail-latest-psa-unit');
+        psaUnitEl.textContent = (d.psa && d.psa !== '—') ? 'ng/mL' : '';
+        document.getElementById('detail-protocol-threshold').textContent = d.protocolThreshold + (d.protocolThreshold ? ' ng/mL' : '');
+        setDetailDelta(d);
+        var psaEditWrap = document.getElementById('detail-psa-edit');
+        var psaWrap = document.getElementById('detail-latest-psa-wrap');
+        if (d.status === 'awaiting' || d.status === 'action') {
+          psaWrap.classList.remove('hidden');
+          psaEditWrap.classList.remove('hidden');
+          document.getElementById('detail-psa-edit-hint').textContent = d.status === 'awaiting'
+            ? 'Enter the result when it arrives, then choose an action below.'
+            : 'Correct the result if needed, then choose an action below.';
+          document.getElementById('detail-psa-result-input').value = (d.psa && d.psa !== '—') ? d.psa : '';
+          document.getElementById('detail-psa-result-date').value = d.psaDate || new Date().toISOString().slice(0, 10);
+        } else {
+          psaEditWrap.classList.add('hidden');
+        }
+        document.getElementById('detail-threshold-input').value = d.threshold;
+        document.getElementById('detail-next-due').textContent = d.nextDue;
+        var asteriskEl = document.getElementById('detail-threshold-asterisk');
+        if (d.personalThresholdSet) { asteriskEl.classList.remove('hidden'); asteriskEl.setAttribute('aria-hidden', 'false'); }
+        else { asteriskEl.classList.add('hidden'); asteriskEl.setAttribute('aria-hidden', 'true'); }
+        var statusBadge = document.getElementById('detail-status-badge');
+        statusBadge.textContent = statusLabels[d.status] || d.status;
+        statusBadge.className = 'status-badge-detail status-' + d.status;
+        var extraLabel = document.getElementById('detail-extra-date-label');
+        var extraDate = document.getElementById('detail-extra-date');
+        if (d.lastBleed) { extraLabel.textContent = 'Last bleed'; extraLabel.style.display = ''; extraDate.textContent = d.lastBleed; extraDate.style.display = ''; }
+        else { extraLabel.style.display = 'none'; extraDate.style.display = 'none'; }
+        var sparkEl = document.getElementById('detail-sparkline');
+        var labelsEl = document.getElementById('detail-sparkline-labels');
+        var emptyEl = document.getElementById('detail-sparkline-empty');
+        sparkEl.innerHTML = '';
+        labelsEl.innerHTML = '';
+        var history = d.psaHistory || [];
+        if (emptyEl) {
+          if (history.length === 0) { emptyEl.classList.remove('hidden'); emptyEl.style.display = ''; }
+          else { emptyEl.classList.add('hidden'); emptyEl.style.display = 'none'; }
+        }
+        var heights = history.length ? history.map(function(v) { return typeof v === 'number' ? v : 0; }) : (d.spark || []);
+        var threshNum = parseFloat(d.threshold) || 0;
+        var maxVal = Math.max.apply(null, heights.concat([threshNum, 0.01]));
+        heights.forEach(function(val, i) {
+          var s = document.createElement('span');
+          s.className = 'detail-sparkline-bar';
+          s.style.height = (val / maxVal * 100) + '%';
+          sparkEl.appendChild(s);
+          if (history[i] !== undefined) {
+            var lbl = document.createElement('span');
+            lbl.textContent = typeof history[i] === 'number' ? String(history[i]) : history[i];
+            labelsEl.appendChild(lbl);
+          }
+        });
+        var oldLine = sparkEl.querySelector('.detail-sparkline-threshold');
+        if (oldLine) oldLine.remove();
+        var line = document.createElement('span');
+        line.className = 'detail-sparkline-threshold';
+        line.setAttribute('aria-hidden', 'true');
+        line.style.bottom = (threshNum / maxVal * 100) + '%';
+        sparkEl.appendChild(line);
+        setDetailNextSteps(d);
+        currentDetailId = id;
+        openDetailModal();
+      }
+
+      document.getElementById('detail-threshold-save').addEventListener('click', function() {
+        var val = document.getElementById('detail-threshold-input').value.trim();
+        if (currentDetailId && detailData[currentDetailId]) {
+          var d = detailData[currentDetailId];
+          d.threshold = val || d.protocolThreshold;
+          d.personalThresholdSet = !!(val && val !== d.protocolThreshold);
+          var asteriskEl = document.getElementById('detail-threshold-asterisk');
+          if (d.personalThresholdSet) { asteriskEl.classList.remove('hidden'); asteriskEl.setAttribute('aria-hidden', 'false'); }
+          else { asteriskEl.classList.add('hidden'); asteriskEl.setAttribute('aria-hidden', 'true'); }
+          setDetailDelta(d);
+        }
+        showToast('Threshold saved.');
+      });
+
+      document.getElementById('detail-diagnoses-edit-btn').addEventListener('click', function() {
+        document.getElementById('detail-diagnoses-display').style.display = 'none';
+        document.getElementById('detail-diagnoses-edit-btn').style.display = 'none';
+        document.getElementById('detail-diagnoses-edit').classList.remove('hidden');
+      });
+      document.getElementById('detail-diagnoses-save').addEventListener('click', function() {
+        var val = document.getElementById('detail-diagnoses-input').value.trim();
+        if (currentDetailId && detailData[currentDetailId]) {
+          detailData[currentDetailId].diagnoses = val;
+          document.getElementById('detail-diagnoses-display').textContent = val || '—';
+        }
+        document.getElementById('detail-diagnoses-edit').classList.add('hidden');
+        document.getElementById('detail-diagnoses-display').style.display = '';
+        document.getElementById('detail-diagnoses-edit-btn').style.display = '';
+        showToast('Diagnoses saved.');
+      });
+
+      document.getElementById('detail-5ari-edit-btn').addEventListener('click', function() {
+        document.getElementById('detail-5ari-display').style.display = 'none';
+        document.getElementById('detail-5ari-edit-btn').style.display = 'none';
+        document.getElementById('detail-5ari-edit').classList.remove('hidden');
+      });
+      document.getElementById('detail-5ari-save').addEventListener('click', function() {
+        var val = document.getElementById('detail-5ari-input').value || 'none';
+        if (currentDetailId && detailData[currentDetailId]) {
+          detailData[currentDetailId].medication5ARI = val;
+          document.getElementById('detail-5ari-display').textContent = val === 'finasteride' ? 'Finasteride' : val === 'dutasteride' ? 'Dutasteride' : 'None';
+          var fiveARINote = document.getElementById('detail-5ari-note');
+          if (fiveARINote) fiveARINote.classList.toggle('hidden', val === 'none' || !val);
+        }
+        document.getElementById('detail-5ari-edit').classList.add('hidden');
+        document.getElementById('detail-5ari-display').style.display = '';
+        document.getElementById('detail-5ari-edit-btn').style.display = '';
+        showToast('5‑ARI saved.');
+      });
+
+      document.getElementById('detail-psa-result-save').addEventListener('click', function() {
+        var val = document.getElementById('detail-psa-result-input').value.trim();
+        var dateVal = document.getElementById('detail-psa-result-date').value;
+        if (currentDetailId && detailData[currentDetailId]) {
+          var d = detailData[currentDetailId];
+          d.psa = val || d.psa || '—';
+          d.psaDate = dateVal;
+          document.getElementById('detail-latest-psa').textContent = d.psa;
+          var u = document.getElementById('detail-latest-psa-unit');
+          u.textContent = (d.psa && d.psa !== '—') ? 'ng/mL' : '';
+          setDetailDelta(d);
+          if (d.status === 'awaiting') {
+            showToast('Result saved. Choose an action below.');
+          } else {
+            showToast('Result updated. Choose an action below.');
+          }
+        }
+      });
+
+      function setDetailNextSteps(d) {
+        var titleEl = document.getElementById('detail-next-steps-title');
+        var bodyEl = document.getElementById('detail-next-steps-body');
+        var actionsEl = document.getElementById('detail-next-steps-actions');
+        actionsEl.innerHTML = '';
+        function addBtn(text, action) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-secondary';
+          btn.textContent = text;
+          btn.setAttribute('data-action', action);
+          actionsEl.appendChild(btn);
+          btn.addEventListener('click', function(e) { e.preventDefault(); showToast(text); });
+        }
+        if (d.status === 'upcoming') {
+          titleEl.textContent = 'Plan the next test';
+          bodyEl.textContent = 'Due in the next 4 weeks. Generate a blood form or send a reminder. When the result is back, the system will triage to Completed or Review Required.';
+          addBtn('Generate blood form', 'blood-form');
+        } else if (d.status === 'awaiting') {
+          titleEl.textContent = 'Enter result, then triage';
+          bodyEl.textContent = 'Enter or edit the PSA result above. Then choose: Completed (≤ threshold) or Review Required (above).';
+          addBtn('Mark as completed', 'complete');
+          addBtn('Move to Review Required', 'review');
+          addBtn('Chase result', 'chase');
+        } else if (d.status === 'action') {
+          titleEl.textContent = 'Review the result';
+          bodyEl.textContent = (d.reviewReason || 'PSA above threshold.') + ' If acceptable (e.g. bounce, benign), mark Completed. If the patient needs clinic, move to Recall.';
+          addBtn('Mark as completed', 'complete');
+          addBtn('Move to Recall', 'move-recall');
+        } else if (d.status === 'completed') {
+          titleEl.textContent = 'No action needed';
+          bodyEl.textContent = 'Result normal. Card leaves the board after 48h; patient reappears in Upcoming when next test is due.';
+        } else if (d.status === 'recall') {
+          titleEl.textContent = 'Under clinic care';
+          bodyEl.textContent = 'No longer on self‑management. Discharge from this list when appropriate; record kept for audit.';
+          addBtn('Discharge', 'discharge');
+        }
+      }
+
+      // Card click -> detail
+      document.querySelectorAll('.card[data-detail]').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('button')) return;
+          openDetail(card.getAttribute('data-detail'));
+        });
+      });
+      document.querySelectorAll('.list-view tbody tr[data-detail]').forEach(function(row) {
+        row.addEventListener('click', function() { openDetail(row.getAttribute('data-detail')); });
+      });
+
+      // Card 3-dot actions menu (view/edit opens detail; same options on patient detail Actions)
+      function getActionsForStatus(status) {
+        var viewEditPatient = { label: 'View / edit patient', actionId: 'view-patient' };
+        if (status === 'upcoming') return [
+          viewEditPatient,
+          { label: 'Generate blood form', actionId: 'blood-form' },
+          { label: 'Send reminder', actionId: 'remind' }
+        ];
+        if (status === 'awaiting') return [
+          viewEditPatient,
+          { label: 'Mark as completed', actionId: 'complete', targetColumnIndex: 4 },
+          { label: 'Move to Review Required', actionId: 'review', targetColumnIndex: 3 },
+          { label: 'Chase result', actionId: 'chase' }
+        ];
+        if (status === 'action') return [
+          viewEditPatient,
+          { label: 'Mark as completed', actionId: 'complete', targetColumnIndex: 4 },
+          { label: 'Move to Recall', actionId: 'move-recall', targetColumnIndex: 5 }
+        ];
+        if (status === 'completed') return [
+          viewEditPatient,
+          { label: 'Print summary', actionId: 'print-summary' }
+        ];
+        if (status === 'recall') return [
+          viewEditPatient,
+          { label: 'Discharge', actionId: 'discharge' }
+        ];
+        return [viewEditPatient];
+      }
+      var cardActionsDropdown = document.getElementById('card-actions-dropdown');
+      var cardActionsCard = null;
+      function closeCardActionsDropdown() {
+        cardActionsDropdown.classList.remove('show');
+        cardActionsCard = null;
+        document.removeEventListener('click', cardActionsOutsideHandler);
+      }
+      function cardActionsOutsideHandler(e) {
+        if (cardActionsDropdown.contains(e.target) || (e.target && e.target.closest && e.target.closest('.card-actions-menu-btn'))) return;
+        closeCardActionsDropdown();
+      }
+      document.querySelectorAll('.card-actions-menu-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var card = btn.closest('.card');
+          var status = card.getAttribute('data-status');
+          var actions = getActionsForStatus(status);
+          cardActionsCard = card;
+          cardActionsDropdown.innerHTML = '';
+          if (actions.length === 0) {
+            var empty = document.createElement('div');
+            empty.className = 'dropdown-title';
+            empty.textContent = 'No actions';
+            cardActionsDropdown.appendChild(empty);
+          } else {
+            actions.forEach(function(a) {
+              var b = document.createElement('button');
+              b.type = 'button';
+              b.textContent = a.label;
+              b.setAttribute('data-action-id', a.actionId);
+              if (a.targetColumnIndex != null) b.setAttribute('data-target-column', String(a.targetColumnIndex));
+              b.addEventListener('click', function(ev) {
+                ev.preventDefault();
+                if ((a.actionId === 'view-patient' || a.actionId === 'edit-details') && cardActionsCard) {
+                  openDetail(cardActionsCard.getAttribute('data-detail'));
+                } else {
+                  showToast(a.label);
+                  var colIndex = a.targetColumnIndex;
+                  if (colIndex != null && cardActionsCard) {
+                    var columns = document.querySelectorAll('.board .column');
+                    var targetCol = columns[colIndex - 1];
+                    if (targetCol) {
+                      var cardsContainer = targetCol.querySelector('.column-cards');
+                      if (cardsContainer) {
+                        cardsContainer.appendChild(cardActionsCard);
+                        var statusByColumn = { 3: 'action', 4: 'completed', 5: 'recall' };
+                        cardActionsCard.setAttribute('data-status', statusByColumn[colIndex] || cardActionsCard.getAttribute('data-status'));
+                      }
+                    }
+                  }
+                }
+                closeCardActionsDropdown();
+              });
+              cardActionsDropdown.appendChild(b);
+            });
+          }
+          var rect = btn.getBoundingClientRect();
+          cardActionsDropdown.style.left = rect.left + 'px';
+          cardActionsDropdown.style.top = (rect.bottom + 4) + 'px';
+          cardActionsDropdown.classList.add('show');
+          setTimeout(function() { document.addEventListener('click', cardActionsOutsideHandler); }, 0);
+        });
+      });
+
+      // Detail modal close
+      document.getElementById('detail-close').addEventListener('click', function(e) { e.preventDefault(); closeDetailModal(); });
+      viewDetail.addEventListener('click', function(e) { if (e.target === viewDetail) closeDetailModal(); });
+    })();
+  </script>
+</body>
+</html>
