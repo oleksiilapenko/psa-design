@@ -1,0 +1,23 @@
+%% Patient card state machine — for FigJam
+%% 1. Open https://mermaid.live 2. Paste this file 3. Export PNG/SVG 4. Drag into FigJam
+%% Source: PATIENT_CARD_STATE_MACHINE.md
+
+stateDiagram-v2
+    direction TB
+
+    [*] --> Upcoming : Add Patient
+
+    Upcoming --> Awaiting : Test done / Blood taken (not in UI)
+    Awaiting --> ReviewRequired : Move to Review Required (manual)
+    Awaiting --> Completed : Mark as completed (manual)
+    ReviewRequired --> Completed : Mark as completed (manual)
+    ReviewRequired --> Recall : Move to Recall (manual)
+    Recall --> Discharged : Discharge (mock)
+    Completed --> Upcoming : Next due (not impl.)
+
+    note right of Upcoming : PSA due next 4 weeks. Mock: blood form, reminder
+    note right of Awaiting : Blood taken, waiting result. Mock: Chase result
+    note right of ReviewRequired : PSA above threshold. Clinician decides
+    note right of Completed : PSA ≤ threshold. 48h/next due not impl.
+    note right of Recall : Back to clinic. Mock: Discharge
+    note right of Discharged : Off board / archive

@@ -9,6 +9,7 @@
     body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
     .hidden { display: none !important; }
     .header { background: #fff; border-bottom: 2px solid #333; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    #view-dashboard .header { position: sticky; top: 0; z-index: 100; }
     .header h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
     .header-actions { display: flex; align-items: center; gap: 16px; margin-left: auto; }
     .view-toggle { display: flex; border: 1px solid #333; border-radius: 0; }
@@ -23,6 +24,11 @@
     main { padding: 24px; max-width: 1600px; margin: 0 auto; }
 
     /* Board */
+    .dashboard-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 12px; padding: 4px 0 8px; }
+    .dashboard-toolbar label { font-size: 13px; font-weight: 600; color: #333; margin: 0; }
+    .dashboard-toolbar input[type="text"] { padding: 5px 8px; border: 1px solid #999; font-size: 14px; width: 220px; }
+    .dashboard-toolbar select { padding: 6px 10px; border: 1px solid #999; font-size: 14px; min-width: 160px; background: #fff; }
+    .dashboard-toolbar .toolbar-group { display: flex; align-items: center; gap: 8px; }
     .board { display: flex; gap: 12px; overflow-x: auto; min-height: 400px; padding-bottom: 6px; }
     .column { flex: 0 0 268px; background: #e8e8e8; display: flex; flex-direction: column; }
     .column-header { padding: 8px 10px; font-weight: 700; font-size: 13px; background: transparent; }
@@ -39,7 +45,9 @@
     .card-nhs { font-size: 11px; font-variant-numeric: tabular-nums; color: #333; margin: 0 0 1px; line-height: 1.3; }
     .card-name { font-size: 15px; font-weight: 700; color: #333; margin: 0 0 4px; line-height: 1.3; }
     .card-chips { display: flex; flex-wrap: wrap; gap: 3px; margin: 0 0 4px; }
-    .card-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 2px 6px; font-size: 10px; font-weight: 700; border: 2px solid #333; border-radius: 0; }
+    .card-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 2px 6px; font-size: 10px; font-weight: 700; border: 2px solid #333; border-radius: 0; cursor: help; }
+    .protocol-tooltip { position: fixed; z-index: 10000; max-width: 280px; padding: 6px 10px; font-size: 13px; line-height: 1.4; background: #333; color: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
+    .protocol-tooltip.visible { opacity: 1; }
     .card-chip-phase { display: inline-block; background: #fff; color: #555; padding: 2px 6px; font-size: 10px; font-weight: 600; border: 1px solid #999; border-radius: 0; }
     .card-psa-line { font-size: 13px; margin: 0 0 2px; line-height: 1.3; }
     .card-psa-line strong { font-weight: 700; }
@@ -77,6 +85,7 @@
     .list-view .tabs button { padding: 10px 20px; border: 1px solid #ccc; border-bottom: none; background: #eee; cursor: pointer; font-size: 14px; font-weight: 400; margin-bottom: -1px; }
     .list-view .tabs button.active { background: #e0e0e0; border-bottom: 1px solid #e0e0e0; font-weight: 400; }
     .list-view .tabs button:hover:not(.active) { background: #e8e8e8; }
+    .list-view .tabs .list-tab-count { font-weight: 600; margin-left: 2px; }
     .list-view table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ccc; border-top: none; }
     .list-view th, .list-view td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #ddd; }
     .list-view tbody td:first-child { font-size: 16px; font-weight: 700; }
@@ -166,7 +175,7 @@
     .detail-view .next-steps .actions { margin-top: 10px; padding-top: 10px; border-top: 1px solid #ccc; }
     .detail-view .actions .btn { margin-right: 8px; margin-bottom: 8px; }
     .detail-view .detail-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
-    .detail-view .detail-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border: 2px solid #333; border-radius: 0; }
+    .detail-view .detail-chip-protocol { display: inline-block; background: #333; color: #fff; padding: 4px 10px; font-size: 12px; font-weight: 700; border: 2px solid #333; border-radius: 0; cursor: help; }
     .detail-view .detail-chip-phase { display: inline-block; background: #fff; color: #555; padding: 4px 10px; font-size: 12px; font-weight: 600; border: 1px solid #999; border-radius: 0; }
     .detail-view .status-badge-detail { display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 700; border: 2px solid; border-radius: 0; background: transparent; }
     .detail-view .status-badge-detail.status-upcoming { color: #0d47a1; border-color: #0d47a1; }
@@ -255,6 +264,33 @@
       </div>
     </header>
     <main>
+      <div class="dashboard-toolbar" id="dashboard-toolbar">
+        <div class="toolbar-group">
+          <label for="filter-nhs">Search</label>
+          <input type="text" id="filter-nhs" placeholder="Search by NHS# or name" aria-label="Search by NHS number or name">
+        </div>
+        <div class="toolbar-group">
+          <label for="filter-protocol">Protocol</label>
+          <select id="filter-protocol" aria-label="Filter by protocol">
+            <option value="">All protocols</option>
+            <option value="RP" title="Radical Prostatectomy">RP</option>
+            <option value="EBRT" title="EBRT (external beam radiotherapy)">EBRT</option>
+            <option value="Brachy" title="Brachytherapy">Brachy</option>
+            <option value="ADT" title="Primary ADT (androgen deprivation therapy)">ADT</option>
+            <option value="Intermittent hormones" title="Intermittent hormones">Intermittent hormones</option>
+            <option value="Watchful waiting" title="Watchful waiting">Watchful waiting</option>
+            <option value="Active surveillance" title="Active surveillance">Active surveillance</option>
+          </select>
+        </div>
+        <div class="toolbar-group list-only-sort" id="toolbar-sort-wrap" style="display: none;">
+          <label for="list-sort">Sort by</label>
+          <select id="list-sort" aria-label="Sort list">
+            <option value="last-updated">Last updated</option>
+            <option value="due-date">Due date</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+      </div>
       <!-- Board view -->
       <div id="kanban-view" class="board-container">
         <div class="board">
@@ -266,7 +302,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">123 456 7890</div>
                 <div class="card-name">Smith, John • 68</div>
-                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Radical Prostatectomy">RP</span><span class="card-chip-phase">Year 1</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">Last PSA <strong>0.02</strong> <span class="card-threshold">/ 0.03</span></div>
                   <div class="card-sparkline"><span style="height:93%"></span><span style="height:83%"></span><span style="height:70%"></span><span style="height:67%"></span></div>
@@ -278,7 +314,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">987 654 3210</div>
                 <div class="card-name">Jones, Alan • 72</div>
-                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="EBRT (external beam radiotherapy)">EBRT</span><span class="card-chip-phase">Year 1</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">Last PSA <strong>1.2</strong> <span class="card-threshold">/ 2.0</span></div>
                   <div class="card-sparkline"><span style="height:60%"></span></div>
@@ -290,7 +326,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">111 333 5555</div>
                 <div class="card-name">Bell, Nicholas • 67</div>
-                <div class="card-chips"><span class="card-chip-protocol">Brachy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Brachytherapy">Brachy</span><span class="card-chip-phase">Year 1</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">Last PSA <strong>0.15</strong> <span class="card-threshold">/ 0.5</span></div>
                   <div class="card-sparkline"><span style="height:40%"></span><span style="height:30%"></span></div>
@@ -298,29 +334,17 @@
                 <div class="card-due-line">Due 28 Mar 2025 · 6‑monthly</div>
                 <div class="card-last-updated">Last updated: 6 Feb 2025</div>
               </div>
-              <div class="card" data-detail="david-patel" data-status="upcoming">
+              <div class="card" data-detail="harry-nelson" data-status="upcoming">
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
-                <div class="card-nhs">300 400 5002</div>
-                <div class="card-name">Patel, David • 61</div>
-                <div class="card-chips"><span class="card-chip-protocol">Intermittent hormones</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-nhs">500 600 7004</div>
+                <div class="card-name">Nelson, Harry • 69</div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Active surveillance">Active surveillance</span><span class="card-chip-phase">Year 1</span></div>
                 <div class="card-psa-trend-row">
-                  <div class="card-psa-line">Last PSA <strong>6.0</strong> <span class="card-threshold">/ 10.0</span></div>
-                  <div class="card-sparkline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div>
+                  <div class="card-psa-line">Last PSA <strong>8.2</strong> <span class="card-threshold">/ 15.0</span></div>
+                  <div class="card-sparkline"><span style="height:50%"></span><span style="height:55%"></span><span style="height:58%"></span></div>
                 </div>
-                <div class="card-due-line">Due 1 Mar 2025 · 6‑monthly</div>
-                <div class="card-last-updated">Last updated: 3 Feb 2025</div>
-              </div>
-              <div class="card" data-detail="frank-wright" data-status="upcoming">
-                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
-                <div class="card-nhs">400 500 6003</div>
-                <div class="card-name">Wright, Frank • 76</div>
-                <div class="card-chips"><span class="card-chip-protocol">Watchful waiting</span><span class="card-chip-phase">Year 2</span></div>
-                <div class="card-psa-trend-row">
-                  <div class="card-psa-line">Last PSA <strong>18</strong> <span class="card-threshold">/ 30.0 ✓</span></div>
-                  <div class="card-sparkline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div>
-                </div>
-                <div class="card-due-line">Next due Jun 2025</div>
-                <div class="card-last-updated">Last updated: 2 Feb 2025</div>
+                <div class="card-due-line">Due 1 May 2025 · 6‑monthly</div>
+                <div class="card-last-updated">Last updated: 6 Feb 2025</div>
               </div>
             </div>
           </div>
@@ -332,7 +356,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">555 111 2233</div>
                 <div class="card-name">Brown, David • 65</div>
-                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 3</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Radical Prostatectomy">RP</span><span class="card-chip-phase">Year 3</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">Last PSA <strong>0.025</strong></div>
                   <div class="card-sparkline"><span style="height:100%"></span><span style="height:91%"></span><span style="height:86%"></span><span style="height:83%"></span><span style="height:83%"></span></div>
@@ -344,13 +368,25 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">444 555 6677</div>
                 <div class="card-name">Wilson, Robert • 70</div>
-                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="EBRT (external beam radiotherapy)">EBRT</span><span class="card-chip-phase">Year 2</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">Last PSA —</div>
                   <div class="card-sparkline" aria-label="No PSA results on record"></div>
                 </div>
                 <div class="card-due-line overdue">15 days overdue</div>
                 <div class="card-last-updated">Last updated: 27 Jan 2025</div>
+              </div>
+              <div class="card" data-detail="david-patel" data-status="awaiting">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">300 400 5002</div>
+                <div class="card-name">Patel, David • 61</div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Intermittent hormones">Intermittent hormones</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">Last PSA <strong>6.0</strong></div>
+                  <div class="card-sparkline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div>
+                </div>
+                <div class="card-due-line">Waiting for 3 days</div>
+                <div class="card-last-updated">Last updated: 4 Feb 2025</div>
               </div>
             </div>
           </div>
@@ -362,7 +398,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">777 888 9900</div>
                 <div class="card-name">Clark, Michael • 69</div>
-                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Radical Prostatectomy">RP</span><span class="card-chip-phase">Year 2</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line"><strong>PSA 0.06</strong> <span class="card-threshold">/ 0.03</span></div>
                   <div class="card-sparkline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div>
@@ -383,7 +419,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">222 333 4455</div>
                 <div class="card-name">Green, Peter • 67</div>
-                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 4</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Radical Prostatectomy">RP</span><span class="card-chip-phase">Year 4</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">PSA <strong>0.02</strong> <span class="card-threshold">/ 0.03 ✓</span></div>
                   <div class="card-sparkline"><span style="height:100%"></span><span style="height:88%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:69%"></span><span style="height:63%"></span></div>
@@ -395,13 +431,25 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">200 300 4001</div>
                 <div class="card-name">Collins, Ian • 64</div>
-                <div class="card-chips"><span class="card-chip-protocol">ADT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Primary ADT (androgen deprivation therapy)">ADT</span><span class="card-chip-phase">Year 2</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line">PSA <strong>2.5</strong> <span class="card-threshold">/ 4.0 ✓</span></div>
                   <div class="card-sparkline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div>
                 </div>
                 <div class="card-due-line">Next due Apr 2025</div>
                 <div class="card-last-updated">Last updated: 4 Feb 2025</div>
+              </div>
+              <div class="card" data-detail="frank-wright" data-status="completed">
+                <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
+                <div class="card-nhs">400 500 6003</div>
+                <div class="card-name">Wright, Frank • 76</div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Watchful waiting">Watchful waiting</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-psa-trend-row">
+                  <div class="card-psa-line">PSA <strong>18</strong> <span class="card-threshold">/ 30.0 ✓</span></div>
+                  <div class="card-sparkline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div>
+                </div>
+                <div class="card-due-line">Next due Jun 2025</div>
+                <div class="card-last-updated">Last updated: 5 Feb 2025</div>
               </div>
             </div>
           </div>
@@ -413,7 +461,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">666 777 8899</div>
                 <div class="card-name">Taylor, James • 71</div>
-                <div class="card-chips"><span class="card-chip-protocol">Radical prostatectomy</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Radical Prostatectomy">RP</span><span class="card-chip-phase">Year 2</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line"><strong>PSA 0.12</strong> <span class="card-threshold">/ 0.03*</span></div>
                   <div class="card-sparkline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div>
@@ -424,7 +472,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">555 666 7788</div>
                 <div class="card-name">Hayes, Philip • 68</div>
-                <div class="card-chips"><span class="card-chip-protocol">EBRT</span><span class="card-chip-phase">Year 2</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="EBRT (external beam radiotherapy)">EBRT</span><span class="card-chip-phase">Year 2</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line"><strong>PSA 2.4</strong> <span class="card-threshold">/ 2.0</span></div>
                   <div class="card-sparkline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div>
@@ -435,7 +483,7 @@
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
                 <div class="card-nhs">999 000 1122</div>
                 <div class="card-name">Webb, Stephen • 70</div>
-                <div class="card-chips"><span class="card-chip-protocol">Brachy</span><span class="card-chip-phase">Year 1</span></div>
+                <div class="card-chips"><span class="card-chip-protocol" title="Brachytherapy">Brachy</span><span class="card-chip-phase">Year 1</span></div>
                 <div class="card-psa-trend-row">
                   <div class="card-psa-line"><strong>PSA 0.7</strong> <span class="card-threshold">/ 0.5</span></div>
                   <div class="card-sparkline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div>
@@ -451,12 +499,12 @@
       <!-- List view -->
       <div id="list-view" class="list-view hidden">
         <div class="tabs">
-          <button type="button" data-tab="upcoming" class="active">Upcoming</button>
-          <button type="button" data-tab="awaiting">Awaiting</button>
-          <button type="button" data-tab="action">Action Required</button>
-          <button type="button" data-tab="completed">Completed</button>
-          <button type="button" data-tab="recall">Recall</button>
-          <button type="button" data-tab="all">All</button>
+          <button type="button" data-tab="upcoming" class="active">Upcoming <span class="list-tab-count"></span></button>
+          <button type="button" data-tab="awaiting">Awaiting <span class="list-tab-count"></span></button>
+          <button type="button" data-tab="action">Action Required <span class="list-tab-count"></span></button>
+          <button type="button" data-tab="completed">Completed <span class="list-tab-count"></span></button>
+          <button type="button" data-tab="recall">Recall <span class="list-tab-count"></span></button>
+          <button type="button" data-tab="all">All <span class="list-tab-count"></span></button>
         </div>
         <table>
           <thead>
@@ -476,25 +524,26 @@
             </tr>
           </thead>
           <tbody id="list-tbody">
-            <tr data-tab="upcoming" data-status="upcoming" data-detail="john-smith"><td>Smith, John (68)</td><td>123 456 7890</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Radical prostatectomy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:93%"></span><span style="height:83%"></span><span style="height:70%"></span><span style="height:67%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>12 Apr 2025</td><td>28 Jan 2025</td></tr>
-            <tr data-tab="upcoming" data-status="upcoming" data-detail="alan-jones"><td>Jones, Alan (72)</td><td>987 654 3210</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>EBRT</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:60%"></span></div></td><td>1.2</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.8 below threshold">↓ −0.8</span></td><td>28 Mar 2025</td><td>5 Feb 2025</td></tr>
-            <tr data-tab="upcoming" data-status="upcoming" data-detail="nicholas-bell"><td>Bell, Nicholas (67)</td><td>111 333 5555</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:30%"></span></div></td><td>0.15</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.35 below threshold">↓ −0.35</span></td><td>28 Mar 2025</td><td>6 Feb 2025</td></tr>
-            <tr data-tab="upcoming" data-status="upcoming" data-detail="david-patel"><td>Patel, David (61)</td><td>300 400 5002</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Intermittent hormones</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div></td><td>6.0</td><td class="threshold-cell">10.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="4.0 below threshold">↓ −4.0</span></td><td>1 Mar 2025</td><td>3 Feb 2025</td></tr>
-            <tr data-tab="upcoming" data-status="upcoming" data-detail="frank-wright"><td>Wright, Frank (76)</td><td>400 500 6003</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td>Watchful waiting</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div></td><td>18</td><td class="threshold-cell">30.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="12 below threshold">↓ −12</span></td><td>Jun 2025</td><td>2 Feb 2025</td></tr>
-            <tr data-tab="awaiting" data-status="awaiting" data-detail="david-brown"><td>Brown, David (65)</td><td>555 111 2233</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td>Radical prostatectomy</td><td>Year 3</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:91%"></span><span style="height:86%"></span><span style="height:83%"></span><span style="height:83%"></span></div></td><td>0.025</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>—</td><td>2 Feb 2025</td></tr>
-            <tr data-tab="awaiting" data-status="awaiting" data-detail="robert-wilson"><td>Wilson, Robert (70)</td><td>444 555 6677</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td>EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline" aria-label="No PSA results on record"></div></td><td>—</td><td class="threshold-cell">2.0</td><td class="list-delta-cell">—</td><td>—</td><td>27 Jan 2025</td></tr>
-            <tr data-tab="action" data-status="action" data-detail="michael-clark"><td>Clark, Michael (69)</td><td>777 888 9900</td><td class="col-status"><span class="status-badge status-action">Review required</span></td><td>Radical prostatectomy</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div></td><td>0.06</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.03 above threshold">↑ +0.03</span></td><td>Review</td><td>28 Jan 2025</td></tr>
-            <tr data-tab="completed" data-status="completed" data-detail="peter-green"><td>Green, Peter (67)</td><td>222 333 4455</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 4</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:88%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:69%"></span><span style="height:63%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>Sep 2025</td><td>5 Feb 2025</td></tr>
-            <tr data-tab="completed" data-status="completed" data-detail="george-walsh"><td>Walsh, George (69)</td><td>111 222 3344</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 3</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:48%"></span><span style="height:45%"></span></div></td><td>0.01</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.02 below threshold">↓ −0.02</span></td><td>Sep 2025</td><td>3 Feb 2025</td></tr>
-            <tr data-tab="completed" data-status="completed" data-detail="terence-bennett"><td>Bennett, Terence (74)</td><td>333 444 5566</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>EBRT</td><td>Year 4</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:28%"></span><span style="height:30%"></span><span style="height:32%"></span></div></td><td>0.8</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.2 below threshold">↓ −1.2</span></td><td>Sep 2025</td><td>1 Feb 2025</td></tr>
-            <tr data-tab="completed" data-status="completed" data-detail="kevin-shaw"><td>Shaw, Kevin (66)</td><td>888 999 0011</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>Radical prostatectomy</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:38%"></span><span style="height:35%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>May 2025</td><td>15 Jan 2025</td></tr>
-            <tr data-tab="completed" data-status="completed" data-detail="ian-collins"><td>Collins, Ian (64)</td><td>200 300 4001</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td>ADT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div></td><td>2.5</td><td class="threshold-cell">4.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.5 below threshold">↓ −1.5</span></td><td>Apr 2025</td><td>4 Feb 2025</td></tr>
-            <tr data-tab="recall" data-status="recall" data-detail="james-taylor"><td>Taylor, James (71)</td><td>666 777 8899</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>Radical prostatectomy</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div></td><td>0.12</td><td class="threshold-cell">0.03*</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.09 above threshold">↑ +0.09</span></td><td>Recall</td><td>30 Jan 2025</td></tr>
-            <tr data-tab="recall" data-status="recall" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Recall</td><td>29 Jan 2025</td></tr>
-            <tr data-tab="recall" data-status="recall" data-detail="stephen-webb"><td>Webb, Stephen (70)</td><td>999 000 1122</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td>Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div></td><td>0.7</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.2 above threshold">↑ +0.2</span></td><td>Recall</td><td>4 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="john-smith"><td>Smith, John (68)</td><td>123 456 7890</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td title="Radical Prostatectomy">RP</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:93%"></span><span style="height:83%"></span><span style="height:70%"></span><span style="height:67%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>12 Apr 2025</td><td>28 Jan 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="alan-jones"><td>Jones, Alan (72)</td><td>987 654 3210</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:60%"></span></div></td><td>1.2</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.8 below threshold">↓ −0.8</span></td><td>28 Mar 2025</td><td>5 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="nicholas-bell"><td>Bell, Nicholas (67)</td><td>111 333 5555</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td title="Brachytherapy">Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:30%"></span></div></td><td>0.15</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.35 below threshold">↓ −0.35</span></td><td>28 Mar 2025</td><td>6 Feb 2025</td></tr>
+            <tr data-tab="upcoming" data-status="upcoming" data-detail="harry-nelson"><td>Nelson, Harry (69)</td><td>500 600 7004</td><td class="col-status"><span class="status-badge status-upcoming">Upcoming</span></td><td title="Active surveillance">Active surveillance</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:55%"></span><span style="height:58%"></span></div></td><td>8.2</td><td class="threshold-cell">15.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="6.8 below threshold">↓ −6.8</span></td><td>1 May 2025</td><td>6 Feb 2025</td></tr>
+            <tr data-tab="awaiting" data-status="awaiting" data-detail="david-brown"><td>Brown, David (65)</td><td>555 111 2233</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td title="Radical Prostatectomy">RP</td><td>Year 3</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:91%"></span><span style="height:86%"></span><span style="height:83%"></span><span style="height:83%"></span></div></td><td>0.025</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>—</td><td>2 Feb 2025</td></tr>
+            <tr data-tab="awaiting" data-status="awaiting" data-detail="robert-wilson"><td>Wilson, Robert (70)</td><td>444 555 6677</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline" aria-label="No PSA results on record"></div></td><td>—</td><td class="threshold-cell">2.0</td><td class="list-delta-cell">—</td><td>—</td><td>27 Jan 2025</td></tr>
+            <tr data-tab="awaiting" data-status="awaiting" data-detail="david-patel"><td>Patel, David (61)</td><td>300 400 5002</td><td class="col-status"><span class="status-badge status-awaiting">Awaiting</span></td><td title="Intermittent hormones">Intermittent hormones</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:60%"></span></div></td><td>6.0</td><td class="threshold-cell">10.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="4.0 below threshold">↓ −4.0</span></td><td>—</td><td>4 Feb 2025</td></tr>
+            <tr data-tab="action" data-status="action" data-detail="michael-clark"><td>Clark, Michael (69)</td><td>777 888 9900</td><td class="col-status"><span class="status-badge status-action">Review required</span></td><td title="Radical Prostatectomy">RP</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div></td><td>0.06</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.03 above threshold">↑ +0.03</span></td><td>Review</td><td>28 Jan 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="peter-green"><td>Green, Peter (67)</td><td>222 333 4455</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Radical Prostatectomy">RP</td><td>Year 4</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:88%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:69%"></span><span style="height:63%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>Sep 2025</td><td>5 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="george-walsh"><td>Walsh, George (69)</td><td>111 222 3344</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Radical Prostatectomy">RP</td><td>Year 3</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:55%"></span><span style="height:52%"></span><span style="height:48%"></span><span style="height:45%"></span></div></td><td>0.01</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.02 below threshold">↓ −0.02</span></td><td>Sep 2025</td><td>3 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="terence-bennett"><td>Bennett, Terence (74)</td><td>333 444 5566</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 4</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:25%"></span><span style="height:28%"></span><span style="height:30%"></span><span style="height:32%"></span></div></td><td>0.8</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.2 below threshold">↓ −1.2</span></td><td>Sep 2025</td><td>1 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="kevin-shaw"><td>Shaw, Kevin (66)</td><td>888 999 0011</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Radical Prostatectomy">RP</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:40%"></span><span style="height:38%"></span><span style="height:35%"></span></div></td><td>0.02</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.01 below threshold">↓ −0.01</span></td><td>May 2025</td><td>15 Jan 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="ian-collins"><td>Collins, Ian (64)</td><td>200 300 4001</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Primary ADT (androgen deprivation therapy)">ADT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div></td><td>2.5</td><td class="threshold-cell">4.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.5 below threshold">↓ −1.5</span></td><td>Apr 2025</td><td>4 Feb 2025</td></tr>
+            <tr data-tab="completed" data-status="completed" data-detail="frank-wright"><td>Wright, Frank (76)</td><td>400 500 6003</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Watchful waiting">Watchful waiting</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div></td><td>18</td><td class="threshold-cell">30.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="12 below threshold">↓ −12</span></td><td>Jun 2025</td><td>5 Feb 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="james-taylor"><td>Taylor, James (71)</td><td>666 777 8899</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Radical Prostatectomy">RP</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div></td><td>0.12</td><td class="threshold-cell">0.03*</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.09 above threshold">↑ +0.09</span></td><td>Recall</td><td>30 Jan 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Recall</td><td>29 Jan 2025</td></tr>
+            <tr data-tab="recall" data-status="recall" data-detail="stephen-webb"><td>Webb, Stephen (70)</td><td>999 000 1122</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Brachytherapy">Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div></td><td>0.7</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.2 above threshold">↑ +0.2</span></td><td>Recall</td><td>4 Feb 2025</td></tr>
           </tbody>
         </table>
-        <p class="threshold-legend" id="list-threshold-legend">Δ = difference from threshold (PSA − threshold). ↑ above threshold, ↓ below. Shown when a result is available. * Override of protocol default.</p>
+        <p class="threshold-legend" id="list-threshold-legend">Δ = PSA − threshold (↑ above, ↓ below). * Custom threshold. Shown when a result is available.</p>
       </div>
     </main>
   </div>
@@ -586,6 +635,10 @@
               <input type="radio" name="protocol" id="protocol-watchful" value="watchful-waiting" />
               <label for="protocol-watchful">Watchful waiting</label>
             </div>
+            <div class="protocol-option">
+              <input type="radio" name="protocol" id="protocol-active-surveillance" value="active-surveillance" />
+              <label for="protocol-active-surveillance">Active surveillance</label>
+            </div>
           </fieldset>
           <p id="protocol-help" class="protocol-help hidden" role="status"></p>
           <div class="form-group">
@@ -622,13 +675,27 @@
             <p id="wizard-5ari-hint" class="wizard-hint">PSA is often lower on 5‑ARI; we'll account for this when interpreting results.</p>
           </div>
           <div class="form-group">
-            <label>Protocol default threshold</label>
+            <label>Schedule this phase</label>
+            <input type="text" id="protocol-schedule" class="readonly" readonly value="—" aria-label="Schedule this phase">
+          </div>
+          <div class="form-group">
+            <label for="wizard-schedule">PSA monitoring schedule</label>
+            <select id="wizard-schedule" aria-label="PSA monitoring schedule">
+              <option value="same">Same as protocol</option>
+              <option value="4-monthly">4‑monthly</option>
+              <option value="6-monthly">6‑monthly</option>
+              <option value="annual">Annual</option>
+            </select>
+            <p class="wizard-hint">Set a custom schedule if this patient needs a different interval.</p>
+          </div>
+          <div class="form-group">
+            <label>Protocol threshold</label>
             <input type="text" id="protocol-threshold" class="readonly" readonly value="0.03">
           </div>
           <div class="form-group">
             <label for="personal-threshold">Threshold</label>
-            <input type="text" id="personal-threshold" value="0.03" placeholder="Same as protocol or override">
-            <p class="wizard-hint">You can override the protocol default if this patient needs a different target.</p>
+            <input type="text" id="personal-threshold" value="0.03" placeholder="Same as protocol or custom">
+            <p class="wizard-hint">Set a custom threshold if this patient needs a different target.</p>
           </div>
           <div class="form-group">
             <label for="last-psa">Last known PSA</label>
@@ -718,15 +785,30 @@
           <dl class="detail-grid">
             <dt>Protocol</dt><dd id="detail-protocol">—</dd>
             <dt>Phase</dt><dd id="detail-phase">—</dd>
-            <dt>Monitoring</dt><dd id="detail-frequency">—</dd>
+            <dt>Schedule this phase</dt><dd id="detail-protocol-frequency">—</dd>
+            <dt>Monitoring <span id="detail-schedule-asterisk" class="threshold-asterisk hidden" aria-hidden="true">*</span></dt>
+            <dd class="detail-editable-row">
+              <span id="detail-frequency" class="detail-editable-value">—</span>
+              <div id="detail-frequency-edit" class="detail-editable-edit hidden">
+                <select id="detail-frequency-input" class="detail-editable-input" aria-label="Monitoring frequency">
+                  <option value="same">Same as protocol</option>
+                  <option value="4-monthly">4‑monthly</option>
+                  <option value="6-monthly">6‑monthly</option>
+                  <option value="annual">Annual</option>
+                </select>
+                <button type="button" class="btn btn-secondary detail-editable-save" id="detail-frequency-save">Save</button>
+              </div>
+              <button type="button" class="btn btn-secondary detail-editable-btn" id="detail-frequency-edit-btn" aria-label="Edit monitoring schedule">Edit</button>
+            </dd>
             <dt>Treatment start</dt><dd id="detail-anchor">—</dd>
           </dl>
-          <details class="detail-protocol-rules" aria-label="Protocol rules (varies by pathway)">
-            <summary class="detail-protocol-rules-summary">Protocol rules (schedule &amp; PSA guideline)</summary>
+          <p class="threshold-legend">* Custom schedule</p>
+          <details class="detail-protocol-rules" aria-label="Schedule by year and when to review or recall">
+            <summary class="detail-protocol-rules-summary">Schedule by year &amp; when to review or recall</summary>
             <div class="detail-protocol-rules-content">
               <dl class="detail-grid">
-                <dt>Schedule (protocol)</dt><dd id="detail-schedule-summary">—</dd>
-                <dt>Protocol guideline</dt><dd id="detail-protocol-guideline">—</dd>
+                <dt>Schedule by year</dt><dd id="detail-schedule-summary">—</dd>
+                <dt>PSA: review &amp; recall</dt><dd id="detail-protocol-guideline">—</dd>
               </dl>
             </div>
           </details>
@@ -762,13 +844,12 @@
             <dt>Threshold <span id="detail-threshold-asterisk" class="threshold-asterisk hidden" aria-hidden="true">*</span></dt>
             <dd>
               <div class="threshold-edit">
-                <input type="text" id="detail-threshold-input" value="" placeholder="Same as protocol or override" inputmode="decimal" aria-label="Threshold" />
+                <input type="text" id="detail-threshold-input" value="" placeholder="Same as protocol or custom" inputmode="decimal" aria-label="Threshold" />
                 <button type="button" class="btn btn-secondary" id="detail-threshold-save">Save threshold</button>
               </div>
-              <p class="detail-edit-hint" style="margin-top:4px">Override the protocol default if needed.</p>
             </dd>
           </dl>
-          <p class="threshold-legend">Δ = PSA − threshold (↑ above, ↓ below). * Override of protocol default</p>
+          <p class="threshold-legend">Δ = PSA − threshold (↑ above, ↓ below). * Custom threshold</p>
           <p id="detail-5ari-note" class="threshold-legend detail-5ari-note hidden">Threshold interpretation accounts for 5‑ARI.</p>
         </div>
 
@@ -794,6 +875,7 @@
   </div>
 
   <div id="toast" class="toast"></div>
+  <div id="protocol-tooltip" class="protocol-tooltip" role="tooltip" aria-hidden="true"></div>
 
   <script>
     (function() {
@@ -809,6 +891,59 @@
       var listTabs = document.querySelectorAll('.list-view .tabs button');
       var toastEl = document.getElementById('toast');
       var currentDetailId = null;
+
+      (function initProtocolTooltips() {
+        var tip = document.getElementById('protocol-tooltip');
+        var showTimer = null;
+        var hideTimer = null;
+        function show(el) {
+          var text = el.getAttribute('title');
+          if (!text) return;
+          if (showTimer) clearTimeout(showTimer);
+          showTimer = setTimeout(function() {
+            showTimer = null;
+            tip.textContent = text;
+            tip.setAttribute('aria-hidden', 'false');
+            var rect = el.getBoundingClientRect();
+            var x = rect.left + (rect.width / 2);
+            var y = rect.top - 4;
+            tip.style.left = Math.max(8, Math.min(x - 140, document.documentElement.clientWidth - 288)) + 'px';
+            tip.style.top = (y - 10) + 'px';
+            tip.style.transform = 'translateY(-100%)';
+            tip.classList.add('visible');
+          }, 200);
+        }
+        function hide() {
+          if (showTimer) { clearTimeout(showTimer); showTimer = null; }
+          if (hideTimer) clearTimeout(hideTimer);
+          hideTimer = setTimeout(function() {
+            hideTimer = null;
+            tip.classList.remove('visible');
+            tip.setAttribute('aria-hidden', 'true');
+          }, 50);
+        }
+        function isProtocolTarget(el) {
+          return el && (el.classList && (el.classList.contains('card-chip-protocol') || el.classList.contains('detail-chip-protocol')) || (el.tagName === 'TD' && el.cellIndex === 3 && el.closest('.list-view')));
+        }
+        document.body.addEventListener('mouseover', function(e) {
+          var el = e.target;
+          if (isProtocolTarget(el)) show(el);
+        });
+        document.body.addEventListener('mouseout', function(e) {
+          var el = e.target;
+          if (isProtocolTarget(el)) hide();
+        });
+        document.body.addEventListener('mousemove', function(e) {
+          var el = e.target;
+          if (isProtocolTarget(el) && tip.classList.contains('visible')) {
+            var rect = el.getBoundingClientRect();
+            var x = rect.left + (rect.width / 2);
+            var y = rect.top - 4;
+            tip.style.left = Math.max(8, Math.min(x - 140, document.documentElement.clientWidth - 288)) + 'px';
+            tip.style.top = (y - 10) + 'px';
+          }
+        });
+      })();
 
       function showView(view) {
         viewDashboard.classList.add('hidden');
@@ -827,12 +962,15 @@
       }
 
       // View toggle: Board / List
+      var toolbarSortWrap = document.getElementById('toolbar-sort-wrap');
       linkKanban.addEventListener('click', function(e) {
         e.preventDefault();
         linkKanban.classList.add('active');
         linkList.classList.remove('active');
         kanbanView.classList.remove('hidden');
         listView.classList.add('hidden');
+        if (toolbarSortWrap) toolbarSortWrap.style.display = 'none';
+        applyFilters();
       });
       linkList.addEventListener('click', function(e) {
         e.preventDefault();
@@ -840,17 +978,23 @@
         linkKanban.classList.remove('active');
         listView.classList.remove('hidden');
         kanbanView.classList.add('hidden');
+        if (toolbarSortWrap) toolbarSortWrap.style.display = '';
+        updateListTabCounts();
         applyListTab();
+        applyFilters();
       });
 
-      function applyListTab() {
-        var activeTabBtn = document.querySelector('.list-view .tabs button.active');
-        var tab = activeTabBtn ? activeTabBtn.getAttribute('data-tab') : 'upcoming';
-        var rows = listTbody.querySelectorAll('tr');
-        rows.forEach(function(row) {
-          var rowTab = row.getAttribute('data-tab');
-          row.style.display = (tab === 'all' || rowTab === tab) ? '' : 'none';
+      function updateListTabCounts() {
+        if (!listTbody) return;
+        listTabs.forEach(function(btn) {
+          var tab = btn.getAttribute('data-tab');
+          var count = tab === 'all' ? listTbody.querySelectorAll('tr[data-detail]').length : listTbody.querySelectorAll('tr[data-tab="' + tab + '"]').length;
+          var span = btn.querySelector('.list-tab-count');
+          if (span) span.textContent = count;
         });
+      }
+      function applyListTab() {
+        applyFilters();
       }
 
       var wizardStep1 = document.getElementById('wizard-step1');
@@ -978,6 +1122,13 @@
           scheduleSummary: 'All years: 6‑monthly.',
           guidelineSummary: 'PSA &lt; 30.0 ng/mL normal. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.',
           getFrequency: function() { return '6‑monthly'; }
+        },
+        'active-surveillance': {
+          threshold: '15.0',
+          help: 'PSA monitoring without immediate treatment. Review if rise &gt; 0.75 ng/mL/year or doubling time &lt; 1 year; recall as per local policy.',
+          scheduleSummary: 'All years: 6‑monthly.',
+          guidelineSummary: 'PSA &lt; 15.0 ng/mL normal. Review if rise &gt; 0.75/year or doubling time &lt; 1 year.',
+          getFrequency: function() { return '6‑monthly'; }
         }
       };
       function getPhaseYearFromAnchor(anchorDateStr) {
@@ -1020,9 +1171,14 @@
       if (anchorDateEl) anchorDateEl.addEventListener('change', updateProtocolOutput);
       document.getElementById('wizard-step2-next').addEventListener('click', function() {
         var v = getSelectedProtocol();
-        var cfg = protocolConfig[v] || { threshold: '0.03', phase: '—' };
+        var cfg = protocolConfig[v] || { threshold: '0.03', phase: '—', getFrequency: function() { return '6‑monthly'; } };
+        var anchorVal = document.getElementById('anchor-date') ? document.getElementById('anchor-date').value : '';
+        var phaseYear = getPhaseYearFromAnchor(anchorVal);
+        var protocolFreq = cfg.getFrequency ? cfg.getFrequency(phaseYear) : '6‑monthly';
         wizardStep2.classList.add('hidden');
         wizardStep3.classList.remove('hidden');
+        document.getElementById('protocol-schedule').value = 'Year ' + phaseYear + ' — ' + protocolFreq;
+        document.getElementById('wizard-schedule').value = 'same';
         document.getElementById('protocol-threshold').value = cfg.threshold;
         document.getElementById('personal-threshold').value = cfg.threshold;
         setWizardStep(3);
@@ -1050,22 +1206,23 @@
 
       // Mock detail data (keyed by data-detail). psaHistory = chronological (oldest first). Clinician-reviewed: post-RP <0.03; EBRT/brachy higher; one no-result case (Wilson).
       var detailData = {
-        'john-smith':     { name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 1', protocol: 'Radical Prostatectomy', phase: 'Year 1', frequency: '4‑monthly', anchor: '15 Dec 2024', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: '12 Apr 2025', lastBleed: '', status: 'upcoming', spark: [93,83,70,67], psaHistory: [0.028,0.025,0.021,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'alan-jones':     { name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2025', badge: 'EBRT | Year 1', protocol: 'EBRT', phase: 'Year 1', frequency: '6‑monthly', anchor: '10 Sep 2024', psa: '1.2', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [60], psaHistory: [1.2], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
-        'david-brown':    { name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '2 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', frequency: '6‑monthly', anchor: '22 Mar 2022', psa: '0.025', psaDate: '2025-02-02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '5 days ago', status: 'awaiting', daysAwaiting: 5, spark: [100,91,86,83,83], psaHistory: [0.035,0.032,0.030,0.028,0.025], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'robert-wilson':  { name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '27 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', frequency: '6‑monthly', anchor: '8 Nov 2023', psa: '—', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '15 days ago', status: 'awaiting', daysAwaiting: 15, spark: [], psaHistory: [], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
-        'michael-clark':  { name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Review', lastBleed: '', status: 'action', reviewReason: 'PSA above threshold (0.06 &gt; 0.03). Consider bounce vs biochemical recurrence.', spark: [25,62,100], psaHistory: [0.015,0.037,0.06], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'peter-green':    { name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2025', badge: 'Radical prostatectomy | Year 4', protocol: 'Radical Prostatectomy', phase: 'Year 4', frequency: '6‑monthly', anchor: '5 May 2021', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Result normal — card leaves board in 48h', lastBleed: '', status: 'completed', spark: [100,88,78,72,69,63], psaHistory: [0.032,0.028,0.025,0.023,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'james-taylor':   { name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '30 Aug 2023', psa: '0.12', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [33,67,100], psaHistory: [0.04,0.08,0.12], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'george-walsh':   { name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', frequency: '6‑monthly', anchor: '18 Jul 2022', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [55,52,48,45], psaHistory: [0.028,0.025,0.022,0.01], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'terence-bennett': { name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', badge: 'EBRT | Year 4', protocol: 'EBRT', phase: 'Year 4', frequency: '6‑monthly', anchor: '2 Mar 2021', psa: '0.8', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [25,30,33,36,40], psaHistory: [0.5,0.6,0.65,0.72,0.8], medication5ARI: 'finasteride', diagnoses: 'Localised, BPH', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
-        'kevin-shaw':     { name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', frequency: '6‑monthly', anchor: '14 Nov 2023', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due May 2025', lastBleed: '', status: 'completed', spark: [83,73,67], psaHistory: [0.025,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
-        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', frequency: '6‑monthly', anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
-        'stephen-webb':   { name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', frequency: '6‑monthly', anchor: '25 Jun 2024', psa: '0.7', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [29,50,71,100], psaHistory: [0.2,0.35,0.5,0.7], medication5ARI: 'dutasteride', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
-        'nicholas-bell':  { name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', frequency: '6‑monthly', anchor: '7 Dec 2024', psa: '0.15', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [40,30], psaHistory: [0.2,0.15], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
-        'ian-collins':    { name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', badge: 'ADT | Year 2', protocol: 'Primary ADT', phase: 'Year 2', frequency: '6‑monthly', anchor: '1 Apr 2023', psa: '2.5', protocolThreshold: '4.0', threshold: '4.0', personalThresholdSet: false, nextDue: 'Next due Apr 2025', lastBleed: '', status: 'completed', spark: [63,58,55], psaHistory: [2.8,2.6,2.5], medication5ARI: 'none', diagnoses: 'Locally advanced', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 4.0 ng/mL normal. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).' },
-        'david-patel':    { name: 'Patel, David (61)', nhs: '300 400 5002', dob: '12 Aug 1963', lastUpdated: '3 Feb 2025', badge: 'Intermittent hormones | Year 1', protocol: 'Intermittent Hormones', phase: 'Year 1', frequency: '6‑monthly', anchor: '1 Sep 2024', psa: '6.0', protocolThreshold: '10.0', threshold: '10.0', personalThresholdSet: false, nextDue: '1 Mar 2025', lastBleed: '', status: 'upcoming', spark: [55,52,60], psaHistory: [5.5,5.2,6.0], medication5ARI: 'none', diagnoses: 'Prostate Ca', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 10.0 ng/mL normal. Review if &gt; 10.0; recall if &gt; 10.0 (restart hormones).' },
-        'frank-wright':   { name: 'Wright, Frank (76)', nhs: '400 500 6003', dob: '22 Jan 1948', lastUpdated: '2 Feb 2025', badge: 'Watchful waiting | Year 2', protocol: 'Watchful Waiting', phase: 'Year 2', frequency: '6‑monthly', anchor: '1 Jun 2023', psa: '18', protocolThreshold: '30.0', threshold: '30.0', personalThresholdSet: false, nextDue: 'Next due Jun 2025', lastBleed: '', status: 'upcoming', spark: [52,55,60], psaHistory: [15,16,18], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 30.0 ng/mL normal. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.' }
+        'john-smith':     { name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 1', protocol: 'Radical Prostatectomy', phase: 'Year 1', protocolFrequency: '4‑monthly', frequency: '4‑monthly', personalScheduleSet: false, anchor: '15 Dec 2024', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: '12 Apr 2025', lastBleed: '', status: 'upcoming', spark: [93,83,70,67], psaHistory: [0.028,0.025,0.021,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'alan-jones':     { name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2025', badge: 'EBRT | Year 1', protocol: 'EBRT', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 Sep 2024', psa: '1.2', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [60], psaHistory: [1.2], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'david-brown':    { name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '2 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '22 Mar 2022', psa: '0.025', psaDate: '2025-02-02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '5 days ago', status: 'awaiting', daysAwaiting: 5, spark: [100,91,86,83,83], psaHistory: [0.035,0.032,0.030,0.028,0.025], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'robert-wilson':  { name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '27 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '8 Nov 2023', psa: '—', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '15 days ago', status: 'awaiting', daysAwaiting: 15, spark: [], psaHistory: [], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'michael-clark':  { name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Review', lastBleed: '', status: 'action', reviewReason: 'PSA above threshold (0.06 &gt; 0.03). Consider bounce vs biochemical recurrence.', spark: [25,62,100], psaHistory: [0.015,0.037,0.06], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'peter-green':    { name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2025', badge: 'Radical prostatectomy | Year 4', protocol: 'Radical Prostatectomy', phase: 'Year 4', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '5 May 2021', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Result normal — card leaves board in 48h', lastBleed: '', status: 'completed', spark: [100,88,78,72,69,63], psaHistory: [0.032,0.028,0.025,0.023,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'james-taylor':   { name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '30 Aug 2023', psa: '0.12', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [33,67,100], psaHistory: [0.04,0.08,0.12], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'george-walsh':   { name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '18 Jul 2022', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [55,52,48,45], psaHistory: [0.028,0.025,0.022,0.01], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'terence-bennett': { name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', badge: 'EBRT | Year 4', protocol: 'EBRT', phase: 'Year 4', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '2 Mar 2021', psa: '0.8', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [25,30,33,36,40], psaHistory: [0.5,0.6,0.65,0.72,0.8], medication5ARI: 'finasteride', diagnoses: 'Localised, BPH', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'kevin-shaw':     { name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '4‑monthly', personalScheduleSet: true, anchor: '14 Nov 2023', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due May 2025', lastBleed: '', status: 'completed', spark: [83,73,67], psaHistory: [0.025,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL normal. Review if &gt; 0.03; recall if &gt; 0.1 or 2 consecutive rises.' },
+        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix). Review if &gt; 2.0; consider bounce before recall.' },
+        'stephen-webb':   { name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '25 Jun 2024', psa: '0.7', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [29,50,71,100], psaHistory: [0.2,0.35,0.5,0.7], medication5ARI: 'dutasteride', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
+        'nicholas-bell':  { name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '7 Dec 2024', psa: '0.15', protocolThreshold: '0.5', threshold: '0.5', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [40,30], psaHistory: [0.2,0.15], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.5 ng/mL normal. Review if &gt; 0.5; rising PSA may need imaging/referral.' },
+        'ian-collins':    { name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', badge: 'ADT | Year 2', protocol: 'Primary ADT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Apr 2023', psa: '2.5', protocolThreshold: '4.0', threshold: '4.0', personalThresholdSet: false, nextDue: 'Next due Apr 2025', lastBleed: '', status: 'completed', spark: [63,58,55], psaHistory: [2.8,2.6,2.5], medication5ARI: 'none', diagnoses: 'Locally advanced', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 4.0 ng/mL normal. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).' },
+        'david-patel':    { name: 'Patel, David (61)', nhs: '300 400 5002', dob: '12 Aug 1963', lastUpdated: '4 Feb 2025', badge: 'Intermittent hormones | Year 1', protocol: 'Intermittent Hormones', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Sep 2024', psa: '6.0', protocolThreshold: '10.0', threshold: '10.0', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '3 days ago', status: 'awaiting', daysAwaiting: 3, spark: [55,52,60], psaHistory: [5.5,5.2,6.0], medication5ARI: 'none', diagnoses: 'Prostate Ca', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 10.0 ng/mL normal. Review if &gt; 10.0; recall if &gt; 10.0 (restart hormones).' },
+        'frank-wright':   { name: 'Wright, Frank (76)', nhs: '400 500 6003', dob: '22 Jan 1948', lastUpdated: '5 Feb 2025', badge: 'Watchful waiting | Year 2', protocol: 'Watchful Waiting', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Jun 2023', psa: '18', protocolThreshold: '30.0', threshold: '30.0', personalThresholdSet: false, nextDue: 'Next due Jun 2025', lastBleed: '', status: 'completed', spark: [52,55,60], psaHistory: [15,16,18], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 30.0 ng/mL normal. Review if &gt; 30.0; recall if &gt; 30.0 or doubling time &lt; 1 year.' },
+        'harry-nelson':   { name: 'Nelson, Harry (69)', nhs: '500 600 7004', dob: '14 Oct 1955', lastUpdated: '6 Feb 2025', badge: 'Active surveillance | Year 1', protocol: 'Active Surveillance', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Nov 2024', psa: '8.2', protocolThreshold: '15.0', threshold: '15.0', personalThresholdSet: false, nextDue: '1 May 2025', lastBleed: '', status: 'upcoming', spark: [50,55,58], psaHistory: [7.2,7.8,8.2], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 15.0 ng/mL normal. Review if rise &gt; 0.75/year or doubling time &lt; 1 year.' }
       };
 
       function injectSparklineThresholds() {
@@ -1131,6 +1288,16 @@
           if (d.daysAwaiting > OVERDUE_DAYS_THRESHOLD) dueLine.classList.add('overdue');
         });
       }
+      function dateToSortKey(str) {
+        if (!str || typeof str !== 'string') return '9999-12-31';
+        var s = str.trim();
+        var months = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
+        var m = s.match(/^(\d{1,2})\s+(\w{3})\s+(\d{4})$/i);
+        if (m) return m[3] + '-' + (months[m[2].toLowerCase().slice(0, 3)] || '12') + '-' + (m[1].length === 1 ? '0' + m[1] : m[1]);
+        var m2 = s.match(/^(\w{3})\s+(\d{4})$/i);
+        if (m2) return m2[2] + '-' + (months[m2[1].toLowerCase().slice(0, 3)] || '12') + '-01';
+        return '9999-12-31';
+      }
       function populateListFromDetailData() {
         var tbody = document.getElementById('list-tbody');
         if (!tbody) return;
@@ -1144,10 +1311,75 @@
             cells[10].textContent = formatAwaitingCopy(d.daysAwaiting);
             if (d.daysAwaiting > OVERDUE_DAYS_THRESHOLD) cells[10].classList.add('list-next-due-overdue');
           }
+          tr.setAttribute('data-last-updated', dateToSortKey(d.lastUpdated));
+          tr.setAttribute('data-next-due', dateToSortKey(d.nextDue));
         });
+      }
+      function applyFilters() {
+        var searchRaw = (document.getElementById('filter-nhs') && document.getElementById('filter-nhs').value) ? document.getElementById('filter-nhs').value.trim() : '';
+        var searchNorm = searchRaw.replace(/\s/g, '').toLowerCase();
+        var searchLower = searchRaw.toLowerCase();
+        var protocol = (document.getElementById('filter-protocol') && document.getElementById('filter-protocol').value) ? document.getElementById('filter-protocol').value : '';
+        var activeTabBtn = document.querySelector('.list-view .tabs button.active');
+        var tab = activeTabBtn ? activeTabBtn.getAttribute('data-tab') : 'upcoming';
+        if (listTbody) {
+          listTbody.querySelectorAll('tr[data-detail]').forEach(function(row) {
+            var rowTab = row.getAttribute('data-tab');
+            var tabMatch = tab === 'all' || rowTab === tab;
+            var rowNhs = (row.cells[1] && row.cells[1].textContent) ? row.cells[1].textContent.replace(/\s/g, '') : '';
+            var rowName = (row.cells[0] && row.cells[0].textContent) ? row.cells[0].textContent.toLowerCase() : '';
+            var searchMatch = !searchRaw || (rowNhs.indexOf(searchNorm) !== -1) || (rowName.indexOf(searchLower) !== -1);
+            var rowProtocol = (row.cells[3] && row.cells[3].textContent) ? row.cells[3].textContent.trim() : '';
+            var protocolMatch = !protocol || rowProtocol === protocol;
+            row.style.display = (tabMatch && searchMatch && protocolMatch) ? '' : 'none';
+          });
+        }
+        document.querySelectorAll('.board .card[data-detail]').forEach(function(card) {
+          var elNhs = card.querySelector('.card-nhs');
+          var cardNhs = (elNhs && elNhs.textContent) ? elNhs.textContent.replace(/\s/g, '') : '';
+          var elName = card.querySelector('.card-name');
+          var cardName = (elName && elName.textContent) ? elName.textContent.toLowerCase() : '';
+          var searchMatch = !searchRaw || (cardNhs.indexOf(searchNorm) !== -1) || (cardName.indexOf(searchLower) !== -1);
+          var elProto = card.querySelector('.card-chip-protocol');
+          var cardProtocol = (elProto && elProto.textContent) ? elProto.textContent.trim() : '';
+          var protocolMatch = !protocol || cardProtocol === protocol;
+          card.style.display = (searchMatch && protocolMatch) ? '' : 'none';
+        });
+        applyListSort();
+      }
+      function applyListSort() {
+        var sortSelect = document.getElementById('list-sort');
+        var key = (sortSelect && sortSelect.value) ? sortSelect.value : 'last-updated';
+        if (!listTbody) return;
+        var rows = Array.prototype.slice.call(listTbody.querySelectorAll('tr[data-detail]'));
+        var workflowOrder = { upcoming: 0, awaiting: 1, action: 2, completed: 3, recall: 4 };
+        var attr = key === 'due-date' ? 'data-next-due' : 'data-last-updated';
+        rows.sort(function(a, b) {
+          if (key === 'status') {
+            var ta = workflowOrder[a.getAttribute('data-tab')] ?? 99;
+            var tb = workflowOrder[b.getAttribute('data-tab')] ?? 99;
+            if (ta !== tb) return ta - tb;
+            var va = a.getAttribute('data-last-updated') || '9999-12-31';
+            var vb = b.getAttribute('data-last-updated') || '9999-12-31';
+            return vb.localeCompare(va);
+          }
+          var va = a.getAttribute(attr) || '9999-12-31';
+          var vb = b.getAttribute(attr) || '9999-12-31';
+          return (key === 'due-date' ? va.localeCompare(vb) : vb.localeCompare(va));
+        });
+        rows.forEach(function(r) { listTbody.appendChild(r); });
       }
       injectAwaitingDueLines();
       populateListFromDetailData();
+      applyFilters();
+      updateListTabCounts();
+
+      var fn = document.getElementById('filter-nhs');
+      if (fn) fn.addEventListener('input', applyFilters);
+      var fp = document.getElementById('filter-protocol');
+      if (fp) fp.addEventListener('change', applyFilters);
+      var ls = document.getElementById('list-sort');
+      if (ls) ls.addEventListener('change', function() { applyListSort(); });
 
       var statusLabels = { upcoming: 'Upcoming', awaiting: 'Awaiting results', action: 'Review required', completed: 'Completed', recall: 'Recall' };
 
@@ -1195,13 +1427,37 @@
         document.getElementById('detail-5ari-edit-btn').style.display = '';
         var fiveARINote = document.getElementById('detail-5ari-note');
         if (fiveARINote) fiveARINote.classList.toggle('hidden', !d.medication5ARI || d.medication5ARI === 'none');
-        function protocolShortLabel(p) { return p === 'Radical Prostatectomy' ? 'Radical prostatectomy' : p === 'EBRT' || p === 'External Beam Radiation Therapy' ? 'EBRT' : p === 'Brachytherapy' ? 'Brachy' : p === 'Primary ADT' ? 'ADT' : p === 'Intermittent Hormones' ? 'Intermittent hormones' : p === 'Watchful Waiting' ? 'Watchful waiting' : p || '—'; }
-        document.getElementById('detail-chip-protocol').textContent = protocolShortLabel(d.protocol);
+        function protocolShortLabel(p) { return p === 'Radical Prostatectomy' ? 'RP' : p === 'EBRT' || p === 'External Beam Radiation Therapy' ? 'EBRT' : p === 'Brachytherapy' ? 'Brachy' : p === 'Primary ADT' ? 'ADT' : p === 'Intermittent Hormones' ? 'Intermittent hormones' : p === 'Watchful Waiting' ? 'Watchful waiting' : p === 'Active Surveillance' ? 'Active surveillance' : p || '—'; }
+        function protocolTooltip(p) { return p === 'Radical Prostatectomy' ? 'Radical Prostatectomy' : p === 'EBRT' || p === 'External Beam Radiation Therapy' ? 'EBRT (external beam radiotherapy)' : p === 'Brachytherapy' ? 'Brachytherapy' : p === 'Primary ADT' ? 'Primary ADT (androgen deprivation therapy)' : p === 'Intermittent Hormones' ? 'Intermittent hormones' : p === 'Watchful Waiting' ? 'Watchful waiting' : p === 'Active Surveillance' ? 'Active surveillance' : p || ''; }
+        var chipProto = document.getElementById('detail-chip-protocol');
+        chipProto.textContent = protocolShortLabel(d.protocol);
+        chipProto.title = protocolTooltip(d.protocol);
         document.getElementById('detail-chip-phase').textContent = d.phase;
         document.getElementById('detail-protocol').textContent = d.protocol;
         document.getElementById('detail-phase').textContent = d.phase;
+        var protocolFreq = d.protocolFrequency;
+        if (protocolFreq === undefined && d.protocol) {
+          var phaseYearNum = parseInt((d.phase || '').replace(/\D/g, ''), 10) || 1;
+          var cfg = protocolConfig[d.protocol];
+          if (cfg && cfg.getFrequency) protocolFreq = cfg.getFrequency(phaseYearNum);
+        }
+        if (protocolFreq !== undefined) d.protocolFrequency = protocolFreq;
+        document.getElementById('detail-protocol-frequency').textContent = protocolFreq || '—';
         document.getElementById('detail-frequency').textContent = d.frequency;
+        var freqInput = document.getElementById('detail-frequency-input');
+        if (freqInput) {
+          var f = (d.frequency || '').replace(/\u2011/g, '-');
+          freqInput.value = (d.personalScheduleSet && f) ? (f === '4-monthly' ? '4-monthly' : f === '6-monthly' ? '6-monthly' : f === 'annual' ? 'annual' : 'same') : 'same';
+        }
         document.getElementById('detail-anchor').textContent = d.anchor;
+        var scheduleAsteriskEl = document.getElementById('detail-schedule-asterisk');
+        if (scheduleAsteriskEl) {
+          if (d.personalScheduleSet) { scheduleAsteriskEl.classList.remove('hidden'); scheduleAsteriskEl.setAttribute('aria-hidden', 'false'); }
+          else { scheduleAsteriskEl.classList.add('hidden'); scheduleAsteriskEl.setAttribute('aria-hidden', 'true'); }
+        }
+        document.getElementById('detail-frequency-edit').classList.add('hidden');
+        document.getElementById('detail-frequency-edit-btn').style.display = '';
+        document.getElementById('detail-frequency').style.display = '';
         var scheduleEl = document.getElementById('detail-schedule-summary');
         var guidelineEl = document.getElementById('detail-protocol-guideline');
         if (scheduleEl) scheduleEl.textContent = d.scheduleSummary || '—';
@@ -1284,6 +1540,30 @@
           setDetailDelta(d);
         }
         showToast('Threshold saved.');
+      });
+
+      document.getElementById('detail-frequency-edit-btn').addEventListener('click', function() {
+        document.getElementById('detail-frequency').style.display = 'none';
+        document.getElementById('detail-frequency-edit-btn').style.display = 'none';
+        document.getElementById('detail-frequency-edit').classList.remove('hidden');
+      });
+      document.getElementById('detail-frequency-save').addEventListener('click', function() {
+        var val = document.getElementById('detail-frequency-input').value;
+        if (currentDetailId && detailData[currentDetailId]) {
+          var d = detailData[currentDetailId];
+          var protocolFreq = d.protocolFrequency || d.frequency;
+          var newFreq = val === 'same' ? protocolFreq : (val === '4-monthly' ? '4\u2011monthly' : val === '6-monthly' ? '6\u2011monthly' : val === 'annual' ? 'annual' : protocolFreq);
+          d.frequency = newFreq;
+          d.personalScheduleSet = (val !== 'same');
+          document.getElementById('detail-frequency').textContent = d.frequency;
+          var scheduleAsteriskEl = document.getElementById('detail-schedule-asterisk');
+          if (d.personalScheduleSet) { scheduleAsteriskEl.classList.remove('hidden'); scheduleAsteriskEl.setAttribute('aria-hidden', 'false'); }
+          else { scheduleAsteriskEl.classList.add('hidden'); scheduleAsteriskEl.setAttribute('aria-hidden', 'true'); }
+        }
+        document.getElementById('detail-frequency-edit').classList.add('hidden');
+        document.getElementById('detail-frequency').style.display = '';
+        document.getElementById('detail-frequency-edit-btn').style.display = '';
+        showToast('Schedule saved.');
       });
 
       document.getElementById('detail-diagnoses-edit-btn').addEventListener('click', function() {
