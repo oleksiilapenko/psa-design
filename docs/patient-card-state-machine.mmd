@@ -1,23 +1,28 @@
 %% Patient card state machine — for FigJam
 %% 1. Open https://mermaid.live 2. Paste this file 3. Export PNG/SVG 4. Drag into FigJam
-%% Source: PATIENT_CARD_STATE_MACHINE.md
+%% Source: PATIENT_CARD_STATE_MACHINE.md (aligned with current prototype)
 
 stateDiagram-v2
     direction TB
 
     [*] --> Upcoming : Add Patient
 
-    Upcoming --> Awaiting : Test done / Blood taken (not in UI)
-    Awaiting --> ReviewRequired : Move to Review Required (manual)
-    Awaiting --> Completed : Mark as completed (manual)
-    ReviewRequired --> Completed : Mark as completed (manual)
-    ReviewRequired --> Recall : Move to Recall (manual)
-    Recall --> Discharged : Discharge (mock)
-    Completed --> Upcoming : Next due (not impl.)
+    Upcoming --> Awaiting : Move to Awaiting Results
+    Awaiting --> ReviewRequired : Move to Review Required
+    Awaiting --> Completed : Move to Completed
+    ReviewRequired --> Completed : Move to Completed
+    ReviewRequired --> ActionRequired : Move to Action Required
+    ReviewRequired --> Recall : Move to Recall
+    ActionRequired --> Recall : Move to Recall
+    Completed --> Recall : Move to Recall (or 7-day auto, not impl.)
+    Recall --> Discharged : Discharge
+    ActionRequired --> Discharged : Discharge
+    ReviewRequired --> Discharged : Discharge
 
-    note right of Upcoming : PSA due next 4 weeks. Mock: blood form, reminder
-    note right of Awaiting : Blood taken, waiting result. Mock: Chase result
-    note right of ReviewRequired : PSA above threshold. Clinician decides
-    note right of Completed : PSA ≤ threshold. 48h/next due not impl.
-    note right of Recall : Back to clinic. Mock: Discharge
-    note right of Discharged : Off board / archive
+    note right of Upcoming : PSA due next 4 weeks. Send reminder (mock)
+    note right of Awaiting : Blood taken, waiting result
+    note right of ReviewRequired : PSA above threshold. GP decides
+    note right of ActionRequired : Follow-up action chosen (e.g. USC)
+    note right of Completed : PSA ≤ threshold. 7-day then Recall (copy)
+    note right of Recall : Back to clinic. Not on board
+    note right of Discharged : Off list. Not on board

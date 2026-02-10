@@ -1,5 +1,7 @@
 # Custom PSA schedule (exploration)
 
+**Status:** Design exploration only. Parts of the data model (e.g. `personalScheduleSet`, frequency in detail) exist in the prototype; full custom-schedule UX may not be implemented.
+
 **Goal:** Allow a patient’s PSA monitoring schedule (frequency / interval) to differ from the protocol default, in the same way we allow a custom threshold. Support it in the **Add Patient wizard** and on the **patient detail** page. No implementation in this doc—design only.
 
 ---
