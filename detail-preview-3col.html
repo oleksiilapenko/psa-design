@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail page preview — 3 columns (Patient | Body | Actions)</title>
+  <style>
+    /* ----- Base & tokens (wireframe) ----- */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --space-1: 6px;
+      --space-2: 10px;
+      --space-3: 14px;
+      --space-4: 18px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --border: 1px solid #ddd;
+      --border-strong: 2px solid #333;
+      --border-accent: 4px solid #007f3b;
+      --bg-page: #f5f5f5;
+      --bg-panel: #f8f8f8;
+      --bg-input: #fff;
+      --bg-highlight: #e8f5e9;
+      --text: #333;
+      --text-muted: #555;
+      --text-meta: #666;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-size-xs: 11px;
+      --font-size-sm: 12px;
+      --font-size-base: 14px;
+      --font-size-md: 15px;
+      --font-size-lg: 1.1rem;
+      --font-size-xl: 1.2rem;
+      --font-size-2xl: 1.35rem;
+      --line-tight: 1.3;
+      --line-normal: 1.5;
+      --col-patient-w: 220px;
+      --col-actions-w: 260px;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: var(--font-size-base);
+      line-height: var(--line-normal);
+      color: var(--text);
+      background: var(--bg-page);
+      min-height: 100vh;
+    }
+
+    /* ----- Buttons ----- */
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border: var(--border-strong);
+      background: var(--bg-input);
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      font-family: inherit;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .btn:hover { background: #333; color: #fff; }
+    .btn-primary { background: #007f3b; color: #fff; border-color: #007f3b; }
+    .btn-primary:hover { background: #004d24; border-color: #004d24; color: #fff; }
+    .btn-secondary { background: var(--bg-input); color: var(--text); }
+    .btn--sm { padding: 4px 10px; font-size: var(--font-size-sm); }
+
+    /* ----- Layout ----- */
+    .detail-preview { background: #fff; min-height: 100vh; }
+    .detail-preview__header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: var(--space-3) var(--space-5);
+      border-bottom: var(--border);
+    }
+    .detail-preview__main {
+      display: grid;
+      grid-template-columns: var(--col-patient-w) 1fr var(--col-actions-w);
+      min-height: calc(100vh - 52px);
+    }
+    @media (max-width: 880px) {
+      .detail-preview__main { grid-template-columns: 1fr; }
+    }
+
+    /* ----- Columns (unified padding & sections) ----- */
+    .detail-preview__col-patient,
+    .detail-preview__col-body,
+    .detail-preview__col-actions {
+      padding: var(--space-5);
+      overflow-y: auto;
+    }
+    .detail-preview__col-patient { border-right: var(--border); background: var(--bg-panel); }
+    .detail-preview__col-actions { border-left: var(--border); background: var(--bg-panel); }
+
+    .detail-preview .section {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-5);
+      border-bottom: var(--border);
+    }
+    .detail-preview .section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+    /* ----- Typography (unified) ----- */
+    .detail-preview .section-title {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 var(--space-2);
+      letter-spacing: 0.02em;
+      line-height: var(--line-tight);
+    }
+    .detail-preview h2 {
+      margin: 0 0 var(--space-2);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      line-height: var(--line-tight);
+    }
+    .detail-preview .detail-name {
+      margin: 0 0 var(--space-2);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      line-height: var(--line-tight);
+    }
+    .detail-preview h3.psa-subsection-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 0 0 var(--space-2);
+      letter-spacing: 0.02em;
+    }
+
+    /* ----- Definition lists (aligned) ----- */
+    .detail-preview .detail-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--space-1) var(--space-4);
+      font-size: var(--font-size-base);
+    }
+    .detail-preview .detail-grid dt { color: var(--text-meta); min-width: 0; }
+    .detail-preview .detail-grid dd { margin: 0; }
+
+    /* ----- Chips & badges ----- */
+    .detail-preview .detail-chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+    }
+    .detail-preview .detail-chip-protocol {
+      display: inline-block;
+      background: #333;
+      color: #fff;
+      padding: 4px 10px;
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      border: 2px solid #333;
+    }
+    .detail-preview .detail-chip-phase {
+      display: inline-block;
+      background: #fff;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      border: 1px solid #999;
+    }
+    .detail-preview .status-badge-detail {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      border: 2px solid;
+      background: transparent;
+    }
+    .detail-preview .status-badge-detail.status-action { color: #b71c1c; border-color: #b71c1c; }
+
+    /* ----- Editable rows ----- */
+    .detail-preview .detail-editable-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-2);
+    }
+    .detail-preview .detail-editable-value { flex: 1 1 auto; min-width: 0; font-size: var(--font-size-base); }
+
+    /* ----- Pathway: two-col grid ----- */
+    .detail-preview .pathway-diagnosis-row { margin: 0 0 var(--space-3); }
+    .detail-preview .detail-pathway-fields.detail-pathway-two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 var(--space-6);
+      align-items: start;
+    }
+    .detail-preview .pathway-full-width { margin-top: var(--space-5); }
+
+    /* ----- Tables ----- */
+    .detail-preview .protocol-table-wrap { overflow-x: auto; margin-top: var(--space-3); }
+    .detail-preview .pathway-threshold-table-wrap { margin-top: var(--space-5); }
+    .detail-preview .protocol-table {
+      width: 100%;
+      min-width: 260px;
+      border-collapse: collapse;
+      font-size: var(--font-size-base);
+    }
+    .detail-preview .protocol-table th,
+    .detail-preview .protocol-table td {
+      padding: var(--space-2) var(--space-3);
+      text-align: left;
+      border: var(--border);
+    }
+    .detail-preview .protocol-table th {
+      background: #e8e8e8;
+      font-weight: 700;
+    }
+    .detail-preview .protocol-table tbody tr.current-year { background: var(--bg-highlight); }
+    .detail-preview .protocol-table tbody tr.current-year td:first-child { border-left: var(--border-accent); }
+    .detail-preview .threshold-label-cell { font-weight: 700; }
+
+    /* ----- Threshold edit & 5-ARI ----- */
+    .detail-preview .threshold-edit {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-top: var(--space-1);
+    }
+    .detail-preview .threshold-edit input {
+      width: 80px;
+      padding: 6px 10px;
+      border: var(--border-strong);
+      font-size: var(--font-size-base);
+    }
+    .detail-preview .threshold-legend,
+    .detail-preview .pathway-threshold-legend {
+      font-size: var(--font-size-xs);
+      color: var(--text-meta);
+      margin: var(--space-1) 0 0;
+    }
+    .detail-preview .pathway-threshold-legend { margin: 0 0 var(--space-2); font-size: var(--font-size-sm); }
+    .detail-preview .detail-guideline-text {
+      font-size: var(--font-size-base);
+      line-height: var(--line-normal);
+      color: var(--text);
+      margin: var(--space-2) 0;
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-highlight);
+      border-left: var(--border-accent);
+    }
+    .detail-preview .pathway-5ari-block { margin-top: var(--space-4); }
+    .detail-preview .protocol-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+    }
+    .detail-preview .protocol-option input { width: auto; margin: 0; }
+    .detail-preview .protocol-option label { margin: 0; font-weight: 600; cursor: pointer; }
+    .detail-preview .pathway-5ari-hint,
+    .detail-preview .wizard-hint {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+      margin: var(--space-1) 0 0;
+      line-height: var(--line-tight);
+    }
+
+    /* ----- PSA section ----- */
+    .detail-preview .detail-psa-section .section-title { margin-bottom: var(--space-3); }
+    .detail-preview .psa-subsection { margin-bottom: var(--space-4); }
+    .detail-preview .psa-subsection:last-child { margin-bottom: 0; }
+    .detail-preview .psa-subsection-inner {
+      padding: var(--space-3);
+      background: var(--bg-panel);
+      border: var(--border);
+    }
+    .detail-preview .psa-subsection-inner--highlight { border-left: var(--border-accent); }
+    .detail-preview .detail-sparkline {
+      height: 48px;
+      background: #eee;
+      display: flex;
+      align-items: flex-end;
+      padding: var(--space-2);
+      gap: 4px;
+    }
+    .detail-preview .detail-sparkline .detail-sparkline-bar {
+      flex: 1;
+      background: #666;
+      min-height: 4px;
+    }
+    .detail-preview .detail-psa-unit { font-size: var(--font-size-sm); font-weight: 400; color: var(--text-meta); margin-left: 2px; }
+    .detail-preview .psa-latest-value { font-size: var(--font-size-lg); font-variant-numeric: tabular-nums; }
+    .detail-preview .psa-latest-sep { color: var(--text-meta); font-weight: 400; }
+    .detail-preview .psa-latest-analytical { margin: var(--space-1) 0 0; font-size: var(--font-size-sm); color: var(--text-muted); }
+    .detail-preview .psa-latest-threshold { margin: var(--space-2) 0 0; font-size: var(--font-size-base); }
+    .detail-preview .psa-latest-threshold-label { color: var(--text-meta); margin-right: 4px; }
+    .detail-preview .detail-psa-edit-hint { font-size: var(--font-size-base); color: var(--text); margin: 0 0 var(--space-3); font-weight: 500; }
+    .detail-preview .psa-result-form {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--space-3) var(--space-5);
+      align-items: end;
+      max-width: 420px;
+    }
+    .detail-preview .psa-result-form .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .detail-preview .psa-result-form .form-field label { font-size: var(--font-size-sm); font-weight: 600; color: var(--text); }
+    .detail-preview .psa-result-form input[type="text"],
+    .detail-preview .psa-result-form input[type="date"] {
+      padding: 8px 12px;
+      border: var(--border-strong);
+      font-size: var(--font-size-base);
+    }
+
+    /* ----- Actions sidebar ----- */
+    .detail-preview .actions { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-1); }
+    .detail-preview .action-card {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: var(--border);
+      border-left: 3px solid #333;
+      padding: var(--space-3) var(--space-4);
+      margin: 0;
+      cursor: pointer;
+      background: #fff;
+      font-family: inherit;
+      font-size: var(--font-size-base);
+    }
+    .detail-preview .action-card:hover { background: #f0f0f0; }
+    .detail-preview .action-card-title {
+      font-weight: 700;
+      margin: 0;
+      font-size: var(--font-size-md);
+      color: var(--text);
+      line-height: var(--line-tight);
+    }
+    .detail-preview .action-card-desc {
+      margin: 4px 0 0;
+      font-size: var(--font-size-sm);
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+    .detail-preview .action-card-discharge { border-left-color: #b71c1c; }
+  </style>
+</head>
+<body>
+  <div class="detail-preview">
+    <header class="detail-preview__header">
+      <button type="button" class="btn btn-secondary">× Close</button>
+    </header>
+    <main class="detail-preview__main">
+      <!-- Col 1: Patient -->
+      <aside class="detail-preview__col-patient" aria-label="Patient information">
+        <div class="section">
+          <h2 class="section-title">Patient</h2>
+          <p class="detail-name">Clark, Michael (69)</p>
+          <dl class="detail-grid">
+            <dt>NHS No</dt>
+            <dd>777 888 9900</dd>
+            <dt>DOB</dt>
+            <dd>19 Nov 1955</dd>
+            <dt>Last updated</dt>
+            <dd>28 Jan 2025</dd>
+          </dl>
+          <div class="detail-chips">
+            <span class="detail-chip-protocol" title="Radical Prostatectomy">RP</span>
+            <span class="detail-chip-phase">Year 2</span>
+            <span class="status-badge-detail status-action">Review Required</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Col 2: Body -->
+      <div class="detail-preview__col-body">
+        <section class="section" aria-labelledby="pathway-heading">
+          <h2 id="pathway-heading" class="section-title">Pathway</h2>
+          <dl class="detail-grid pathway-diagnosis-row">
+            <dt>Diagnosis</dt>
+            <dd>
+              <div class="detail-editable-row">
+                <span class="detail-editable-value">Localised</span>
+                <button type="button" class="btn btn-secondary btn--sm">Edit</button>
+              </div>
+            </dd>
+          </dl>
+          <div class="detail-pathway-fields detail-pathway-two-cols">
+            <dl class="detail-grid">
+              <dt>Protocol</dt>
+              <dd>Radical Prostatectomy</dd>
+              <dt>Phase</dt>
+              <dd>Year 2</dd>
+              <dt>Treatment start</dt>
+              <dd>20 Jan 2023</dd>
+            </dl>
+            <dl class="detail-grid">
+              <dt>Next test due</dt>
+              <dd>Review</dd>
+            </dl>
+          </div>
+          <div class="pathway-full-width">
+            <div class="protocol-table-wrap">
+              <table class="protocol-table" aria-label="PSA monitoring schedule by phase">
+                <thead>
+                  <tr>
+                    <th>Phase</th>
+                    <th>Protocol default</th>
+                    <th>Effective schedule</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Year 1</td><td>4‑monthly</td><td>4‑monthly</td></tr>
+                  <tr class="current-year"><td>Year 2</td><td>6‑monthly</td><td>6‑monthly</td></tr>
+                  <tr><td>Year 3–5</td><td>6‑monthly</td><td>6‑monthly</td></tr>
+                  <tr><td>Year 6–10</td><td>Annual</td><td>Annual</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="detail-guideline-text">PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.</p>
+            <p class="threshold-legend pathway-threshold-legend">* = personalised for this patient (overrides protocol default).</p>
+            <div class="protocol-table-wrap pathway-threshold-table-wrap">
+              <table class="protocol-table" aria-label="PSA threshold">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Protocol default</th>
+                    <th>Set threshold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="threshold-label-cell">Threshold (ng/mL)</td>
+                    <td>0.03</td>
+                    <td>
+                      <div class="threshold-edit">
+                        <input type="text" value="0.03" placeholder="Same as protocol" aria-label="Threshold" />
+                        <button type="button" class="btn btn-secondary btn--sm">Save</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pathway-5ari-block">
+              <div class="protocol-option">
+                <input type="checkbox" id="preview-5ari" aria-label="On 5-ARI" />
+                <label for="preview-5ari">On 5-ARI</label>
+              </div>
+              <p class="wizard-hint pathway-5ari-hint">May result in lower PSA readings (e.g. finasteride or dutasteride) — noted for clinical context only.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section detail-psa-section" aria-labelledby="psa-heading">
+          <h2 id="psa-heading" class="section-title">PSA</h2>
+          <div class="psa-subsection">
+            <h3 class="psa-subsection-title">Trend</h3>
+            <div class="psa-subsection-inner">
+              <div class="detail-sparkline" role="img" aria-label="PSA trend">
+                <span class="detail-sparkline-bar" style="height: 25%"></span>
+                <span class="detail-sparkline-bar" style="height: 62%"></span>
+                <span class="detail-sparkline-bar" style="height: 100%"></span>
+              </div>
+            </div>
+          </div>
+          <div class="psa-subsection">
+            <h3 class="psa-subsection-title">Latest result</h3>
+            <div class="psa-subsection-inner">
+              <div class="psa-latest-value">
+                <strong>0.06</strong><span class="psa-latest-sep"> / </span><span>0.03</span> <span class="detail-psa-unit">ng/mL</span>
+              </div>
+              <p class="psa-latest-analytical">↑ Δ +0.03 above threshold</p>
+              <p class="psa-latest-threshold">
+                <span class="psa-latest-threshold-label">Threshold</span> <strong>0.03</strong> <span class="detail-psa-unit">ng/mL</span>
+              </p>
+            </div>
+          </div>
+          <div class="psa-subsection">
+            <h3 class="psa-subsection-title">Record new result</h3>
+            <div class="psa-subsection-inner psa-subsection-inner--highlight">
+              <p class="detail-psa-edit-hint">Correct the result if needed, then choose an action below.</p>
+              <form class="psa-result-form" onsubmit="return false;">
+                <div class="form-field">
+                  <label for="preview-psa">PSA value (ng/mL)</label>
+                  <input type="text" id="preview-psa" placeholder="e.g. 0.06" value="0.06" inputmode="decimal" />
+                </div>
+                <div class="form-field">
+                  <label for="preview-psa-date">Date of result</label>
+                  <input type="date" id="preview-psa-date" value="2025-01-28" />
+                </div>
+                <button type="button" class="btn btn-primary">Save result</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="detail-required-action-section" aria-labelledby="followup-heading">
+          <h2 id="followup-heading" class="section-title">Follow-up Required</h2>
+          <div class="detail-editable-row">
+            <span class="detail-editable-value">—</span>
+            <button type="button" class="btn btn-secondary btn--sm">Edit</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Col 3: Actions sidebar -->
+      <aside class="detail-preview__col-actions" aria-label="Actions">
+        <div class="section">
+          <h2 class="section-title">Actions</h2>
+          <div class="actions">
+            <button type="button" class="action-card">
+              <span class="action-card-title">Move to Completed</span>
+              <p class="action-card-desc">PSA at or below threshold. No further action this round.</p>
+            </button>
+            <button type="button" class="action-card">
+              <span class="action-card-title">Move to Follow-up Required</span>
+              <p class="action-card-desc">Record follow-up action (e.g. USC, Advice &amp; guidance).</p>
+            </button>
+            <button type="button" class="action-card">
+              <span class="action-card-title">Move to Recall</span>
+              <p class="action-card-desc">Send back to clinic. Card leaves the board.</p>
+            </button>
+          </div>
+        </div>
+        <div class="section">
+          <div class="actions">
+            <button type="button" class="action-card action-card-discharge">
+              <span class="action-card-title">Discharge from pathway</span>
+              <p class="action-card-desc">Patient no longer on active monitoring.</p>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>

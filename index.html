@@ -345,7 +345,7 @@
           </select>
         </div>
       </div>
-      <!-- Board view: Upcoming, Awaiting Results, Completed, Review Required, Action Required. Recall and Discharged hidden. -->
+      <!-- Board view: Upcoming, Awaiting Results, Completed, Review Required, Follow-up Required. Recall and Discharged hidden. -->
       <div id="kanban-view" class="board-container">
         <div class="board">
           <div class="column">
@@ -476,7 +476,7 @@
           </div>
           <div class="column alert">
             <div class="column-header">Review Required</div>
-            <div class="column-note">PSA is above threshold. Review the trend and result, then either add a follow-up action and move to Action Required, or send the card back to Recall.</div>
+            <div class="column-note">PSA is above threshold. Review the trend and result, then either add a follow-up action and move to Follow-up Required, or send the card back to Recall.</div>
             <div class="column-cards">
               <div class="card" data-detail="michael-clark" data-status="action">
                 <button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button>
@@ -487,13 +487,13 @@
                   <div class="card-psa-line"><strong>PSA 0.06</strong> <span class="card-threshold">/ 0.03</span></div>
                   <div class="card-sparkline"><span style="height:25%"></span><span style="height:62%"></span><span style="height:100%"></span></div>
                 </div>
-                <div class="card-context"><span class="card-context-icon" aria-hidden="true">↑</span> Δ +0.03 vs threshold</div>
+                <div class="card-context"><span class="card-context-icon" aria-hidden="true">&#9888;</span> Δ +0.03 vs threshold</div>
                 <div class="card-last-updated">Last updated: 28 Jan 2025</div>
               </div>
             </div>
           </div>
           <div class="column">
-            <div class="column-header">Action Required</div>
+            <div class="column-header">Follow-up Required</div>
             <div class="column-note">A follow-up action is in place. When it is done, move the card back to Recall.</div>
             <div class="column-cards">
               <div class="card" data-detail="philip-hayes" data-status="action_required">
@@ -505,7 +505,7 @@
                   <div class="card-psa-line"><strong>PSA 2.4</strong> <span class="card-threshold">/ 2.0</span></div>
                   <div class="card-sparkline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div>
                 </div>
-                <div class="card-context"><span class="card-context-icon" aria-hidden="true">↑</span> USC (Urology)</div>
+                <div class="card-context"><span class="card-context-icon" aria-hidden="true">&#9888;</span> Urgent Suspected Cancer / Urology</div>
                 <div class="card-last-updated">Last updated: 29 Jan 2025</div>
               </div>
             </div>
@@ -528,7 +528,7 @@
           </div>
           <div class="tabs-group" aria-label="GP focus">
             <button type="button" data-tab="action">Review Required <span class="list-tab-count"></span></button>
-            <button type="button" data-tab="action_required">Action Required <span class="list-tab-count"></span></button>
+            <button type="button" data-tab="action_required">Follow-up Required <span class="list-tab-count"></span></button>
           </div>
           <div class="tabs-group" aria-label="Exit">
             <button type="button" data-tab="discharged">Discharged <span class="list-tab-count"></span></button>
@@ -568,7 +568,7 @@
             <tr data-tab="completed" data-status="completed" data-detail="ian-collins"><td>Collins, Ian (64)</td><td>200 300 4001</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Primary ADT (androgen deprivation therapy)">ADT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div></td><td>2.5</td><td class="threshold-cell">4.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.5 below threshold">↓ −1.5</span></td><td>Apr 2025</td><td>4 Feb 2025</td></tr>
             <tr data-tab="completed" data-status="completed" data-detail="frank-wright"><td>Wright, Frank (76)</td><td>400 500 6003</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Watchful waiting">Watchful waiting</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div></td><td>18</td><td class="threshold-cell">30.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="12 below threshold">↓ −12</span></td><td>Jun 2025</td><td>5 Feb 2025</td></tr>
             <tr data-tab="recall" data-status="recall" data-detail="james-taylor"><td>Taylor, James (71)</td><td>666 777 8899</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Radical Prostatectomy">RP</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div></td><td>0.12</td><td class="threshold-cell">0.03*</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.09 above threshold">↑ +0.09</span></td><td>Recall</td><td>30 Jan 2025</td></tr>
-            <tr data-tab="action_required" data-status="action_required" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-action_required">Action Required</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>USC (Urology)</td><td>29 Jan 2025</td></tr>
+            <tr data-tab="action_required" data-status="action_required" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-action_required">Follow-up Required</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Urgent Suspected Cancer / Urology</td><td>29 Jan 2025</td></tr>
             <tr data-tab="recall" data-status="recall" data-detail="stephen-webb"><td>Webb, Stephen (70)</td><td>999 000 1122</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Brachytherapy">Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div></td><td>0.7</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.2 above threshold">↑ +0.2</span></td><td>Recall</td><td>4 Feb 2025</td></tr>
             <tr data-tab="discharged" data-status="discharged" data-detail="arthur-discharged"><td>Smith, Arthur (72)</td><td>600 700 8005</td><td class="col-status"><span class="status-badge status-discharged">Discharged</span></td><td title="Radical Prostatectomy">RP</td><td>Year 5</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:95%"></span><span style="height:90%"></span></div></td><td>0.01</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.02 below threshold">↓ −0.02</span></td><td>—</td><td>1 Feb 2025</td></tr>
           </tbody>
@@ -904,7 +904,7 @@
             <div id="detail-required-action-edit" class="detail-editable-edit hidden">
               <select id="detail-required-action-input" class="detail-editable-input detail-required-action-select" aria-label="Required action">
                 <option value="">None</option>
-                <option value="USC (Urology)">USC (Urology)</option>
+                <option value="Urgent Suspected Cancer / Urology">Urgent Suspected Cancer / Urology</option>
                 <option value="Advice & Guidance">Advice &amp; Guidance</option>
                 <option value="Repeat PSA">Repeat PSA</option>
                 <option value="MDT discussion">MDT discussion</option>
@@ -1527,7 +1527,7 @@
         'george-walsh':   { name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '18 Jul 2022', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [55,52,48,45], psaHistory: [0.028,0.025,0.022,0.01], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'terence-bennett': { name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', badge: 'EBRT | Year 4', protocol: 'EBRT', phase: 'Year 4', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '2 Mar 2021', psa: '0.8', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [25,30,33,36,40], psaHistory: [0.5,0.6,0.65,0.72,0.8], medication5ARI: 'finasteride', diagnoses: 'Localised, BPH', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
         'kevin-shaw':     { name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '4‑monthly', personalScheduleSet: true, scheduleByYear: { 2: '4-monthly' }, anchor: '14 Nov 2023', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due May 2025', lastBleed: '', status: 'completed', spark: [83,73,67], psaHistory: [0.025,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
-        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'action_required', required_action: 'USC (Urology)', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
+        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'action_required', required_action: 'Urgent Suspected Cancer / Urology', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
         'stephen-webb':   { name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '3‑monthly', frequency: '3‑monthly', personalScheduleSet: false, anchor: '25 Jun 2024', psa: '0.7', protocolThreshold: '2.0', threshold: '0.5', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [29,50,71,100], psaHistory: [0.2,0.35,0.5,0.7], medication5ARI: 'yes', diagnoses: 'Localised', scheduleSummary: 'Year 1: 3‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL suggests remission. Year 1 monitoring is 3‑monthly. Check for PSA bounce before recall.' },
         'nicholas-bell':  { name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '3‑monthly', frequency: '3‑monthly', personalScheduleSet: false, anchor: '7 Dec 2024', psa: '0.15', protocolThreshold: '2.0', threshold: '0.5', personalThresholdSet: true, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [40,30], psaHistory: [0.2,0.15], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 3‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL suggests remission. Year 1 monitoring is 3‑monthly. Check for PSA bounce before recall.' },
         'ian-collins':    { name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', badge: 'ADT | Year 2', protocol: 'Primary ADT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Apr 2023', psa: '2.5', protocolThreshold: '4.0', threshold: '4.0', personalThresholdSet: false, nextDue: 'Next due Apr 2025', lastBleed: '', status: 'completed', spark: [63,58,55], psaHistory: [2.8,2.6,2.5], medication5ARI: 'none', diagnoses: 'Locally advanced', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 4.0 ng/mL on ADT. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).' },
@@ -1704,7 +1704,7 @@
       var ls = document.getElementById('list-sort');
       if (ls) ls.addEventListener('change', function() { applyListSort(); });
 
-      var statusLabels = { upcoming: 'Upcoming', awaiting: 'Awaiting Results', action: 'Review Required', completed: 'Completed', recall: 'Recall', action_required: 'Action Required', discharged: 'Discharged' };
+      var statusLabels = { upcoming: 'Upcoming', awaiting: 'Awaiting Results', action: 'Review Required', completed: 'Completed', recall: 'Recall', action_required: 'Follow-up Required', discharged: 'Discharged' };
 
       function setDetailDelta(d) {
         var analyticalEl = document.getElementById('detail-psa-analytical');
@@ -1980,7 +1980,7 @@
       });
 
       var requiredActionHints = {
-        'USC (Urology)': 'Urgent suspected cancer referral to urology. Patient should be seen within 2 weeks.',
+        'Urgent Suspected Cancer / Urology': 'Urgent suspected cancer referral to urology. Patient should be seen within 2 weeks.',
         'Advice & Guidance': 'Seek specialist advice before deciding on next steps. No direct referral yet.',
         'Repeat PSA': 'Repeat the PSA test to confirm the result before escalating. Retest in 4–6 weeks.',
         'MDT discussion': 'Case to be discussed at the next multidisciplinary team meeting for a consensus plan.',
@@ -2087,7 +2087,7 @@
           addActionCard(actionsEl, 'Move to Review Required', 'Result above threshold; needs GP review.', 'review', 4);
         } else if (d.status === 'action') {
           addActionCard(actionsEl, 'Move to Completed', 'Result acceptable (e.g. bounce).', 'complete', 3);
-          addActionCard(actionsEl, 'Move to Action Required', 'Record follow-up action (e.g. USC, Advice & guidance).', 'move-action-required', 5);
+          addActionCard(actionsEl, 'Move to Follow-up Required', 'Record follow-up action (e.g. USC, Advice & guidance).', 'move-action-required', 5);
           addActionCard(actionsEl, 'Move to Recall', 'GP decision: patient is taken back under clinic care. They leave the board and appear in the Recall list.', 'move-recall');
         } else if (d.status === 'completed') {
           addActionCard(actionsEl, 'Move to Recall', 'Send patient back to clinic care before the 7-day auto-move. They appear in the Recall list.', 'move-recall');
@@ -2112,7 +2112,7 @@
         row.addEventListener('click', function() { openDetail(row.getAttribute('data-detail')); });
       });
 
-      // Card 3-dot actions menu. Board columns: 1=Upcoming, 2=Awaiting Results, 3=Completed, 4=Review Required, 5=Action Required. Recall/Discharged not on board.
+      // Card 3-dot actions menu. Board columns: 1=Upcoming, 2=Awaiting Results, 3=Completed, 4=Review Required, 5=Follow-up Required. Recall/Discharged not on board.
       function getActionsForStatus(status) {
         var viewDetails = { label: 'View details', actionId: 'view-patient' };
         if (status === 'upcoming') return [
@@ -2128,7 +2128,7 @@
         if (status === 'action') return [
           viewDetails,
           { label: 'Move to Completed', actionId: 'complete', targetColumnIndex: 3 },
-          { label: 'Move to Action Required', actionId: 'move-action-required', targetColumnIndex: 5 },
+          { label: 'Move to Follow-up Required', actionId: 'move-action-required', targetColumnIndex: 5 },
           { label: 'Move to Recall', actionId: 'move-recall-off-board' },
           { label: 'Discharge', actionId: 'discharge-off-board' }
         ];
