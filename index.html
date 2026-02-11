@@ -339,9 +339,9 @@
         <div class="toolbar-group list-only-sort" id="toolbar-sort-wrap" style="display: none;">
           <label for="list-sort">Sort by</label>
           <select id="list-sort" aria-label="Sort list">
+            <option value="status" selected>Status</option>
             <option value="last-updated">Last updated</option>
             <option value="due-date">Due date</option>
-            <option value="status">Status</option>
           </select>
         </div>
       </div>
@@ -686,7 +686,7 @@
             <label for="anchor-date">Date of surgery / treatment start</label>
             <div style="display:flex;align-items:center;gap:12px;">
               <input type="date" id="anchor-date" value="">
-              <span id="phase-output" class="phase-inline" style="display:none;font-weight:700;font-size:14px;white-space:nowrap;">Current phase: <span id="phase-text">—</span></span>
+              <span id="phase-output" class="phase-inline" style="display:none;font-weight:700;font-size:14px;white-space:nowrap;">Current Year: <span id="phase-text">—</span></span>
             </div>
             <p class="wizard-hint">Optional for now. When set, the current phase is highlighted in the schedule below. You can review the protocol without a date.</p>
           </div>
@@ -1672,10 +1672,10 @@
       }
       function applyListSort() {
         var sortSelect = document.getElementById('list-sort');
-        var key = (sortSelect && sortSelect.value) ? sortSelect.value : 'last-updated';
+        var key = (sortSelect && sortSelect.value) ? sortSelect.value : 'status';
         if (!listTbody) return;
         var rows = Array.prototype.slice.call(listTbody.querySelectorAll('tr[data-detail]'));
-        var workflowOrder = { recall: 0, upcoming: 1, awaiting: 2, completed: 3, action: 4, action_required: 5, discharged: 6 };
+        var workflowOrder = { action: 0, awaiting: 1, upcoming: 2, completed: 3, action_required: 4, recall: 5, discharged: 6 };
         var attr = key === 'due-date' ? 'data-next-due' : 'data-last-updated';
         rows.sort(function(a, b) {
           if (key === 'status') {
