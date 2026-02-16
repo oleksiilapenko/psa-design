@@ -138,6 +138,14 @@
     .wizard .wizard-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
     .wizard .wizard-nav-right { display: flex; gap: 8px; }
     .wizard #step1-result { margin-top: 12px; }
+    .wizard .step1-success-banner { display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 12px; background: #e8f5e9; border-left: 4px solid #007f3b; font-size: 14px; }
+    .wizard .step1-success-banner::before { content: '✓'; font-weight: 700; color: #007f3b; }
+    .wizard .step1-patient-card { background: #f5f5f5; border: 1px solid #ccc; padding: 16px; margin-bottom: 16px; position: relative; }
+    .wizard .step1-patient-card .step1-patient-clear { position: absolute; top: 8px; right: 8px; padding: 4px 8px; font-size: 14px; cursor: pointer; background: transparent; border: 1px solid #666; }
+    .wizard .step1-patient-card .step1-patient-clear:hover { background: #eee; }
+    .wizard .step1-patient-card .step1-patient-nhs { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .wizard .step1-patient-card .step1-patient-name { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+    .wizard .step1-patient-card .step1-patient-meta { font-size: 13px; color: #555; margin: 4px 0; }
     .phase-inline { color: #007f3b; }
     .wizard-hint { font-size: 12px; color: #555; margin: 6px 0 0; }
     .wizard-guideline-text { font-size: 14px; line-height: 1.5; color: #333; margin: 10px 0; padding: 10px 12px; background: #e8f5e9; border-left: 4px solid #007f3b; }
@@ -157,6 +165,8 @@
     .protocol-table .override-marker { font-weight: 700; color: #333; }
     .protocol-table .override-cell { min-width: 120px; }
     .protocol-table select { width: 100%; padding: 4px 8px; border: 1px solid #333; font-size: 13px; }
+    .protocol-table .phase-range-cell input[type="number"] { padding: 4px 6px; border: 1px solid #333; font-size: 13px; }
+    .protocol-table td label[title] { cursor: help; margin-left: 4px; }
 
     /* Detail view */
     .detail-view { background: #fff; border: 1px solid #999; border-radius: 4px; padding: 24px; max-width: 720px; margin: 0 auto; }
@@ -253,6 +263,9 @@
     .detail-view .threshold-legend { font-size: 11px; color: #666; margin: 8px 0 0; }
     .detail-view .pathway-threshold-legend { margin: 0 0 8px; font-size: 12px; }
     .detail-view .pathway-threshold-table-wrap { margin-top: 20px; }
+    .detail-view .pathway-threshold-reflow { margin-top: 12px; }
+    .detail-view .pathway-threshold-reflow .threshold-label { font-weight: 600; margin-right: 8px; }
+    .detail-view .pathway-threshold-hint { margin: 6px 0 0; font-size: 12px; color: #666; }
     .detail-view .pathway-5ari-block { margin-top: 16px; }
     .detail-view .pathway-5ari-hint { margin: 6px 0 0; }
     .detail-view .threshold-label-cell { font-weight: 700; }
@@ -505,7 +518,7 @@
                   <div class="card-psa-line"><strong>PSA 2.4</strong> <span class="card-threshold">/ 2.0</span></div>
                   <div class="card-sparkline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div>
                 </div>
-                <div class="card-context"><span class="card-context-icon" aria-hidden="true">&#9888;</span> Urgent Suspected Cancer / Urology</div>
+                <div class="card-context"><span class="card-context-icon" aria-hidden="true">&#9888;</span> Urgent Suspected Cancer</div>
                 <div class="card-last-updated">Last updated: 29 Jan 2025</div>
               </div>
             </div>
@@ -541,7 +554,7 @@
               <th>NHS No</th>
               <th class="col-status">Status</th>
               <th>Protocol</th>
-              <th>Phase</th>
+              <th>Schedule</th>
               <th>Diagnoses</th>
               <th>Trend</th>
               <th>Last PSA (ng/mL)</th>
@@ -568,7 +581,7 @@
             <tr data-tab="completed" data-status="completed" data-detail="ian-collins"><td>Collins, Ian (64)</td><td>200 300 4001</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Primary ADT (androgen deprivation therapy)">ADT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:63%"></span><span style="height:58%"></span><span style="height:55%"></span></div></td><td>2.5</td><td class="threshold-cell">4.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="1.5 below threshold">↓ −1.5</span></td><td>Apr 2025</td><td>4 Feb 2025</td></tr>
             <tr data-tab="completed" data-status="completed" data-detail="frank-wright"><td>Wright, Frank (76)</td><td>400 500 6003</td><td class="col-status"><span class="status-badge status-completed">Completed</span></td><td title="Watchful waiting">Watchful waiting</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:52%"></span><span style="height:55%"></span><span style="height:60%"></span></div></td><td>18</td><td class="threshold-cell">30.0</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="12 below threshold">↓ −12</span></td><td>Jun 2025</td><td>5 Feb 2025</td></tr>
             <tr data-tab="recall" data-status="recall" data-detail="james-taylor"><td>Taylor, James (71)</td><td>666 777 8899</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Radical Prostatectomy">RP</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:33%"></span><span style="height:67%"></span><span style="height:100%"></span></div></td><td>0.12</td><td class="threshold-cell">0.03*</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.09 above threshold">↑ +0.09</span></td><td>Recall</td><td>30 Jan 2025</td></tr>
-            <tr data-tab="action_required" data-status="action_required" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-action_required">Follow-up Required</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Urgent Suspected Cancer / Urology</td><td>29 Jan 2025</td></tr>
+            <tr data-tab="action_required" data-status="action_required" data-detail="philip-hayes"><td>Hayes, Philip (68)</td><td>555 666 7788</td><td class="col-status"><span class="status-badge status-action_required">Follow-up Required</span></td><td title="EBRT (external beam radiotherapy)">EBRT</td><td>Year 2</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:50%"></span><span style="height:63%"></span><span style="height:75%"></span><span style="height:100%"></span></div></td><td>2.4</td><td class="threshold-cell">2.0</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.4 above threshold">↑ +0.4</span></td><td>Urgent Suspected Cancer</td><td>29 Jan 2025</td></tr>
             <tr data-tab="recall" data-status="recall" data-detail="stephen-webb"><td>Webb, Stephen (70)</td><td>999 000 1122</td><td class="col-status"><span class="status-badge status-recall">Recall</span></td><td title="Brachytherapy">Brachy</td><td>Year 1</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:29%"></span><span style="height:50%"></span><span style="height:71%"></span><span style="height:100%"></span></div></td><td>0.7</td><td class="threshold-cell">0.5</td><td class="list-delta-cell"><span class="list-delta-above" aria-label="0.2 above threshold">↑ +0.2</span></td><td>Recall</td><td>4 Feb 2025</td></tr>
             <tr data-tab="discharged" data-status="discharged" data-detail="arthur-discharged"><td>Smith, Arthur (72)</td><td>600 700 8005</td><td class="col-status"><span class="status-badge status-discharged">Discharged</span></td><td title="Radical Prostatectomy">RP</td><td>Year 5</td><td class="col-diagnoses"></td><td><div class="sparkline-inline"><span style="height:100%"></span><span style="height:95%"></span><span style="height:90%"></span></div></td><td>0.01</td><td class="threshold-cell">0.03</td><td class="list-delta-cell"><span class="list-delta-below" aria-label="0.02 below threshold">↓ −0.02</span></td><td>—</td><td>1 Feb 2025</td></tr>
           </tbody>
@@ -592,87 +605,94 @@
           <span class="step" id="stepper-2">2</span>
           <span class="step-connector"></span>
           <span class="step" id="stepper-3">3</span>
-          <span class="step-connector"></span>
-          <span class="step" id="stepper-4">4</span>
         </div>
       <div class="wizard">
         <!-- Step 1 -->
         <div id="wizard-step1">
           <h2><span class="wizard-step-num" aria-hidden="true">1. </span>Find the patient</h2>
-          <p class="step-intro">We look up the patient in the NHS patient service using their NHS number, so we have the correct name and date of birth.</p>
+          <p class="step-intro">Specify patient's NHS number to add them to the monitoring registry.</p>
           <div class="form-group">
-            <label for="nhs-number">NHS Number</label>
-            <input type="text" id="nhs-number" placeholder="e.g. 123 456 7890" value="">
+            <label for="nhs-number">Search by NHS number</label>
+            <input type="text" id="nhs-number" placeholder="e.g. 123 456 7890" value="" aria-label="Search by NHS number">
           </div>
-          <button type="button" class="btn btn-primary" id="wizard-search">Search</button>
+          <button type="button" class="btn btn-primary" id="wizard-search">Find</button>
           <div id="step1-result" class="hidden">
-            <div class="confirm-box">
-              <strong>Is this the correct patient?</strong>
-              <p id="pas-name">—</p>
-              <p id="pas-dob">DOB: —</p>
-              <p id="pas-nhs">NHS No: —</p>
+            <div class="step1-patient-card" id="step1-patient-card">
+              <button type="button" class="step1-patient-clear" id="step1-patient-clear" aria-label="Clear selection">×</button>
+              <div class="step1-patient-nhs" id="pas-nhs-label">NHS</div>
+              <p id="pas-nhs" class="step1-patient-meta">—</p>
+              <p class="step1-patient-name" id="pas-name">—</p>
+              <p class="step1-patient-meta" id="pas-dob">—</p>
+              <p class="step1-patient-meta" id="pas-practice">—</p>
+              <p class="step1-patient-meta" id="pas-address">—</p>
             </div>
             <div class="actions wizard-nav">
-            <span aria-hidden="true"></span>
-            <button type="button" class="btn btn-primary" id="wizard-step1-next">Continue</button>
-          </div>
+              <span aria-hidden="true"></span>
+              <button type="button" class="btn btn-primary" id="wizard-step1-next">Confirm and continue</button>
+            </div>
           </div>
         </div>
         <!-- Step 2 -->
         <div id="wizard-step2" class="hidden">
-          <h2><span class="wizard-step-num" aria-hidden="true">2. </span>Choose treatment pathway</h2>
-          <p class="step-intro">Choose the treatment pathway. This determines the PSA testing schedule and threshold.</p>
+          <h2><span class="wizard-step-num" aria-hidden="true">2. </span>Select pathway</h2>
+          <p class="step-intro">Choose the patient's PSA monitoring pathway. This sets the protocol rules you'll use to build the monitoring schedule next.</p>
           <div class="form-group">
-            <label for="wizard-diagnoses">Diagnoses (optional)</label>
-            <div class="diagnosis-select-wrap">
-              <input type="text" id="wizard-diagnoses" list="diagnosis-list" placeholder="Choose or type…" aria-describedby="wizard-diagnoses-hint" autocomplete="off" />
-              <span class="diagnosis-chevron" aria-hidden="true">▼</span>
+            <p style="margin:0 0 8px;font-weight:600;">Is prostate cancer confirmed?</p>
+            <div class="protocol-option" style="margin-bottom:8px;">
+              <input type="radio" name="cancer-confirmed" id="cancer-yes" value="yes" />
+              <label for="cancer-yes">Yes</label>
             </div>
-            <datalist id="diagnosis-list">
-              <option value="Localised prostate cancer">
-              <option value="Locally advanced prostate cancer">
-              <option value="Metastatic prostate cancer">
-              <option value="Recurrent prostate cancer">
-              <option value="Prostate cancer (unspecified)">
-              <option value="BPH">
-              <option value="Localised prostate cancer, BPH">
-              <option value="Prostate cancer on active surveillance">
-              <option value="Prostate cancer on watchful waiting">
-            </datalist>
-            <p id="wizard-diagnoses-hint" class="wizard-hint">Optional. Helps with protocol and triage. Choose from the list or type.</p>
+            <div class="protocol-option" style="margin-bottom:16px;">
+              <input type="radio" name="cancer-confirmed" id="cancer-no" value="no" />
+              <label for="cancer-no">No</label>
+            </div>
           </div>
-          <fieldset class="protocol-radios" aria-describedby="protocol-help">
-            <legend class="sr-only">Protocol</legend>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-radical" value="radical" />
-              <label for="protocol-radical">Radical Prostatectomy</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-ebrt" value="ebrt" />
-              <label for="protocol-ebrt">EBRT (external beam radiotherapy)</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-brachy" value="brachytherapy" />
-              <label for="protocol-brachy">Brachytherapy</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-adt" value="primary-adt" />
-              <label for="protocol-adt">Primary ADT (androgen deprivation therapy)</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-intermittent" value="intermittent-hormones" />
-              <label for="protocol-intermittent">Intermittent hormones</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-watchful" value="watchful-waiting" />
-              <label for="protocol-watchful">Watchful waiting</label>
-            </div>
-            <div class="protocol-option">
-              <input type="radio" name="protocol" id="protocol-active-surveillance" value="active-surveillance" />
-              <label for="protocol-active-surveillance">Active surveillance</label>
-            </div>
-          </fieldset>
+          <div id="wizard-pathway-cancer" class="hidden">
+            <p style="margin:0 0 8px;font-weight:600;">Select pathway</p>
+            <p class="wizard-hint" style="margin-bottom:12px;">Pick the pathway that matches the patient's current status or treatment.</p>
+            <fieldset class="protocol-radios" aria-describedby="protocol-help">
+              <legend class="sr-only">Pathway</legend>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-radical" value="radical" /><label for="protocol-radical">Radical Prostatectomy</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-ebrt" value="ebrt" /><label for="protocol-ebrt">EBRT (external beam radiotherapy)</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-brachy" value="brachytherapy" /><label for="protocol-brachy">Brachytherapy</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-adt" value="primary-adt" /><label for="protocol-adt">Primary ADT (androgen deprivation therapy)</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-intermittent" value="intermittent-hormones" /><label for="protocol-intermittent">Intermittent hormones</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-watchful" value="watchful-waiting" /><label for="protocol-watchful">Watchful waiting</label></div>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-active-surveillance" value="active-surveillance" /><label for="protocol-active-surveillance">Active surveillance</label></div>
+            </fieldset>
+          </div>
+          <div id="wizard-pathway-non-cancer" class="hidden">
+            <p style="margin:0 0 8px;font-weight:600;">Select pathway</p>
+            <p class="wizard-hint" style="margin-bottom:12px;">Pick the pathway that matches the patient's current status.</p>
+            <fieldset class="protocol-radios">
+              <legend class="sr-only">Pathway</legend>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-general-psa" value="general-psa-monitoring" /><label for="protocol-general-psa">General PSA monitoring</label></div>
+              <p class="wizard-hint" style="margin:-4px 0 12px 24px;font-size:12px;">Ongoing PSA checks without a cancer diagnosis.</p>
+              <div class="protocol-option"><input type="radio" name="protocol" id="protocol-raised-psa" value="raised-psa-follow-up" /><label for="protocol-raised-psa">Raised PSA follow-up</label></div>
+              <p class="wizard-hint" style="margin:-4px 0 12px 24px;font-size:12px;">Repeat PSA after a raised result to decide on referral.</p>
+            </fieldset>
+          </div>
           <p id="protocol-help" class="protocol-help hidden" role="status"></p>
+          <div class="form-group">
+            <p style="margin:0 0 8px;font-weight:600;">Ownership</p>
+            <p class="wizard-hint" style="margin:0 0 8px;">Who will manage recalls and act on results.</p>
+            <div class="protocol-option" style="margin-bottom:8px;">
+              <input type="radio" name="ownership" id="ownership-gp" value="GP" checked />
+              <label for="ownership-gp">General Practice</label>
+            </div>
+            <div class="protocol-option">
+              <input type="radio" name="ownership" id="ownership-urology" value="Urology" />
+              <label for="ownership-urology">Urology</label>
+            </div>
+          </div>
+          <div class="form-group" id="wizard-anchor-wrap">
+            <label for="anchor-date">Date of surgery or start of the treatment</label>
+            <p class="wizard-hint" style="margin:0 0 8px;">Used to calculate year of follow-up, monitoring frequency, and discharge.</p>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <input type="date" id="anchor-date" value="">
+              <span id="phase-output" class="phase-inline" style="display:none;font-weight:700;font-size:14px;white-space:nowrap;padding:4px 10px;background:#e3f2fd;">Year <span id="phase-text">—</span></span>
+            </div>
+          </div>
           <div class="actions wizard-nav">
             <button type="button" class="btn btn-secondary wizard-back" id="wizard-step2-back">Back</button>
             <button type="button" class="btn btn-primary" id="wizard-step2-next">Continue</button>
@@ -680,70 +700,60 @@
         </div>
         <!-- Step 3 -->
         <div id="wizard-step3" class="hidden">
-          <h2><span class="wizard-step-num" aria-hidden="true">3. </span>Schedule and threshold</h2>
-          <p class="step-intro">Set the treatment start date to see the current phase, then review or override the monitoring schedule and threshold for this patient.</p>
-          <div class="form-group">
-            <label for="anchor-date">Date of surgery / treatment start</label>
-            <div style="display:flex;align-items:center;gap:12px;">
-              <input type="date" id="anchor-date" value="">
-              <span id="phase-output" class="phase-inline" style="display:none;font-weight:700;font-size:14px;white-space:nowrap;">Current Year: <span id="phase-text">—</span></span>
-            </div>
-            <p class="wizard-hint">Optional for now. When set, the current phase is highlighted in the schedule below. You can review the protocol without a date.</p>
-          </div>
-          <p class="wizard-protocol-label" style="margin:20px 0 4px;font-size:13px;color:#666;">Selected protocol</p>
-          <h3 id="wizard-protocol-heading" style="margin:0 0 8px;font-size:15px;font-weight:700;color:#333;">—</h3>
-          <p class="wizard-hint" style="margin-bottom:12px;">Use the protocol default for each phase, or set a different schedule for this patient (e.g. more frequent tests in a given year).</p>
-          <div class="form-group protocol-table-wrap">
+          <h2><span class="wizard-step-num" aria-hidden="true">3. </span>Set up monitoring schedule</h2>
+          <p class="wizard-protocol-label" style="margin:0 0 4px;font-size:13px;color:#666;">Guidelines for <span id="wizard-protocol-heading">—</span></p>
+          <div class="form-group protocol-table-wrap" style="margin-top:8px;">
             <table class="protocol-table" id="wizard-protocol-table" aria-label="PSA monitoring schedule by phase">
               <thead>
-                <tr><th>Phase</th><th>Protocol default</th><th>Set schedule</th></tr>
+                <tr><th>Phase (years)</th><th>Threshold (ng/mL)</th><th>Monitoring schedule</th><th title="Monitoring Other Test">MOT</th><th title="Liver Function Test">LFT</th><th></th></tr>
               </thead>
               <tbody id="wizard-protocol-tbody"></tbody>
             </table>
           </div>
-          <p id="wizard-schedule-caveat" class="wizard-guideline-text"></p>
-          <div class="form-group protocol-table-wrap" style="margin-top:20px;">
-            <table class="protocol-table" aria-label="PSA threshold">
-              <thead>
-                <tr><th></th><th>Protocol default</th><th>Set threshold</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="font-weight:700;">Threshold (ng/mL)</td>
-                  <td id="protocol-threshold">0.03</td>
-                  <td class="override-cell"><input type="text" id="personal-threshold" value="0.03" placeholder="Same as protocol" style="width:100%;padding:4px 8px;border:1px solid #333;font-size:13px;box-sizing:border-box;" aria-describedby="wizard-threshold-hint"></td>
-                </tr>
-              </tbody>
-            </table>
-            <p id="wizard-threshold-hint" class="wizard-hint">Use the protocol default or set a patient-specific threshold. Custom values are marked with * on the detail page.</p>
+          <p class="wizard-hint" style="margin-top:8px;">Edit phase year ranges, threshold, schedule, and MOT/LFT per phase. Add a phase at the end or delete the last phase if needed.</p>
+          <button type="button" class="btn btn-secondary" id="wizard-add-phase" style="margin-top:8px;">Add phase</button>
+          <p id="wizard-schedule-caveat" class="wizard-guideline-text" style="margin-top:12px;"></p>
+          <div class="form-group" style="margin-top:24px;">
+            <p style="margin:0 0 8px;font-weight:700;font-size:1rem;">Monitoring</p>
+            <p class="step-intro" style="margin:0 0 12px;">Set how often this patient should have a PSA test, and when they should be reviewed for discharge.</p>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-bottom:12px;">
+              <div>
+                <label for="wizard-psa-schedule" class="sr-only">PSA test schedule</label>
+                <select id="wizard-psa-schedule" aria-label="PSA test schedule" style="padding:6px 10px;min-width:160px;">
+                  <option value="3-monthly">Every 3 months</option>
+                  <option value="4-monthly">Every 4 months</option>
+                  <option value="6-monthly">Every 6 months</option>
+                  <option value="annual">Annually</option>
+                </select>
+              </div>
+              <div>
+                <label for="wizard-review-discharge">Review for discharge in</label>
+                <select id="wizard-review-discharge" aria-label="Review for discharge in years" style="padding:6px 10px;min-width:120px;margin-left:8px;">
+                  <option value="5">5 years</option>
+                  <option value="7">7 years</option>
+                  <option value="10" selected>10 years</option>
+                </select>
+              </div>
+            </div>
+            <p class="wizard-hint" style="margin:0 0 8px;">And require: <span title="Monitoring Other Test">MOT</span> / <span title="Liver Function Test">LFT</span> (from current phase above).</p>
           </div>
           <div class="form-group" style="margin-top:20px;">
-            <div class="protocol-option">
+            <p style="margin:0 0 8px;font-weight:700;font-size:1rem;">Threshold</p>
+            <p class="wizard-hint" style="margin:0 0 8px;">Set a PSA threshold for this patient. Results below this value will be auto-completed. Results at or above it will be flagged for review.</p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <input type="text" id="wizard-threshold-input" value="0.03" placeholder="0.03" inputmode="decimal" style="width:80px;padding:6px 10px;" aria-label="Threshold ng/mL">
+              <span>ng/mL</span>
+            </div>
+            <div class="protocol-option" style="margin-top:12px;">
               <input type="checkbox" id="wizard-5ari-yes" />
               <label for="wizard-5ari-yes">On 5-ARI</label>
             </div>
-            <p class="wizard-hint">May result in lower PSA readings — noted for clinical context only.</p>
+            <p class="wizard-hint">Finasteride or Dutasteride may result in lower PSA reading.</p>
           </div>
+          <p class="wizard-hint" style="margin-top:20px;">You will be able to edit this information later.</p>
           <div class="actions wizard-nav">
             <button type="button" class="btn btn-secondary wizard-back" id="wizard-step3-back">Back</button>
-            <button type="button" class="btn btn-primary" id="wizard-step3-next">Continue</button>
-          </div>
-        </div>
-        <!-- Step 4 -->
-        <div id="wizard-step4" class="hidden">
-          <h2><span class="wizard-step-num" aria-hidden="true">4. </span>Baseline PSA</h2>
-          <p class="step-intro">Enter the most recent PSA result and when it was taken. This establishes the starting point for trend monitoring.</p>
-          <div class="form-group">
-            <label for="last-psa">Latest PSA result (ng/mL)</label>
-            <input type="text" id="last-psa" placeholder="e.g. 0.02" value="">
-          </div>
-          <div class="form-group">
-            <label for="last-psa-date">Date of result</label>
-            <input type="date" id="last-psa-date" value="">
-          </div>
-          <div class="actions wizard-nav">
-            <button type="button" class="btn btn-secondary wizard-back" id="wizard-step4-back">Back</button>
-            <button type="button" class="btn btn-primary" id="wizard-submit">Add patient</button>
+            <button type="button" class="btn btn-primary" id="wizard-submit">+ Add patient</button>
           </div>
         </div>
       </div>
@@ -788,6 +798,14 @@
         <div class="section">
           <div class="section-title">Pathway</div>
           <dl class="detail-grid pathway-diagnosis-row">
+            <dt>Pathway</dt><dd id="detail-protocol">—</dd>
+            <dt>Ownership</dt>
+            <dd>
+              <select id="detail-ownership" aria-label="Ownership" style="padding:6px 10px;min-width:160px;">
+                <option value="GP">General Practice</option>
+                <option value="Urology">Urology</option>
+              </select>
+            </dd>
             <dt>Diagnosis</dt>
             <dd>
               <div class="detail-editable-row">
@@ -796,6 +814,19 @@
                   <div class="diagnosis-select-wrap">
                     <input type="text" id="detail-diagnoses-input" class="detail-editable-input" list="diagnosis-list" placeholder="Choose or type…" aria-label="Diagnoses" autocomplete="off" />
                     <span class="diagnosis-chevron" aria-hidden="true">▼</span>
+                    <datalist id="diagnosis-list">
+                      <option value="Localised prostate cancer">
+                      <option value="Locally advanced prostate cancer">
+                      <option value="Metastatic prostate cancer">
+                      <option value="Recurrent prostate cancer">
+                      <option value="Prostate cancer (unspecified)">
+                      <option value="BPH">
+                      <option value="Localised prostate cancer, BPH">
+                      <option value="Prostate cancer on active surveillance">
+                      <option value="Prostate cancer on watchful waiting">
+                      <option value="General PSA monitoring">
+                      <option value="Raised PSA">
+                    </datalist>
                   </div>
                   <button type="button" class="btn btn-secondary detail-editable-save" id="detail-diagnoses-save">Save</button>
                 </div>
@@ -805,9 +836,8 @@
           </dl>
           <div class="detail-pathway-fields detail-pathway-two-cols">
             <dl class="detail-grid pathway-col-1">
-              <dt>Protocol</dt><dd id="detail-protocol">—</dd>
-              <dt>Phase</dt><dd id="detail-phase">—</dd>
-              <dt>Treatment start</dt><dd id="detail-anchor">—</dd>
+              <dt>Date of surgery or treatment start</dt><dd id="detail-anchor">—</dd>
+              <dt>Year of follow-up</dt><dd><span id="detail-year-badge" class="detail-year-badge" style="display:inline-block;padding:4px 10px;background:#e3f2fd;font-weight:700;">—</span></dd>
             </dl>
             <dl class="detail-grid pathway-col-2">
               <dt>Next test due</dt><dd id="detail-next-due">—</dd>
@@ -815,30 +845,28 @@
             </dl>
           </div>
           <div class="pathway-full-width">
-            <div class="protocol-table-wrap">
-              <table class="protocol-table" id="detail-protocol-table" aria-label="PSA monitoring schedule by phase">
-                <thead><tr><th>Phase</th><th>Protocol default</th><th>Effective schedule</th></tr></thead>
-                <tbody id="detail-protocol-tbody"></tbody>
-              </table>
-            </div>
-            <p class="detail-guideline-text" id="detail-protocol-guideline-text"></p>
+            <details class="detail-protocol-rules" id="detail-guidelines-details">
+              <summary class="detail-protocol-rules-summary" id="detail-guidelines-summary">Guidelines</summary>
+              <div class="detail-protocol-rules-content">
+                <div class="protocol-table-wrap">
+                  <table class="protocol-table" id="detail-protocol-table" aria-label="PSA monitoring schedule by phase">
+                    <thead><tr><th>Phase</th><th>Threshold (ng/mL)</th><th>Monitoring schedule</th><th title="Monitoring Other Test">MOT</th><th title="Liver Function Test">LFT</th></tr></thead>
+                    <tbody id="detail-protocol-tbody"></tbody>
+                  </table>
+                </div>
+                <p class="detail-guideline-text" id="detail-protocol-guideline-text"></p>
+              </div>
+            </details>
             <p class="threshold-legend pathway-threshold-legend">* = personalised for this patient (overrides protocol default).</p>
-            <div class="protocol-table-wrap pathway-threshold-table-wrap">
-              <table class="protocol-table" aria-label="PSA threshold">
-                <thead><tr><th></th><th>Protocol default</th><th>Set threshold <span id="detail-threshold-asterisk" class="threshold-asterisk hidden" aria-hidden="true">*</span></th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td class="threshold-label-cell">Threshold (ng/mL)</td>
-                    <td id="detail-protocol-threshold">—</td>
-                    <td>
-                      <div class="threshold-edit">
-                        <input type="text" id="detail-threshold-input" value="" placeholder="Same as protocol" inputmode="decimal" aria-label="Threshold" />
-                        <button type="button" class="btn btn-secondary" id="detail-threshold-save">Save</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="pathway-threshold-reflow">
+              <div class="threshold-edit">
+                <label for="detail-threshold-input" class="threshold-label">Threshold</label>
+                <input type="text" id="detail-threshold-input" value="" placeholder="Same as protocol" inputmode="decimal" aria-label="Threshold (ng/mL)" />
+                <span class="detail-psa-unit">ng/mL</span>
+                <button type="button" class="btn btn-secondary" id="detail-threshold-save">Save</button>
+                <span id="detail-threshold-asterisk" class="threshold-asterisk hidden" aria-hidden="true">*</span>
+              </div>
+              <p class="wizard-hint pathway-threshold-hint">Protocol default: <span id="detail-protocol-threshold">—</span> ng/mL</p>
             </div>
             <div class="pathway-5ari-block">
               <div class="protocol-option">
@@ -850,8 +878,47 @@
           </div>
         </div>
 
+        <div class="section detail-monitoring-section">
+          <div class="section-title">Monitoring</div>
+          <dl class="detail-grid">
+            <dt>PSA test schedule</dt>
+            <dd>
+              <select id="detail-psa-schedule" aria-label="PSA test schedule">
+                <option value="3-monthly">3‑monthly</option>
+                <option value="4-monthly">4‑monthly</option>
+                <option value="6-monthly">6‑monthly</option>
+                <option value="annual">Annual</option>
+              </select>
+              <button type="button" class="btn btn-secondary" id="detail-psa-schedule-save">Save</button>
+            </dd>
+            <dt>Review for discharge in</dt>
+            <dd>
+              <select id="detail-review-discharge" aria-label="Review for discharge in years">
+                <option value="">—</option>
+                <option value="5">5 years</option>
+                <option value="7">7 years</option>
+                <option value="10">10 years</option>
+              </select>
+            </dd>
+            <dt>And require</dt>
+            <dd id="detail-mot-lft-display" title="MOT: Monitoring Other Test; LFT: Liver Function Test">—</dd>
+          </dl>
+          <p class="wizard-hint">MOT and LFT requirements are derived from the current phase; they cannot be overridden per patient.</p>
+        </div>
+
         <div class="section detail-psa-section">
           <div class="section-title">PSA</div>
+
+          <div class="psa-subsection psa-subsection-results" id="detail-psa-subsection-results">
+            <h3 class="psa-subsection-title">PSA results</h3>
+            <div class="psa-subsection-inner">
+              <table class="protocol-table" id="detail-psa-results-table" aria-label="PSA results">
+                <thead><tr><th>Date of result</th><th>Relative</th><th>PSA (ng/mL)</th><th></th></tr></thead>
+                <tbody id="detail-psa-results-tbody"></tbody>
+              </table>
+              <p id="detail-psa-results-empty" class="detail-psa-results-empty hidden" aria-live="polite">No PSA results on record.</p>
+            </div>
+          </div>
 
           <div class="psa-subsection psa-subsection-trend" id="detail-psa-subsection-trend">
             <h3 class="psa-subsection-title">Trend</h3>
@@ -878,20 +945,26 @@
             </div>
           </div>
 
-          <div class="psa-subsection psa-subsection-add-result hidden" id="detail-psa-subsection-add">
-            <h3 class="psa-subsection-title">Record new result</h3>
-            <div class="psa-subsection-inner psa-subsection-inner--highlight">
-              <p class="detail-psa-edit-hint" id="detail-psa-edit-hint"></p>
-              <div class="psa-result-form">
-                <div class="form-field">
-                  <label for="detail-psa-result-input">PSA value (ng/mL)</label>
-                  <input type="text" id="detail-psa-result-input" placeholder="e.g. 0.06" inputmode="decimal" aria-label="PSA result" />
+          <div class="psa-subsection psa-subsection-add-result" id="detail-psa-subsection-add">
+            <div id="detail-psa-add-toggle-wrap">
+              <button type="button" class="btn btn-secondary" id="detail-psa-add-new-btn">Add new result</button>
+            </div>
+            <div id="detail-psa-add-form-wrap" class="hidden">
+              <h3 class="psa-subsection-title">Record new result</h3>
+              <div class="psa-subsection-inner psa-subsection-inner--highlight">
+                <p class="detail-psa-edit-hint" id="detail-psa-edit-hint"></p>
+                <div class="psa-result-form">
+                  <div class="form-field">
+                    <label for="detail-psa-result-input">PSA value (ng/mL)</label>
+                    <input type="text" id="detail-psa-result-input" placeholder="e.g. 0.06" inputmode="decimal" aria-label="PSA result" />
+                  </div>
+                  <div class="form-field">
+                    <label for="detail-psa-result-date">Date of result</label>
+                    <input type="date" id="detail-psa-result-date" aria-label="Date of result" />
+                  </div>
+                  <button type="button" class="btn btn-primary" id="detail-psa-result-save">Save result</button>
+                  <button type="button" class="btn btn-secondary" id="detail-psa-result-close">Close</button>
                 </div>
-                <div class="form-field">
-                  <label for="detail-psa-result-date">Date of result</label>
-                  <input type="date" id="detail-psa-result-date" aria-label="Date of result" />
-                </div>
-                <button type="button" class="btn btn-primary" id="detail-psa-result-save">Save result</button>
               </div>
             </div>
           </div>
@@ -904,7 +977,7 @@
             <div id="detail-required-action-edit" class="detail-editable-edit hidden">
               <select id="detail-required-action-input" class="detail-editable-input detail-required-action-select" aria-label="Required action">
                 <option value="">None</option>
-                <option value="Urgent Suspected Cancer / Urology">Urgent Suspected Cancer / Urology</option>
+                <option value="Urgent Suspected Cancer">Urgent Suspected Cancer</option>
                 <option value="Advice & Guidance">Advice &amp; Guidance</option>
                 <option value="Repeat PSA">Repeat PSA</option>
                 <option value="MDT discussion">MDT discussion</option>
@@ -1057,29 +1130,25 @@
       var wizardStep1 = document.getElementById('wizard-step1');
       var wizardStep2 = document.getElementById('wizard-step2');
       var wizardStep3 = document.getElementById('wizard-step3');
-      var wizardStep4 = document.getElementById('wizard-step4');
       var stepper1 = document.getElementById('stepper-1');
       var stepper2 = document.getElementById('stepper-2');
       var stepper3 = document.getElementById('stepper-3');
-      var stepper4 = document.getElementById('stepper-4');
       var discardModal = document.getElementById('wizard-discard-modal');
 
       function setWizardStep(step) {
         if (stepper1) { stepper1.classList.remove('active', 'done'); stepper1.setAttribute('aria-current', 'false'); }
         if (stepper2) { stepper2.classList.remove('active', 'done'); stepper2.setAttribute('aria-current', 'false'); }
         if (stepper3) { stepper3.classList.remove('active', 'done'); stepper3.setAttribute('aria-current', 'false'); }
-        if (stepper4) { stepper4.classList.remove('active', 'done'); stepper4.setAttribute('aria-current', 'false'); }
         if (step >= 1 && stepper1) { stepper1.classList.add(step > 1 ? 'done' : 'active'); stepper1.setAttribute('aria-current', step === 1 ? 'step' : 'false'); }
         if (step >= 2 && stepper2) { stepper2.classList.add(step > 2 ? 'done' : 'active'); stepper2.setAttribute('aria-current', step === 2 ? 'step' : 'false'); }
         if (step >= 3 && stepper3) { stepper3.classList.add(step > 3 ? 'done' : 'active'); stepper3.setAttribute('aria-current', step === 3 ? 'step' : 'false'); }
-        if (step >= 4 && stepper4) { stepper4.classList.add('active'); stepper4.setAttribute('aria-current', 'step'); }
       }
 
       function getWizardStep() {
         if (wizardStep1 && !wizardStep1.classList.contains('hidden')) return 1;
         if (wizardStep2 && !wizardStep2.classList.contains('hidden')) return 2;
         if (wizardStep3 && !wizardStep3.classList.contains('hidden')) return 3;
-        return 4;
+        return 1;
       }
 
       // Add Patient
@@ -1089,7 +1158,6 @@
         if (wizardStep1) wizardStep1.classList.remove('hidden');
         if (wizardStep2) wizardStep2.classList.add('hidden');
         if (wizardStep3) wizardStep3.classList.add('hidden');
-        if (wizardStep4) wizardStep4.classList.add('hidden');
         var step1Result = document.getElementById('step1-result');
         if (step1Result) step1Result.classList.add('hidden');
         var nhsInput = document.getElementById('nhs-number');
@@ -1121,18 +1189,33 @@
 
       // Wizard Step 1: mock search
       on(document.getElementById('wizard-search'), 'click', function() {
+        var nhsInput = document.getElementById('nhs-number');
+        var raw = (nhsInput && nhsInput.value) ? nhsInput.value.replace(/\D/g, '') : '2712127328';
+        var formatted = raw ? raw.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3') : '271 212 7328';
         var pasName = document.getElementById('pas-name');
-        if (pasName) pasName.textContent = 'Williams, James';
+        if (pasName) pasName.textContent = 'Williams, Steve (59)';
         var pasDob = document.getElementById('pas-dob');
-        if (pasDob) pasDob.textContent = 'DOB: 15 March 1956';
+        if (pasDob) pasDob.textContent = 'DOB: 12 Nov 1967';
         var pasNhs = document.getElementById('pas-nhs');
-        if (pasNhs) pasNhs.textContent = 'NHS No: ' + (document.getElementById('nhs-number').value || '123 456 7890');
+        if (pasNhs) pasNhs.textContent = formatted;
+        var pasPractice = document.getElementById('pas-practice');
+        if (pasPractice) pasPractice.textContent = 'Berrylands Surgery';
+        var pasAddress = document.getElementById('pas-address');
+        if (pasAddress) pasAddress.textContent = '4517 Washington Ave. Manchester, Kentucky 39495';
         var step1Result = document.getElementById('step1-result');
         if (step1Result) step1Result.classList.remove('hidden');
+      });
+      on(document.getElementById('step1-patient-clear'), 'click', function() {
+        var step1Result = document.getElementById('step1-result');
+        if (step1Result) step1Result.classList.add('hidden');
       });
       on(document.getElementById('wizard-step1-next'), 'click', function() {
         if (wizardStep1) wizardStep1.classList.add('hidden');
         if (wizardStep2) wizardStep2.classList.remove('hidden');
+        document.querySelectorAll('input[name="cancer-confirmed"]').forEach(function(r) { r.checked = false; });
+        document.getElementById('wizard-pathway-cancer').classList.add('hidden');
+        document.getElementById('wizard-pathway-non-cancer').classList.add('hidden');
+        document.getElementById('wizard-anchor-wrap').style.display = '';
         var r = document.getElementById('protocol-radical');
         if (r && !document.querySelector('input[name="protocol"]:checked')) { r.checked = true; }
         updateProtocolOutput();
@@ -1143,6 +1226,45 @@
         if (wizardStep2) wizardStep2.classList.add('hidden');
         if (wizardStep1) wizardStep1.classList.remove('hidden');
         setWizardStep(1);
+      });
+
+      function wizardStep2SyncFromCancer() {
+        var cancerYes = document.getElementById('cancer-yes');
+        var cancerNo = document.getElementById('cancer-no');
+        var pathwayCancer = document.getElementById('wizard-pathway-cancer');
+        var pathwayNonCancer = document.getElementById('wizard-pathway-non-cancer');
+        var anchorWrap = document.getElementById('wizard-anchor-wrap');
+        var diagInput = document.getElementById('wizard-diagnoses');
+        var isYes = cancerYes && cancerYes.checked;
+        var isNo = cancerNo && cancerNo.checked;
+        if (pathwayCancer) pathwayCancer.classList.toggle('hidden', !isYes);
+        if (pathwayNonCancer) pathwayNonCancer.classList.toggle('hidden', !isNo);
+        if (anchorWrap) anchorWrap.style.display = isYes ? '' : 'none';
+        if (isYes) {
+          if (diagInput) diagInput.value = 'Localised prostate cancer';
+          var rad = document.getElementById('protocol-radical');
+          if (rad && !document.querySelector('input[name="protocol"]:checked')) rad.checked = true;
+          updateProtocolOutput();
+        } else if (isNo) {
+          document.querySelectorAll('input[name="protocol"]').forEach(function(r) { r.checked = false; });
+          var gen = document.getElementById('protocol-general-psa');
+          if (gen) gen.checked = true;
+          if (diagInput) diagInput.value = 'General PSA monitoring';
+          if (phaseOutput) phaseOutput.style.display = 'none';
+          updateProtocolOutput();
+        }
+      }
+      function wizardStep2SyncFromNonCancerPathway() {
+        var protocol = getSelectedProtocol();
+        var diagInput = document.getElementById('wizard-diagnoses');
+        if (!diagInput) return;
+        if (protocol === 'raised-psa-follow-up') diagInput.value = 'Raised PSA';
+        else if (protocol === 'general-psa-monitoring') diagInput.value = 'General PSA monitoring';
+      }
+      on(document.getElementById('cancer-yes'), 'change', wizardStep2SyncFromCancer);
+      on(document.getElementById('cancer-no'), 'change', wizardStep2SyncFromCancer);
+      document.querySelectorAll('#wizard-pathway-non-cancer input[name="protocol"]').forEach(function(r) {
+        on(r, 'change', wizardStep2SyncFromNonCancerPathway);
       });
 
       // Wizard Step 2: protocol radios, phase from anchor, schedule/guideline (aligned with Protocol Matrix)
@@ -1195,6 +1317,20 @@
           help: 'PSA monitoring without immediate treatment. Review if rise &gt; 0.75 ng/mL/year or doubling time &lt; 1 year; recall as per local policy.',
           scheduleSummary: 'All years: 6‑monthly.',
           guidelineSummary: 'PSA &lt; 15.0 ng/mL normal. Review if rise &gt; 0.75/year or doubling time &lt; 1 year.',
+          getFrequency: function() { return '6‑monthly'; }
+        },
+        'general-psa-monitoring': {
+          threshold: '10.0',
+          help: 'Follow local policy. Ongoing PSA checks without a cancer diagnosis.',
+          scheduleSummary: 'All years: 6‑monthly (placeholder).',
+          guidelineSummary: 'Follow local policy for general PSA monitoring.',
+          getFrequency: function() { return '6‑monthly'; }
+        },
+        'raised-psa-follow-up': {
+          threshold: '10.0',
+          help: 'Follow local policy. Repeat PSA after a raised result to decide on referral.',
+          scheduleSummary: 'All years: 6‑monthly (placeholder).',
+          guidelineSummary: 'Follow local policy for raised PSA follow-up.',
           getFrequency: function() { return '6‑monthly'; }
         }
       };
@@ -1259,37 +1395,101 @@
         ],
         'active-surveillance': [
           { label: 'All years', years: [1,2,3,4,5,6,7,8,9,10], schedule: '6\u2011monthly' }
+        ],
+        'general-psa-monitoring': [
+          { label: 'Ongoing', years: [1,2,3,4,5,6,7,8,9,10], schedule: '6\u2011monthly' }
+        ],
+        'raised-psa-follow-up': [
+          { label: 'Ongoing', years: [1,2,3,4,5,6,7,8,9,10], schedule: '6\u2011monthly' }
         ]
       };
+      function deriveScheduleRowsFromProtocol(protocolKey, scheduleByYear, protocolThreshold) {
+        var phases = protocolPhases[protocolKey] || protocolPhases['primary-adt'];
+        var cfg = protocolConfig[protocolKey] || { threshold: '0.03' };
+        var th = protocolThreshold || cfg.threshold || '0.03';
+        return phases.map(function(phase) {
+          var y = phase.years;
+          var yearFrom = y[0];
+          var yearTo = y[y.length - 1];
+          var s = (scheduleByYear && scheduleByYear[yearFrom]) ? scheduleByYear[yearFrom] : phase.schedule.replace(/\u2011/g, '-').toLowerCase();
+          if (s === '3\u2011monthly') s = '3-monthly';
+          if (s === '4\u2011monthly') s = '4-monthly';
+          if (s === '6\u2011monthly') s = '6-monthly';
+          return { yearFrom: yearFrom, yearTo: yearTo, schedule: s, threshold: th, mot: false, lft: false, isProtocol: true };
+        });
+      }
+      function getThresholdForPhaseYear(scheduleRows, phaseYear) {
+        if (!scheduleRows || !scheduleRows.length) return '';
+        for (var i = 0; i < scheduleRows.length; i++) {
+          var r = scheduleRows[i];
+          if (phaseYear >= r.yearFrom && phaseYear <= r.yearTo) return r.threshold;
+        }
+        var last = scheduleRows[scheduleRows.length - 1];
+        return phaseYear > last.yearTo ? last.threshold : (scheduleRows[0].threshold || '');
+      }
+      function getScheduleByYearFromRows(scheduleRows) {
+        var byYear = {};
+        if (!scheduleRows) return byYear;
+        scheduleRows.forEach(function(r) {
+          for (var y = r.yearFrom; y <= r.yearTo; y++) byYear[y] = r.schedule;
+        });
+        return byYear;
+      }
+      var wizardScheduleRows = [];
+      var scheduleOptions = [
+        { value: '3-monthly', label: '3\u2011monthly' },
+        { value: '4-monthly', label: '4\u2011monthly' },
+        { value: '6-monthly', label: '6\u2011monthly' },
+        { value: 'annual', label: 'Annual' }
+      ];
       function buildWizardProtocolTable() {
         var v = getSelectedProtocol();
-        var phases = protocolPhases[v] || protocolPhases['primary-adt'];
+        var cfg = protocolConfig[v] || { threshold: '0.03', getFrequency: function() { return '6\u2011monthly'; } };
         var anchorInput = document.getElementById('anchor-date');
         var anchorVal = anchorInput ? anchorInput.value.trim() : '';
         var currentYear = anchorVal ? getPhaseYearFromAnchor(anchorVal) : null;
         var tbody = document.getElementById('wizard-protocol-tbody');
         if (!tbody) return;
+        var rows = wizardScheduleRows.length ? wizardScheduleRows : deriveScheduleRowsFromProtocol(v, undefined, cfg.threshold);
+        if (!wizardScheduleRows.length) wizardScheduleRows = rows.slice();
         tbody.innerHTML = '';
-        var scheduleOptions = [
-          { value: '3-monthly', label: '3\u2011monthly' },
-          { value: '4-monthly', label: '4\u2011monthly' },
-          { value: '6-monthly', label: '6\u2011monthly' },
-          { value: 'annual', label: 'Annual' }
-        ];
-        phases.forEach(function(phase, idx) {
-          var isCurrent = currentYear !== null && phase.years.indexOf(currentYear) !== -1;
+        rows.forEach(function(row, idx) {
+          var isCurrent = currentYear !== null && currentYear >= row.yearFrom && currentYear <= row.yearTo;
           var tr = document.createElement('tr');
+          tr.setAttribute('data-row-idx', String(idx));
           if (isCurrent) tr.classList.add('current-year');
-          var defaultVal = phase.schedule.replace(/\u2011/g, '-').toLowerCase();
+          var phaseLabel = row.yearFrom === row.yearTo ? 'Year ' + row.yearFrom : 'Year ' + row.yearFrom + '\u2013' + row.yearTo;
           var options = scheduleOptions.map(function(opt) {
-            var selected = (opt.value === defaultVal) ? ' selected' : '';
+            var selected = (opt.value === row.schedule) ? ' selected' : '';
             return '<option value="' + opt.value + '"' + selected + '>' + opt.label + '</option>';
           }).join('');
-          tr.innerHTML = '<td>' + phase.label + '</td><td>' + phase.schedule + '</td><td class="override-cell"><select data-phase-idx="' + idx + '" data-years="' + phase.years.join(',') + '" aria-label="Set schedule for ' + phase.label + '">' + options + '</select></td>';
+          var motTitle = 'Monitoring Other Test';
+          var lftTitle = 'Liver Function Test';
+          var delHtml = (idx === rows.length - 1 && rows.length > 1)
+            ? '<td><button type="button" class="btn btn-secondary wizard-delete-phase" data-row-idx="' + idx + '" aria-label="Delete last phase">Delete</button></td>'
+            : '<td></td>';
+          tr.innerHTML = '<td class="phase-range-cell"><label class="sr-only">Phase year from</label><input type="number" min="1" max="20" value="' + row.yearFrom + '" data-field="yearFrom" data-row-idx="' + idx + '" aria-label="Phase start year" style="width:3em;"> <span aria-hidden="true">–</span> <label class="sr-only">Phase year to</label><input type="number" min="1" max="20" value="' + row.yearTo + '" data-field="yearTo" data-row-idx="' + idx + '" aria-label="Phase end year" style="width:3em;"></td><td><input type="text" value="' + (row.threshold || '') + '" data-field="threshold" data-row-idx="' + idx + '" placeholder="' + (cfg.threshold || '0.03') + '" inputmode="decimal" style="width:4em;padding:4px 6px;" aria-label="Threshold ng/mL"></td><td class="override-cell"><select data-field="schedule" data-row-idx="' + idx + '" aria-label="Schedule for ' + phaseLabel + '">' + options + '</select></td><td><input type="checkbox" id="wizard-mot-' + idx + '" data-field="mot" data-row-idx="' + idx + '"' + (row.mot ? ' checked' : '') + ' aria-label="MOT"><label for="wizard-mot-' + idx + '" title="' + motTitle + '">MOT</label></td><td><input type="checkbox" id="wizard-lft-' + idx + '" data-field="lft" data-row-idx="' + idx + '"' + (row.lft ? ' checked' : '') + ' aria-label="LFT"><label for="wizard-lft-' + idx + '" title="' + lftTitle + '">LFT</label></td>' + delHtml;
           tbody.appendChild(tr);
         });
+        tbody.querySelectorAll('input[data-field], select[data-field]').forEach(function(el) {
+          el.addEventListener('change', function() {
+            var idx = parseInt(el.getAttribute('data-row-idx'), 10);
+            var field = el.getAttribute('data-field');
+            if (wizardScheduleRows[idx] == null) return;
+            if (field === 'yearFrom' || field === 'yearTo') wizardScheduleRows[idx][field] = parseInt(el.value, 10) || 1;
+            else if (field === 'threshold') wizardScheduleRows[idx].threshold = el.value.trim() || '';
+            else if (field === 'schedule') wizardScheduleRows[idx].schedule = el.value;
+            else if (field === 'mot') wizardScheduleRows[idx].mot = el.checked;
+            else if (field === 'lft') wizardScheduleRows[idx].lft = el.checked;
+          });
+        });
+        tbody.querySelectorAll('.wizard-delete-phase').forEach(function(btn) {
+          btn.onclick = function() {
+            wizardScheduleRows.pop();
+            buildWizardProtocolTable();
+          };
+        });
         var caveatEl = document.getElementById('wizard-schedule-caveat');
-        var cfg = protocolConfig[v];
         if (caveatEl && cfg && cfg.help) {
           caveatEl.innerHTML = cfg.help;
         } else if (caveatEl) {
@@ -1298,18 +1498,39 @@
       }
       on(document.getElementById('wizard-step2-next'), 'click', function() {
         var v = getSelectedProtocol();
+        if (!v) {
+          showToast('Please select a pathway.');
+          return;
+        }
         var cfg = protocolConfig[v] || { threshold: '0.03', getFrequency: function() { return '6\u2011monthly'; } };
         if (wizardStep2) wizardStep2.classList.add('hidden');
         if (wizardStep3) wizardStep3.classList.remove('hidden');
         var heading = document.getElementById('wizard-protocol-heading');
         if (heading) heading.textContent = protocolKeyToName[v] || v;
-        var pt = document.getElementById('protocol-threshold');
-        if (pt) pt.textContent = cfg.threshold;
-        var pth = document.getElementById('personal-threshold');
-        if (pth) pth.value = cfg.threshold;
+        wizardScheduleRows = deriveScheduleRowsFromProtocol(v, undefined, cfg.threshold);
         buildWizardProtocolTable();
         updateProtocolOutput();
+        var psaScheduleEl = document.getElementById('wizard-psa-schedule');
+        var threshInputEl = document.getElementById('wizard-threshold-input');
+        var anchorVal = (document.getElementById('anchor-date') && document.getElementById('anchor-date').value) || '';
+        var phaseYear = getPhaseYearFromAnchor(anchorVal);
+        var row = wizardScheduleRows.filter(function(r) { return phaseYear >= r.yearFrom && phaseYear <= r.yearTo; })[0];
+        var effectiveSched = row ? row.schedule : (cfg.getFrequency ? cfg.getFrequency(phaseYear) : '6-monthly');
+        if (effectiveSched === '3\u2011monthly' || effectiveSched === '3-monthly') effectiveSched = '3-monthly';
+        else if (effectiveSched === '4\u2011monthly' || effectiveSched === '4-monthly') effectiveSched = '4-monthly';
+        else if (effectiveSched === '6\u2011monthly' || effectiveSched === '6-monthly') effectiveSched = '6-monthly';
+        else if (effectiveSched === 'annual') effectiveSched = 'annual';
+        if (psaScheduleEl) psaScheduleEl.value = effectiveSched;
+        if (threshInputEl) threshInputEl.value = (row && row.threshold) ? row.threshold : (cfg.threshold || '0.03');
         setWizardStep(3);
+      });
+      on(document.getElementById('wizard-add-phase'), 'click', function() {
+        var v = getSelectedProtocol();
+        var cfg = protocolConfig[v] || { threshold: '0.03' };
+        var last = wizardScheduleRows.length ? wizardScheduleRows[wizardScheduleRows.length - 1] : null;
+        var nextYear = last ? last.yearTo + 1 : 1;
+        wizardScheduleRows.push({ yearFrom: nextYear, yearTo: nextYear, schedule: '6-monthly', threshold: cfg.threshold || '0.03', mot: false, lft: false, isProtocol: false });
+        buildWizardProtocolTable();
       });
 
       var wizard5ariYes = document.getElementById('wizard-5ari-yes');
@@ -1318,37 +1539,37 @@
         if (wizardStep2) wizardStep2.classList.remove('hidden');
         setWizardStep(2);
       });
-      on(document.getElementById('wizard-step3-next'), 'click', function() {
-        if (wizardStep3) wizardStep3.classList.add('hidden');
-        if (wizardStep4) wizardStep4.classList.remove('hidden');
-        setWizardStep(4);
-      });
-      on(document.getElementById('wizard-step4-back'), 'click', function() {
-        if (wizardStep4) wizardStep4.classList.add('hidden');
-        if (wizardStep3) wizardStep3.classList.remove('hidden');
-        setWizardStep(3);
-      });
-      var protocolKeyToName = { radical: 'Radical Prostatectomy', ebrt: 'EBRT', brachytherapy: 'Brachytherapy', 'primary-adt': 'Primary ADT', 'intermittent-hormones': 'Intermittent Hormones', 'watchful-waiting': 'Watchful Waiting', 'active-surveillance': 'Active Surveillance' };
-      function getWizardScheduleByYear() {
-        var v = getSelectedProtocol();
-        var phases = protocolPhases[v] || protocolPhases['primary-adt'];
-        var byYear = {};
-        var hasOverride = false;
+      var protocolKeyToName = { radical: 'Radical Prostatectomy', ebrt: 'EBRT', brachytherapy: 'Brachytherapy', 'primary-adt': 'Primary ADT', 'intermittent-hormones': 'Intermittent Hormones', 'watchful-waiting': 'Watchful Waiting', 'active-surveillance': 'Active Surveillance', 'general-psa-monitoring': 'General PSA monitoring', 'raised-psa-follow-up': 'Raised PSA follow-up' };
+      function getWizardScheduleRows() {
         var tbody = document.getElementById('wizard-protocol-tbody');
+        var rows = [];
         if (tbody) {
-          tbody.querySelectorAll('select[data-phase-idx]').forEach(function(sel) {
-            var idx = parseInt(sel.getAttribute('data-phase-idx'), 10);
-            var phase = phases[idx];
-            if (!phase) return;
-            var val = sel.value;
-            var defaultVal = phase.schedule.replace(/\u2011/g, '-').toLowerCase();
-            if (val && val !== defaultVal) {
-              phase.years.forEach(function(y) { byYear[y] = val; });
-              hasOverride = true;
-            }
+          tbody.querySelectorAll('tr[data-row-idx]').forEach(function(tr) {
+            var idx = parseInt(tr.getAttribute('data-row-idx'), 10);
+            var yearFromEl = tr.querySelector('input[data-field="yearFrom"]');
+            var yearToEl = tr.querySelector('input[data-field="yearTo"]');
+            var threshEl = tr.querySelector('input[data-field="threshold"]');
+            var schedEl = tr.querySelector('select[data-field="schedule"]');
+            var motEl = tr.querySelector('input[data-field="mot"]');
+            var lftEl = tr.querySelector('input[data-field="lft"]');
+            var yearFrom = yearFromEl ? (parseInt(yearFromEl.value, 10) || 1) : (wizardScheduleRows[idx] && wizardScheduleRows[idx].yearFrom) || 1;
+            var yearTo = yearToEl ? (parseInt(yearToEl.value, 10) || 1) : (wizardScheduleRows[idx] && wizardScheduleRows[idx].yearTo) || 1;
+            var threshold = threshEl ? threshEl.value.trim() : (wizardScheduleRows[idx] && wizardScheduleRows[idx].threshold) || '';
+            var schedule = schedEl ? schedEl.value : (wizardScheduleRows[idx] && wizardScheduleRows[idx].schedule) || '6-monthly';
+            var mot = motEl ? motEl.checked : false;
+            var lft = lftEl ? lftEl.checked : false;
+            var isProtocol = wizardScheduleRows[idx] ? wizardScheduleRows[idx].isProtocol : false;
+            rows.push({ yearFrom: yearFrom, yearTo: yearTo, schedule: schedule, threshold: threshold, mot: mot, lft: lft, isProtocol: isProtocol });
           });
         }
-        return { scheduleByYear: Object.keys(byYear).length ? byYear : undefined, personalScheduleSet: hasOverride };
+        var scheduleByYear = getScheduleByYearFromRows(rows);
+        var v = getSelectedProtocol();
+        var protoRows = deriveScheduleRowsFromProtocol(v, undefined, (protocolConfig[v] && protocolConfig[v].threshold) || '0.03');
+        var personalScheduleSet = rows.length !== protoRows.length || rows.some(function(r, i) {
+          var p = protoRows[i];
+          return !p || r.yearFrom !== p.yearFrom || r.yearTo !== p.yearTo || r.schedule !== p.schedule || r.threshold !== (p.threshold || '');
+        });
+        return { scheduleRows: rows, scheduleByYear: scheduleByYear, personalScheduleSet: personalScheduleSet };
       }
       function addNewPatientFromWizard() {
         var nameEl = document.getElementById('pas-name');
@@ -1357,6 +1578,8 @@
         var name = (nameEl && nameEl.textContent) ? nameEl.textContent.replace(/^.*?:\s*/i, '').trim() : 'Unknown';
         var dob = (dobEl && dobEl.textContent) ? dobEl.textContent.replace(/^.*?:\s*/i, '').trim() : '—';
         var nhsRaw = (nhsEl && nhsEl.textContent) ? nhsEl.textContent.replace(/\D/g, '') : '';
+        var ownershipEl = document.querySelector('input[name="ownership"]:checked');
+        var ownership = (ownershipEl && ownershipEl.value) ? ownershipEl.value : 'GP';
         var nhs = nhsRaw ? nhsRaw.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3') : '000 000 0000';
         var ageMatch = name.match(/\((\d+)\)/);
         var age = ageMatch ? ageMatch[1] : (function() {
@@ -1379,17 +1602,26 @@
         var phaseYear = getPhaseYearFromAnchor(anchorVal);
         var phase = 'Year ' + phaseYear;
         var cfg = protocolConfig[protocolKey] || { threshold: '0.03', getFrequency: function() { return '6\u2011monthly'; }, guidelineSummary: '' };
-        var scheduleResult = getWizardScheduleByYear();
-        var protocolFreq = scheduleResult.scheduleByYear && scheduleResult.scheduleByYear[phaseYear] ? (scheduleResult.scheduleByYear[phaseYear] === '3-monthly' ? '3\u2011monthly' : scheduleResult.scheduleByYear[phaseYear] === '4-monthly' ? '4\u2011monthly' : scheduleResult.scheduleByYear[phaseYear] === '6-monthly' ? '6\u2011monthly' : scheduleResult.scheduleByYear[phaseYear]) : (cfg.getFrequency ? cfg.getFrequency(phaseYear) : '6\u2011monthly');
-        if (protocolFreq === '3-monthly') protocolFreq = '3\u2011monthly';
-        if (protocolFreq === '4-monthly') protocolFreq = '4\u2011monthly';
-        if (protocolFreq === '6-monthly') protocolFreq = '6\u2011monthly';
-        var threshold = (document.getElementById('personal-threshold') && document.getElementById('personal-threshold').value) ? document.getElementById('personal-threshold').value.trim() : (cfg.threshold || '0.03');
+        var scheduleResult = getWizardScheduleRows();
+        var scheduleRows = scheduleResult.scheduleRows || [];
+        var psaScheduleSelect = document.getElementById('wizard-psa-schedule');
+        var effectiveScheduleVal = (psaScheduleSelect && psaScheduleSelect.value) ? psaScheduleSelect.value : '6-monthly';
+        var protocolFreq = effectiveScheduleVal === '3-monthly' ? '3\u2011monthly' : effectiveScheduleVal === '4-monthly' ? '4\u2011monthly' : effectiveScheduleVal === '6-monthly' ? '6\u2011monthly' : effectiveScheduleVal;
         var protocolThreshold = cfg.threshold || '0.03';
+        var wizardThreshEl = document.getElementById('wizard-threshold-input');
+        var threshold = (wizardThreshEl && wizardThreshEl.value.trim()) ? wizardThreshEl.value.trim() : (getThresholdForPhaseYear(scheduleRows, phaseYear) || protocolThreshold);
         var personalThresholdSet = !!(threshold && threshold !== protocolThreshold);
-        var lastPsa = (document.getElementById('last-psa') && document.getElementById('last-psa').value) ? document.getElementById('last-psa').value.trim() : '';
-        var lastPsaDate = (document.getElementById('last-psa-date') && document.getElementById('last-psa-date').value) ? document.getElementById('last-psa-date').value : '';
-        var diagnoses = (document.getElementById('wizard-diagnoses') && document.getElementById('wizard-diagnoses').value) ? document.getElementById('wizard-diagnoses').value.trim() : '';
+        var reviewDischargeEl = document.getElementById('wizard-review-discharge');
+        var reviewForDischargeYears = (reviewDischargeEl && reviewDischargeEl.value) ? parseInt(reviewDischargeEl.value, 10) : undefined;
+        var lastPsa = '';
+        var lastPsaDate = '';
+        var diagnoses = (function() {
+          var p = getSelectedProtocol();
+          if (p === 'general-psa-monitoring') return 'General PSA monitoring';
+          if (p === 'raised-psa-follow-up') return 'Raised PSA';
+          if (p) return 'Localised prostate cancer';
+          return '';
+        })();
         var description = '';
         var on5ari = wizard5ariYes && wizard5ariYes.checked;
         var medication5ARI = on5ari ? 'yes' : 'none';
@@ -1409,6 +1641,7 @@
           nhs: nhs,
           dob: dob,
           lastUpdated: lastUpdated,
+          ownership: ownership,
           badge: protocolName + ' | ' + phase,
           protocol: protocolName,
           phase: phase,
@@ -1416,6 +1649,7 @@
           frequency: protocolFreq,
           personalScheduleSet: scheduleResult.personalScheduleSet,
           scheduleByYear: scheduleResult.scheduleByYear,
+          scheduleRows: scheduleRows,
           anchor: anchorStr,
           psa: psaDisplay,
           psaDate: lastPsaDate || undefined,
@@ -1427,14 +1661,17 @@
           status: 'upcoming',
           spark: spark,
           psaHistory: psaHistory,
+          psaResults: psaHistory.length ? [{ date: lastPsaDate || new Date().toISOString().slice(0, 10), value: psaHistory[0] }] : [],
           medication5ARI: medication5ARI,
           diagnoses: diagnoses || '—',
           description: description || '',
           scheduleSummary: scheduleSummary,
-          protocolGuideline: protocolGuideline
+          protocolGuideline: protocolGuideline,
+          reviewForDischargeYears: reviewForDischargeYears
         };
         detailData[id] = d;
         var shortLabel = protocolName === 'Radical Prostatectomy' ? 'RP' : protocolName === 'EBRT' ? 'EBRT' : protocolName === 'Brachytherapy' ? 'Brachy' : protocolName === 'Primary ADT' ? 'ADT' : protocolName;
+        var scheduleLabel = formatScheduleForDisplay(d.frequency);
         var upCol = document.querySelector('.board .column:nth-child(1) .column-cards');
         if (upCol) {
           var card = document.createElement('div');
@@ -1442,7 +1679,7 @@
           card.setAttribute('data-detail', id);
           card.setAttribute('data-status', 'upcoming');
           var chip5ari = (medication5ARI && medication5ARI !== 'none') ? '<span class="card-chip-5ari" title="On 5-ARI">5-ARI</span>' : '';
-          card.innerHTML = '<button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button><div class="card-nhs">' + nhs + '</div><div class="card-name">' + d.name.replace(/\s*\(\d+\)\s*$/, '').trim() + ' • ' + age + '</div><div class="card-chips"><span class="card-chip-protocol" title="' + protocolName + '">' + shortLabel + '</span><span class="card-chip-phase">' + phase + '</span>' + chip5ari + '</div><div class="card-psa-trend-row"><div class="card-psa-line">Last PSA <strong>' + psaDisplay + '</strong> <span class="card-threshold">/ ' + threshold + ' ✓</span></div><div class="card-sparkline">' + spark.map(function(h) { return '<span style="height:' + h + '%"></span>'; }).join('') + '</div></div><div class="card-due-line">' + nextDue + '</div><div class="card-last-updated">Last updated: ' + lastUpdated + '</div>';
+          card.innerHTML = '<button type="button" class="card-actions-menu-btn" aria-label="Actions">&#8942;</button><div class="card-nhs">' + nhs + '</div><div class="card-name">' + d.name.replace(/\s*\(\d+\)\s*$/, '').trim() + ' • ' + age + '</div><div class="card-chips"><span class="card-chip-protocol" title="' + protocolName + '">' + shortLabel + '</span><span class="card-chip-phase">' + scheduleLabel + '</span>' + chip5ari + '</div><div class="card-psa-trend-row"><div class="card-psa-line">Last PSA <strong>' + psaDisplay + '</strong> <span class="card-threshold">/ ' + threshold + ' ✓</span></div><div class="card-sparkline">' + spark.map(function(h) { return '<span style="height:' + h + '%"></span>'; }).join('') + '</div></div><div class="card-due-line">' + nextDue + '</div><div class="card-last-updated">Last updated: ' + lastUpdated + '</div>';
           card.addEventListener('click', function(ev) {
             if (ev.target.closest('button')) return;
             openDetail(id);
@@ -1481,7 +1718,7 @@
           row.setAttribute('data-detail', id);
           row.setAttribute('data-last-updated', dateToSortKey(lastUpdated));
           row.setAttribute('data-next-due', dateToSortKey(nextDue));
-          row.innerHTML = '<td>' + d.name + '</td><td>' + nhs + '</td><td class="col-status">' + statusBadge + '</td><td title="' + protocolName + '">' + shortLabel + '</td><td>' + phase + '</td><td class="col-diagnoses">' + (diagnoses || '—') + '</td><td><div class="sparkline-inline">' + spark.map(function(h) { return '<span style="height:' + h + '%"></span>'; }).join('') + '</div></td><td>' + psaDisplay + '</td><td class="threshold-cell">' + threshold + '</td><td class="list-delta-cell"><span class="' + deltaClass + '" aria-label="' + (deltaText !== '—' ? deltaText : '') + '">' + deltaText + '</span></td><td>' + nextDue + '</td><td>' + lastUpdated + '</td>';
+          row.innerHTML = '<td>' + d.name + '</td><td>' + nhs + '</td><td class="col-status">' + statusBadge + '</td><td title="' + protocolName + '">' + shortLabel + '</td><td>' + scheduleLabel + '</td><td class="col-diagnoses">' + (diagnoses || '—') + '</td><td><div class="sparkline-inline">' + spark.map(function(h) { return '<span style="height:' + h + '%"></span>'; }).join('') + '</div></td><td>' + psaDisplay + '</td><td class="threshold-cell">' + threshold + '</td><td class="list-delta-cell"><span class="' + deltaClass + '" aria-label="' + (deltaText !== '—' ? deltaText : '') + '">' + deltaText + '</span></td><td>' + nextDue + '</td><td>' + lastUpdated + '</td>';
           listTbody.appendChild(row);
           var listSparkWrap = row.querySelector('.sparkline-inline');
           if (listSparkWrap && listSparkWrap.parentNode && psaHistory.length) {
@@ -1515,19 +1752,48 @@
         });
       });
 
+      function psaResultsFromLegacy(d) {
+        if (d.psaResults && d.psaResults.length) return d.psaResults;
+        var history = d.psaHistory || [];
+        if (history.length === 0) return [];
+        var lastDate = d.psaDate || '';
+        function addMonths(isoDate, months) {
+          var date = new Date(isoDate);
+          date.setMonth(date.getMonth() + months);
+          return date.toISOString().slice(0, 10);
+        }
+        return history.map(function(val, i) {
+          var date = (i === history.length - 1 && lastDate) ? lastDate : (lastDate ? addMonths(lastDate, (i - (history.length - 1)) * 6) : '');
+          return { date: date, value: typeof val === 'number' ? val : parseFloat(val) || 0 };
+        });
+      }
+      function getPsaResults(d) {
+        var arr = d.psaResults && d.psaResults.length ? d.psaResults : psaResultsFromLegacy(d);
+        return arr;
+      }
+      function derivePsaFromResults(d) {
+        var results = getPsaResults(d);
+        if (results.length === 0) return { psa: d.psa || '—', psaDate: d.psaDate || '', psaHistory: d.psaHistory || [] };
+        var last = results[results.length - 1];
+        return {
+          psa: String(last.value),
+          psaDate: last.date || '',
+          psaHistory: results.map(function(r) { return r.value; })
+        };
+      }
       // Mock detail data (keyed by data-detail). psaHistory = chronological (oldest first). Clinician-reviewed: post-RP <0.03; EBRT/brachy higher; one no-result case (Wilson).
       var detailData = {
         'john-smith':     { name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 1', protocol: 'Radical Prostatectomy', phase: 'Year 1', protocolFrequency: '4‑monthly', frequency: '4‑monthly', personalScheduleSet: false, anchor: '15 Dec 2024', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: '12 Apr 2025', lastBleed: '', status: 'upcoming', spark: [93,83,70,67], psaHistory: [0.028,0.025,0.021,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'alan-jones':     { name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2025', badge: 'EBRT | Year 1', protocol: 'EBRT', phase: 'Year 1', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 Sep 2024', psa: '1.2', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [60], psaHistory: [1.2], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
         'david-brown':    { name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '2 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '22 Mar 2022', psa: '0.025', psaDate: '2025-02-02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '5 days ago', status: 'awaiting', daysAwaiting: 5, spark: [100,91,86,83,83], psaHistory: [0.035,0.032,0.030,0.028,0.025], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'robert-wilson':  { name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '27 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '8 Nov 2023', psa: '—', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Awaiting result', lastBleed: '15 days ago', status: 'awaiting', daysAwaiting: 15, spark: [], psaHistory: [], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
-        'michael-clark':  { name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Review', lastBleed: '', status: 'action', reviewReason: 'PSA above threshold (0.06 &gt; 0.03). Consider bounce vs biochemical recurrence.', spark: [25,62,100], psaHistory: [0.015,0.037,0.06], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
+        'michael-clark':  { name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Review', lastBleed: '', status: 'action', reviewReason: 'PSA above threshold (0.06 &gt; 0.03). Consider bounce vs biochemical recurrence.', spark: [25,62,100], psaHistory: [0.015,0.037,0.06], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.', scheduleRows: [ { yearFrom: 1, yearTo: 1, schedule: '4-monthly', threshold: '0.03', mot: false, lft: false, isProtocol: true }, { yearFrom: 2, yearTo: 5, schedule: '6-monthly', threshold: '0.03', mot: true, lft: false, isProtocol: true }, { yearFrom: 6, yearTo: 10, schedule: 'annual', threshold: '0.03', mot: false, lft: false, isProtocol: true } ] },
         'peter-green':    { name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2025', badge: 'Radical prostatectomy | Year 4', protocol: 'Radical Prostatectomy', phase: 'Year 4', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '5 May 2021', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Jun 2025', lastBleed: '', status: 'completed', spark: [100,88,78,72,69,63], psaHistory: [0.032,0.028,0.025,0.023,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'james-taylor':   { name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '30 Aug 2023', psa: '0.12', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [33,67,100], psaHistory: [0.04,0.08,0.12], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'george-walsh':   { name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', badge: 'Radical prostatectomy | Year 3', protocol: 'Radical Prostatectomy', phase: 'Year 3', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '18 Jul 2022', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [55,52,48,45], psaHistory: [0.028,0.025,0.022,0.01], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'terence-bennett': { name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', badge: 'EBRT | Year 4', protocol: 'EBRT', phase: 'Year 4', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '2 Mar 2021', psa: '0.8', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Next due Sep 2025', lastBleed: '', status: 'completed', spark: [25,30,33,36,40], psaHistory: [0.5,0.6,0.65,0.72,0.8], medication5ARI: 'finasteride', diagnoses: 'Localised, BPH', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
         'kevin-shaw':     { name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', badge: 'Radical prostatectomy | Year 2', protocol: 'Radical Prostatectomy', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '4‑monthly', personalScheduleSet: true, scheduleByYear: { 2: '4-monthly' }, anchor: '14 Nov 2023', psa: '0.02', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Next due May 2025', lastBleed: '', status: 'completed', spark: [83,73,67], psaHistory: [0.025,0.022,0.02], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
-        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'action_required', required_action: 'Urgent Suspected Cancer / Urology', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
+        'philip-hayes':   { name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', badge: 'EBRT | Year 2', protocol: 'EBRT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '10 May 2023', psa: '2.4', protocolThreshold: '2.0', threshold: '2.0', personalThresholdSet: false, nextDue: 'Under clinic recall', lastBleed: '', status: 'action_required', required_action: 'Urgent Suspected Cancer', spark: [50,63,75,100], psaHistory: [1.2,1.5,1.8,2.4], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL (Phoenix criteria) suggests remission. Nadir + 2 ng/mL may trigger further investigation.' },
         'stephen-webb':   { name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '3‑monthly', frequency: '3‑monthly', personalScheduleSet: false, anchor: '25 Jun 2024', psa: '0.7', protocolThreshold: '2.0', threshold: '0.5', personalThresholdSet: true, nextDue: 'Under clinic recall', lastBleed: '', status: 'recall', spark: [29,50,71,100], psaHistory: [0.2,0.35,0.5,0.7], medication5ARI: 'yes', diagnoses: 'Localised', scheduleSummary: 'Year 1: 3‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL suggests remission. Year 1 monitoring is 3‑monthly. Check for PSA bounce before recall.' },
         'nicholas-bell':  { name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', badge: 'Brachy | Year 1', protocol: 'Brachytherapy', phase: 'Year 1', protocolFrequency: '3‑monthly', frequency: '3‑monthly', personalScheduleSet: false, anchor: '7 Dec 2024', psa: '0.15', protocolThreshold: '2.0', threshold: '0.5', personalThresholdSet: true, nextDue: '28 Mar 2025', lastBleed: '', status: 'upcoming', spark: [40,30], psaHistory: [0.2,0.15], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 3‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 2.0 ng/mL suggests remission. Year 1 monitoring is 3‑monthly. Check for PSA bounce before recall.' },
         'ian-collins':    { name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', badge: 'ADT | Year 2', protocol: 'Primary ADT', phase: 'Year 2', protocolFrequency: '6‑monthly', frequency: '6‑monthly', personalScheduleSet: false, anchor: '1 Apr 2023', psa: '2.5', protocolThreshold: '4.0', threshold: '4.0', personalThresholdSet: false, nextDue: 'Next due Apr 2025', lastBleed: '', status: 'completed', spark: [63,58,55], psaHistory: [2.8,2.6,2.5], medication5ARI: 'none', diagnoses: 'Locally advanced', scheduleSummary: 'All years: 6‑monthly.', protocolGuideline: 'PSA &lt; 4.0 ng/mL on ADT. Review if &gt; 4.0; recall if &gt; 4.0 (check testosterone).' },
@@ -1537,6 +1803,20 @@
         'arthur-discharged': { name: 'Smith, Arthur (72)', nhs: '600 700 8005', dob: '20 Apr 1952', lastUpdated: '1 Feb 2025', badge: 'Radical prostatectomy | Year 5', protocol: 'Radical Prostatectomy', phase: 'Year 5', protocolFrequency: 'annual', frequency: 'annual', personalScheduleSet: false, anchor: '20 May 2019', psa: '0.01', protocolThreshold: '0.03', threshold: '0.03', personalThresholdSet: false, nextDue: 'Discharged', lastBleed: '', status: 'discharged', spark: [100,95,90], psaHistory: [0.02,0.015,0.01], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' },
         'emma-reid':       { name: 'Reid, Emma (63)', nhs: '700 800 9012', dob: '19 May 1961', lastUpdated: '6 Feb 2025', badge: 'Radical prostatectomy | Year 1', protocol: 'Radical Prostatectomy', phase: 'Year 1', protocolFrequency: '4‑monthly', frequency: '3‑monthly', personalScheduleSet: true, scheduleByYear: { 1: '3-monthly' }, anchor: '6 Nov 2024', psa: '0.018', protocolThreshold: '0.03', threshold: '0.02', personalThresholdSet: true, nextDue: '8 Feb 2025', lastBleed: '', status: 'upcoming', spark: [90,85], psaHistory: [0.022,0.018], medication5ARI: 'none', diagnoses: 'Localised', scheduleSummary: 'Year 1: 4‑monthly; Year 2–5: 6‑monthly; Year 6–10: annual.', protocolGuideline: 'PSA &lt; 0.03 ng/mL suggests biochemical remission. Results above threshold often need MDT review or recall.' }
       };
+      function formatScheduleForDisplay(freq) {
+        if (!freq) return '6\u2011monthly';
+        var s = (freq + '').replace(/-/g, '\u2011');
+        return s.toLowerCase() === 'annual' ? 'Annual' : s;
+      }
+      (function backfillDetailData() {
+        Object.keys(detailData).forEach(function(id) {
+          var d = detailData[id];
+          if (d.ownership === undefined) d.ownership = 'GP';
+          if (d.reviewForDischargeYears === undefined) d.reviewForDischargeYears = 10;
+          if (!d.psaResults || !d.psaResults.length) d.psaResults = psaResultsFromLegacy(d);
+          if (!d.frequency) d.frequency = d.protocolFrequency || '6\u2011monthly';
+        });
+      })();
 
       function injectSparklineThresholds() {
         function addThresholdToWrap(wrap, d) {
@@ -1556,6 +1836,8 @@
           var id = card.getAttribute('data-detail');
           var d = detailData[id];
           if (!d) return;
+          var scheduleChip = card.querySelector('.card-chip-phase');
+          if (scheduleChip) scheduleChip.textContent = formatScheduleForDisplay(d.frequency);
           if (d.medication5ARI && d.medication5ARI !== 'none') {
             var chips = card.querySelector('.card-chips');
             if (chips && !chips.querySelector('.card-chip-5ari')) {
@@ -1581,6 +1863,7 @@
             var id = tr.getAttribute('data-detail');
             var d = detailData[id];
             if (!d) return;
+            if (tr.cells[4]) tr.cells[4].textContent = formatScheduleForDisplay(d.frequency);
             var sparkEl = tr.querySelector('.sparkline-inline');
             if (!sparkEl || !sparkEl.parentNode) return;
             if (sparkEl.parentNode.classList && sparkEl.parentNode.classList.contains('sparkline-wrap')) return;
@@ -1748,8 +2031,11 @@
         chipProto.title = protocolTooltip(d.protocol);
         document.getElementById('detail-chip-phase').textContent = d.phase;
         document.getElementById('detail-protocol').textContent = d.protocol;
-        document.getElementById('detail-phase').textContent = d.phase;
         document.getElementById('detail-anchor').textContent = d.anchor;
+        var ownershipEl = document.getElementById('detail-ownership');
+        if (ownershipEl) ownershipEl.value = (d.ownership === 'Urology') ? 'Urology' : 'GP';
+        var yearBadge = document.getElementById('detail-year-badge');
+        if (yearBadge) { yearBadge.textContent = d.phase || '—'; yearBadge.style.display = d.anchor && d.anchor !== '—' ? 'inline-block' : 'none'; }
         var reqActionSection = document.getElementById('detail-required-action-section');
         var reqActionDisplay = document.getElementById('detail-required-action-display');
         var reqActionInput = document.getElementById('detail-required-action-input');
@@ -1766,14 +2052,36 @@
         } else {
           if (reqActionSection) reqActionSection.style.display = 'none';
         }
-        var protocolKeyMap = { 'Radical Prostatectomy': 'radical', 'EBRT': 'ebrt', 'Brachytherapy': 'brachytherapy', 'Primary ADT': 'primary-adt', 'Intermittent Hormones': 'intermittent-hormones', 'Watchful Waiting': 'watchful-waiting', 'Active Surveillance': 'active-surveillance' };
+        var protocolKeyMap = { 'Radical Prostatectomy': 'radical', 'EBRT': 'ebrt', 'Brachytherapy': 'brachytherapy', 'Primary ADT': 'primary-adt', 'Intermittent Hormones': 'intermittent-hormones', 'Watchful Waiting': 'watchful-waiting', 'Active Surveillance': 'active-surveillance', 'General PSA monitoring': 'general-psa-monitoring', 'Raised PSA follow-up': 'raised-psa-follow-up' };
         var pkey = protocolKeyMap[d.protocol] || 'radical';
         var cfg = protocolConfig[pkey] || { getFrequency: function() { return '6\u2011monthly'; } };
         var phaseYearNum = parseInt((d.phase || '').replace(/\D/g, ''), 10) || 1;
-        var phases = protocolPhases[pkey] || protocolPhases['primary-adt'];
+        var scheduleRows = d.scheduleRows;
+        if (!scheduleRows || !scheduleRows.length) {
+          scheduleRows = deriveScheduleRowsFromProtocol(pkey, d.scheduleByYear, d.threshold || cfg.threshold);
+          d.scheduleRows = scheduleRows;
+        }
+        var table = document.getElementById('detail-protocol-table');
         var tbody = document.getElementById('detail-protocol-tbody');
-        if (tbody) {
-          tbody.innerHTML = '';
+        if (table && scheduleRows && scheduleRows.length > 0) {
+          table.innerHTML = '<thead><tr><th>Phase</th><th>Threshold (ng/mL)</th><th>Monitoring schedule</th><th title="Monitoring Other Test">MOT</th><th title="Liver Function Test">LFT</th></tr></thead><tbody id="detail-protocol-tbody"></tbody>';
+          tbody = document.getElementById('detail-protocol-tbody');
+          scheduleRows.forEach(function(row) {
+            var isCurrent = phaseYearNum >= row.yearFrom && phaseYearNum <= row.yearTo;
+            var phaseLabel = row.yearFrom === row.yearTo ? 'Year ' + row.yearFrom : 'Year ' + row.yearFrom + '\u2013' + row.yearTo;
+            var sched = row.schedule;
+            if (sched === '3-monthly') sched = '3\u2011monthly';
+            if (sched === '4-monthly') sched = '4\u2011monthly';
+            if (sched === '6-monthly') sched = '6\u2011monthly';
+            var tr = document.createElement('tr');
+            if (isCurrent) tr.classList.add('current-year');
+            tr.innerHTML = '<td>' + phaseLabel + '</td><td>' + (row.threshold || '—') + '</td><td>' + sched + '</td><td>' + (row.mot ? 'Yes' : '—') + '</td><td>' + (row.lft ? 'Yes' : '—') + '</td>';
+            tbody.appendChild(tr);
+          });
+        } else if (tbody) {
+          var phases = protocolPhases[pkey] || protocolPhases['primary-adt'];
+          table.innerHTML = '<thead><tr><th>Phase</th><th>Protocol default</th><th>Effective schedule</th></tr></thead><tbody id="detail-protocol-tbody"></tbody>';
+          tbody = document.getElementById('detail-protocol-tbody');
           phases.forEach(function(phase) {
             var isCurrent = phase.years.indexOf(phaseYearNum) !== -1;
             var protoSched = phase.schedule;
@@ -1799,6 +2107,19 @@
         }
         var guidelineTextEl = document.getElementById('detail-protocol-guideline-text');
         if (guidelineTextEl) guidelineTextEl.textContent = d.protocolGuideline ? d.protocolGuideline.replace(/&lt;/g, '<').replace(/&gt;/g, '>') : '';
+        var currentScheduleRow = scheduleRows && scheduleRows.length ? scheduleRows.find(function(r) { return phaseYearNum >= r.yearFrom && phaseYearNum <= r.yearTo; }) : null;
+        var motLftEl = document.getElementById('detail-mot-lft-display');
+        if (motLftEl) {
+          var motLftParts = [];
+          if (currentScheduleRow && currentScheduleRow.mot) motLftParts.push('MOT');
+          if (currentScheduleRow && currentScheduleRow.lft) motLftParts.push('LFT');
+          motLftEl.textContent = motLftParts.length ? motLftParts.join(', ') : '—';
+          motLftEl.title = 'MOT: Monitoring Other Test; LFT: Liver Function Test. Derived from current phase.';
+        }
+        var psaSchedEl = document.getElementById('detail-psa-schedule');
+        if (psaSchedEl) psaSchedEl.value = (d.frequency || '6-monthly').replace(/\u2011/g, '-');
+        var reviewDischargeEl = document.getElementById('detail-review-discharge');
+        if (reviewDischargeEl) reviewDischargeEl.value = d.reviewForDischargeYears != null ? String(d.reviewForDischargeYears) : '';
         document.getElementById('detail-protocol-threshold').textContent = d.protocolThreshold || '—';
         document.getElementById('detail-latest-psa').textContent = d.psa;
         var psaThreshEl = document.getElementById('detail-psa-threshold');
@@ -1813,16 +2134,77 @@
         if (psaLatestWrap) psaLatestWrap.classList.toggle('hidden', !hasLatestResult);
         if (psaNoResultEl) psaNoResultEl.classList.toggle('hidden', hasLatestResult);
         if (psaThreshLine) psaThreshLine.classList.toggle('hidden', hasLatestResult);
-        var psaAddSubsection = document.getElementById('detail-psa-subsection-add');
+        var psaAddToggleWrap = document.getElementById('detail-psa-add-toggle-wrap');
+        var psaAddFormWrap = document.getElementById('detail-psa-add-form-wrap');
+        if (psaAddToggleWrap) psaAddToggleWrap.classList.remove('hidden');
+        if (psaAddFormWrap) psaAddFormWrap.classList.add('hidden');
         if (d.status === 'awaiting' || d.status === 'action') {
-          if (psaAddSubsection) psaAddSubsection.classList.remove('hidden');
           document.getElementById('detail-psa-edit-hint').textContent = d.status === 'awaiting'
             ? 'Enter the result when it arrives, then choose an action below.'
             : 'Correct the result if needed, then choose an action below.';
-          document.getElementById('detail-psa-result-input').value = (d.psa && d.psa !== '—') ? d.psa : '';
-          document.getElementById('detail-psa-result-date').value = d.psaDate || new Date().toISOString().slice(0, 10);
-        } else {
-          if (psaAddSubsection) psaAddSubsection.classList.add('hidden');
+        }
+        document.getElementById('detail-psa-result-input').value = (d.psa && d.psa !== '—') ? d.psa : '';
+        document.getElementById('detail-psa-result-date').value = d.psaDate || new Date().toISOString().slice(0, 10);
+        var psaResultsTbody = document.getElementById('detail-psa-results-tbody');
+        var psaResultsEmpty = document.getElementById('detail-psa-results-empty');
+        var psaResultsTable = document.getElementById('detail-psa-results-table');
+        var results = getPsaResults(d);
+        function relativeTime(dateStr) {
+          if (!dateStr) return '—';
+          var d1 = new Date(dateStr);
+          var d2 = new Date();
+          var days = Math.round((d2 - d1) / (24 * 60 * 60 * 1000));
+          if (days === 0) return 'Today';
+          if (days === 1) return '1 day ago';
+          if (days === -1) return 'In 1 day';
+          if (days > 0 && days < 7) return days + ' days ago';
+          if (days >= 7 && days < 14) return '1 week ago';
+          if (days >= 14 && days < 30) return Math.floor(days / 7) + ' weeks ago';
+          if (days >= 30 && days < 60) return '1 month ago';
+          if (days >= 60 && days < 365) return Math.floor(days / 30) + ' months ago';
+          if (days >= 365) return Math.floor(days / 365) + ' year(s) ago';
+          if (days < 0 && days > -7) return 'In ' + (-days) + ' days';
+          return dateStr;
+        }
+        function formatResultDate(dateStr) {
+          if (!dateStr) return '—';
+          var d = new Date(dateStr);
+          return d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()] + ' ' + d.getFullYear();
+        }
+        if (psaResultsTbody && psaResultsTable) {
+          psaResultsTbody.innerHTML = '';
+          var sorted = results.slice().sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+          var editLocked = d.status === 'recall' || d.status === 'discharged';
+          if (sorted.length === 0) {
+            if (psaResultsEmpty) { psaResultsEmpty.classList.remove('hidden'); psaResultsEmpty.style.display = ''; }
+            psaResultsTable.classList.add('hidden');
+          } else {
+            if (psaResultsEmpty) { psaResultsEmpty.classList.add('hidden'); psaResultsEmpty.style.display = 'none'; }
+            psaResultsTable.classList.remove('hidden');
+            sorted.forEach(function(r, idx) {
+              var tr = document.createElement('tr');
+              var isLast = idx === 0;
+              var editCell = document.createElement('td');
+              if (isLast && !editLocked) {
+                var editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'btn btn-secondary detail-psa-edit-last';
+                editBtn.setAttribute('aria-label', 'Edit last result');
+                editBtn.textContent = 'Edit';
+                editBtn.addEventListener('click', function() {
+                  document.getElementById('detail-psa-result-input').value = String(r.value);
+                  document.getElementById('detail-psa-result-date').value = r.date || '';
+                  document.getElementById('detail-psa-add-toggle-wrap').classList.add('hidden');
+                  document.getElementById('detail-psa-add-form-wrap').classList.remove('hidden');
+                  document.body.setAttribute('data-detail-editing-last', id);
+                });
+                editCell.appendChild(editBtn);
+              }
+              tr.innerHTML = '<td>' + formatResultDate(r.date) + '</td><td>' + relativeTime(r.date) + '</td><td>' + (typeof r.value === 'number' ? r.value : (r.value != null ? String(r.value) : '—')) + '</td>';
+              tr.appendChild(editCell);
+              psaResultsTbody.appendChild(tr);
+            });
+          }
         }
         document.getElementById('detail-threshold-input').value = d.threshold;
         document.getElementById('detail-next-due').textContent = d.nextDue;
@@ -1841,7 +2223,7 @@
         var emptyEl = document.getElementById('detail-sparkline-empty');
         var chartWrap = document.getElementById('detail-psa-chart-wrap');
         sparkEl.innerHTML = '';
-        labelsEl.innerHTML = '';
+        if (labelsEl) labelsEl.innerHTML = '';
         var history = d.psaHistory || [];
         var hasTrend = history.length > 0;
         if (emptyEl) {
@@ -1852,16 +2234,11 @@
         var heights = history.length ? history.map(function(v) { return typeof v === 'number' ? v : 0; }) : (d.spark || []);
         var threshNum = parseFloat(d.threshold) || 0;
         var maxVal = Math.max.apply(null, heights.concat([threshNum, 0.01]));
-        heights.forEach(function(val, i) {
+        heights.forEach(function(val) {
           var s = document.createElement('span');
           s.className = 'detail-sparkline-bar';
           s.style.height = (val / maxVal * 100) + '%';
           sparkEl.appendChild(s);
-          if (history[i] !== undefined) {
-            var lbl = document.createElement('span');
-            lbl.textContent = typeof history[i] === 'number' ? String(history[i]) : history[i];
-            labelsEl.appendChild(lbl);
-          }
         });
         var oldLine = sparkEl.querySelector('.detail-sparkline-threshold');
         if (oldLine) oldLine.remove();
@@ -1970,6 +2347,33 @@
         showToast('Diagnoses saved.');
       });
 
+      var detailOwnershipEl = document.getElementById('detail-ownership');
+      if (detailOwnershipEl) detailOwnershipEl.addEventListener('change', function() {
+        var val = this.value;
+        if (currentDetailId && detailData[currentDetailId]) {
+          detailData[currentDetailId].ownership = val === 'Urology' ? 'Urology' : 'GP';
+          showToast('Ownership updated.');
+        }
+      });
+
+      var detailPsaScheduleSave = document.getElementById('detail-psa-schedule-save');
+      if (detailPsaScheduleSave) detailPsaScheduleSave.addEventListener('click', function() {
+        var sel = document.getElementById('detail-psa-schedule');
+        if (!sel || !currentDetailId || !detailData[currentDetailId]) return;
+        var val = sel.value;
+        if (val) {
+          detailData[currentDetailId].frequency = val.replace(/-/g, '\u2011');
+          showToast('PSA test schedule saved.');
+        }
+      });
+      var detailReviewDischargeEl = document.getElementById('detail-review-discharge');
+      if (detailReviewDischargeEl) detailReviewDischargeEl.addEventListener('change', function() {
+        if (!currentDetailId || !detailData[currentDetailId]) return;
+        var val = this.value;
+        detailData[currentDetailId].reviewForDischargeYears = val === '' ? undefined : parseInt(val, 10);
+        showToast('Review for discharge updated.');
+      });
+
       document.getElementById('detail-5ari-yes').addEventListener('change', function() {
         var yesEl = document.getElementById('detail-5ari-yes');
         var val = (yesEl && yesEl.checked) ? 'yes' : 'none';
@@ -1980,7 +2384,7 @@
       });
 
       var requiredActionHints = {
-        'Urgent Suspected Cancer / Urology': 'Urgent suspected cancer referral to urology. Patient should be seen within 2 weeks.',
+        'Urgent Suspected Cancer': 'Urgent suspected cancer referral to urology. Patient should be seen within 2 weeks.',
         'Advice & Guidance': 'Seek specialist advice before deciding on next steps. No direct referral yet.',
         'Repeat PSA': 'Repeat the PSA test to confirm the result before escalating. Retest in 4–6 weeks.',
         'MDT discussion': 'Case to be discussed at the next multidisciplinary team meeting for a consensus plan.',
@@ -2020,28 +2424,40 @@
         if (hint) hint.textContent = requiredActionHints[this.value] || '';
       });
 
+      document.getElementById('detail-psa-add-new-btn').addEventListener('click', function() {
+        document.getElementById('detail-psa-add-toggle-wrap').classList.add('hidden');
+        document.getElementById('detail-psa-add-form-wrap').classList.remove('hidden');
+        document.body.removeAttribute('data-detail-editing-last');
+      });
+      document.getElementById('detail-psa-result-close').addEventListener('click', function() {
+        document.getElementById('detail-psa-add-toggle-wrap').classList.remove('hidden');
+        document.getElementById('detail-psa-add-form-wrap').classList.add('hidden');
+        document.body.removeAttribute('data-detail-editing-last');
+      });
       document.getElementById('detail-psa-result-save').addEventListener('click', function() {
         var val = document.getElementById('detail-psa-result-input').value.trim();
         var dateVal = document.getElementById('detail-psa-result-date').value;
-        if (currentDetailId && detailData[currentDetailId]) {
-          var d = detailData[currentDetailId];
-          d.psa = val || d.psa || '—';
-          d.psaDate = dateVal;
-          document.getElementById('detail-latest-psa').textContent = d.psa;
-          setDetailDelta(d);
-          var hasLatestResult = !!(d.psa && d.psa !== '—');
-          var psaLatestWrap = document.getElementById('detail-latest-psa-wrap');
-          var psaNoResultEl = document.getElementById('detail-psa-no-result');
-          var psaThreshLine = document.getElementById('detail-psa-threshold-line');
-          if (psaLatestWrap) psaLatestWrap.classList.toggle('hidden', !hasLatestResult);
-          if (psaNoResultEl) psaNoResultEl.classList.toggle('hidden', hasLatestResult);
-          if (psaThreshLine) psaThreshLine.classList.toggle('hidden', hasLatestResult);
-          if (d.status === 'awaiting') {
-            showToast('Result saved. Choose an action below.');
-          } else {
-            showToast('Result updated. Choose an action below.');
+        if (!currentDetailId || !detailData[currentDetailId]) return;
+        var d = detailData[currentDetailId];
+        if (!d.psaResults) d.psaResults = [];
+        var editingLast = document.body.getAttribute('data-detail-editing-last') === currentDetailId;
+        if (editingLast && d.psaResults.length > 0) {
+          var byDate = d.psaResults.slice().sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+          var latest = byDate[0];
+          var idx = d.psaResults.indexOf(latest);
+          if (idx !== -1) {
+            d.psaResults[idx] = { date: dateVal || latest.date, value: parseFloat(val, 10) || 0 };
           }
+        } else {
+          d.psaResults.push({ date: dateVal || new Date().toISOString().slice(0, 10), value: parseFloat(val, 10) || 0 });
         }
+        Object.assign(d, derivePsaFromResults(d));
+        document.getElementById('detail-psa-add-toggle-wrap').classList.remove('hidden');
+        document.getElementById('detail-psa-add-form-wrap').classList.add('hidden');
+        document.body.removeAttribute('data-detail-editing-last');
+        openDetail(currentDetailId);
+        if (d.status === 'awaiting') showToast('Result saved. Choose an action below.');
+        else showToast('Result saved.');
       });
 
       function addActionCard(actionsEl, title, description, actionId, targetColumnIndex, isDischarge) {
