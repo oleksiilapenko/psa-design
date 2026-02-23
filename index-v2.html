@@ -16,6 +16,7 @@
       --v2-below: #15803d;
       --v2-current: #1565c0;
       --v2-current-bg: #e3f2fd;
+      --v2-toaster-error: #b91c1c;
     }
 
     /* v2 overrides and layout */
@@ -139,8 +140,17 @@
     .v2-schedule-actions { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; margin-top: var(--space-2); }
     .v2-schedule-edit-footer { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border); }
     .v2-discharge-banner { padding: 0.75rem 1rem; background: color-mix(in srgb, var(--warning) 18%, white); border-radius: var(--radius-medium); margin-top: 0.75rem; font-size: var(--text-7); }
-    .v2-toaster { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); padding: 0.75rem 1.25rem; background: var(--success); color: white; border-radius: var(--radius-medium); font-weight: 500; box-shadow: var(--shadow-large); z-index: 1000; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+    .v2-toaster { position: fixed; bottom: 1.5rem; right: 1.5rem; left: auto; padding: 0.75rem 1.25rem; color: white; border-radius: var(--radius-medium); font-weight: 500; box-shadow: var(--shadow-large); z-index: 1000; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
     .v2-toaster.show { opacity: 1; }
+    .v2-toaster.v2-toaster--success { background: var(--success); }
+    .v2-toaster.v2-toaster--error { background: var(--v2-toaster-error); }
+    .v2-confirm-overlay { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .v2-confirm-overlay.hidden { display: none !important; }
+    .v2-confirm-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
+    .v2-confirm-panel { position: relative; background: var(--card); border-radius: var(--radius-large); box-shadow: var(--shadow-large); padding: 1.25rem 1.5rem; max-width: 22rem; width: 100%; }
+    .v2-confirm-message { margin: 0 0 1.25rem; font-size: var(--text-6); line-height: 1.45; color: var(--foreground); }
+    .v2-confirm-actions { display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; }
+    .v2-confirm-primary { background: var(--primary); color: var(--primary-foreground); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-medium); font-weight: 600; cursor: pointer; }
     .v2-form-group { margin-bottom: 1.25rem; }
     .v2-form-group label { display: block; font-weight: 500; margin-bottom: 0.35rem; font-size: var(--text-7); }
     .v2-form-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
@@ -483,9 +493,40 @@
           </div>
         </section>
 
+        <section class="v2-section" id="v2-detail-followup-reason-section" aria-labelledby="v2-detail-followup-reason-heading" style="display: none;">
+          <h3 id="v2-detail-followup-reason-heading" class="v2-section-title">Follow-up reason</h3>
+          <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Why this patient is in Follow-up Required. Set or edit below.</p>
+          <div class="v2-form-row" style="align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem;">
+            <span id="v2-detail-followup-reason-display" class="v2-detail-followup-display">—</span>
+            <button type="button" data-variant="secondary" id="v2-detail-followup-reason-edit-btn" aria-label="Edit follow-up reason" style="display: none;">Edit</button>
+          </div>
+          <div id="v2-detail-followup-reason-edit" class="hidden" style="margin-top: 0.75rem;">
+            <div class="v2-form-group" style="margin-bottom: 0.5rem;">
+              <label for="v2-detail-followup-reason-select">Reason</label>
+              <select id="v2-detail-followup-reason-select" aria-label="Follow-up reason">
+                <option value="">— Select —</option>
+                <option value="Urgent Suspected Cancer">Urgent Suspected Cancer</option>
+                <option value="Advice and guidance">Advice and guidance</option>
+                <option value="Pending other results">Pending other results</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="v2-form-group" id="v2-detail-followup-other-wrap" style="display: none; margin-bottom: 0.5rem;">
+              <label for="v2-detail-followup-other-text">Other (please specify)</label>
+              <input type="text" id="v2-detail-followup-other-text" placeholder="Specify reason" style="max-width: 20rem;">
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" id="v2-detail-followup-reason-save">Save</button>
+              <button type="button" data-variant="secondary" id="v2-detail-followup-reason-cancel">Cancel</button>
+            </div>
+          </div>
+          <p id="v2-detail-followup-reason-hint" class="v2-section-desc" style="margin-top: 0.5rem; margin-bottom: 0; font-size: var(--text-8); color: var(--muted-foreground);"></p>
+        </section>
+
         <section class="v2-section v2-detail-actions-section" aria-labelledby="v2-detail-actions-heading" style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border);">
           <h3 id="v2-detail-actions-heading" class="v2-section-title">Actions</h3>
           <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Move patient between pathway stages or discharge from monitoring.</p>
+          <p id="v2-detail-actions-nudge" class="v2-detail-actions-nudge hidden" style="margin-bottom: var(--space-2); font-size: var(--text-7); color: var(--muted-foreground);">Set the follow-up reason above so the team knows why this patient is here.</p>
           <footer id="v2-detail-footer" class="v2-detail-footer-actions">
           </footer>
         </section>
@@ -570,7 +611,19 @@
     </div>
   </div>
 
-  <div id="v2-toaster" class="v2-toaster hidden" role="status" aria-live="polite"></div>
+  <div id="v2-toaster" class="v2-toaster v2-toaster--success hidden" role="status" aria-live="polite"></div>
+
+  <!-- Confirmation overlay (compact dialog) -->
+  <div id="v2-confirm-overlay" class="v2-confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="v2-confirm-message">
+    <div class="v2-confirm-backdrop"></div>
+    <div class="v2-confirm-panel">
+      <p id="v2-confirm-message" class="v2-confirm-message"></p>
+      <div class="v2-confirm-actions">
+        <button type="button" id="v2-confirm-cancel" data-variant="secondary">Cancel</button>
+        <button type="button" id="v2-confirm-ok" class="v2-confirm-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Add patient modal -->
   <div id="v2-add-modal" class="hidden v2-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="v2-modal-title">
@@ -920,10 +973,13 @@
   var foundPatient = null;
   var scheduleRows = [];
 
-  function showToaster(message) {
+  function showToaster(message, type) {
+    type = type === 'error' ? 'error' : 'success';
     var el = document.getElementById('v2-toaster');
     if (!el) return;
     el.textContent = message;
+    el.classList.remove('v2-toaster--success', 'v2-toaster--error');
+    el.classList.add('v2-toaster--' + type);
     el.classList.remove('hidden');
     el.classList.add('show');
     clearTimeout(el._toasterTimer);
@@ -931,6 +987,46 @@
       el.classList.remove('show');
       setTimeout(function() { el.classList.add('hidden'); }, 200);
     }, 3000);
+  }
+
+  function showConfirm(opts) {
+    var overlay = document.getElementById('v2-confirm-overlay');
+    var msgEl = document.getElementById('v2-confirm-message');
+    var okBtn = document.getElementById('v2-confirm-ok');
+    var cancelBtn = document.getElementById('v2-confirm-cancel');
+    if (!overlay || !msgEl || !okBtn || !cancelBtn) return;
+    var message = opts.message || 'Continue?';
+    var confirmLabel = opts.confirmLabel != null ? opts.confirmLabel : 'Confirm';
+    var cancelLabel = opts.cancelLabel != null ? opts.cancelLabel : 'Cancel';
+    var onConfirm = typeof opts.onConfirm === 'function' ? opts.onConfirm : function() {};
+    msgEl.textContent = message;
+    okBtn.textContent = confirmLabel;
+    cancelBtn.textContent = cancelLabel;
+    overlay.classList.remove('hidden');
+    okBtn.focus();
+    var closed = false;
+    var backdrop = overlay.querySelector('.v2-confirm-backdrop');
+    function close() {
+      if (closed) return;
+      closed = true;
+      overlay.classList.add('hidden');
+      document.removeEventListener('keydown', escapeHandler);
+      cancelBtn.removeEventListener('click', onCancelClick);
+      okBtn.removeEventListener('click', onOkClick);
+      if (backdrop) backdrop.removeEventListener('click', onCancelClick);
+    }
+    function escapeHandler(e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+    }
+    function onCancelClick() { close(); }
+    function onOkClick() {
+      close();
+      onConfirm();
+    }
+    document.addEventListener('keydown', escapeHandler);
+    cancelBtn.addEventListener('click', onCancelClick);
+    okBtn.addEventListener('click', onOkClick);
+    if (backdrop) backdrop.addEventListener('click', onCancelClick);
   }
 
   function updateFindButton() {
@@ -984,7 +1080,8 @@
     document.getElementById('v2-detail-sidebar-nhs').textContent = fp && fp.nhs ? fp.nhs : '—';
     document.getElementById('v2-detail-copy-nhs').onclick = function() {
       var n = (fp && fp.nhs || '').replace(/\D/g, '');
-      if (n && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(n).catch(function() {});
+      if (!n || !navigator.clipboard || !navigator.clipboard.writeText) return;
+      navigator.clipboard.writeText(n).then(function() { showToaster('NHS number copied'); }).catch(function() { showToaster('Could not copy', 'error'); });
     };
     document.getElementById('v2-detail-sidebar-name').textContent = info.displayName || '—';
     document.getElementById('v2-detail-sidebar-dob').textContent = fp && fp.dob ? fp.dob : '—';
@@ -1063,10 +1160,17 @@
       updateDraftDischargeBanner();
     };
     document.getElementById('v2-draft-reset-schedule').onclick = function() {
-      if (!confirm('Reset schedule to protocol default for the selected pathway?')) return;
-      scheduleRows = getProtocolScheduleRows(draftPathway.value);
-      renderDraftScheduleTable();
-      updateDraftDischargeBanner();
+      showConfirm({
+        message: 'Reset schedule to protocol default for the selected pathway?',
+        confirmLabel: 'Reset schedule',
+        cancelLabel: 'Cancel',
+        onConfirm: function() {
+          scheduleRows = getProtocolScheduleRows(draftPathway.value);
+          renderDraftScheduleTable();
+          updateDraftDischargeBanner();
+          showToaster('Schedule reset to protocol default');
+        }
+      });
     };
     document.getElementById('v2-draft-add-patient-submit').onclick = function() {
       if (!fp) return;
@@ -1090,7 +1194,7 @@
       };
       patients.push(p);
       showToaster('Patient has been added');
-      closeDetailModal();
+      closeDetailModal(true);
       foundPatient = null;
       nhsInput.value = '';
       step1Result.classList.add('hidden');
@@ -1131,9 +1235,9 @@
   ];
   // All list only: section order (Recall before Discharged)
   var LIST_ORDER_FOR_ALL = ['action', 'action_required', 'awaiting', 'upcoming', 'completed', 'recall', 'discharged'];
-  // List tab order with subsections: All | Recall, Upcoming, Completed | Review, Follow-up | Discharged (Awaiting omitted from tabs)
+  // List tab order with subsections: All | Recall, Upcoming, Awaiting, Completed | Review, Follow-up | Discharged
   var LIST_TAB_ORDER = [
-    ['recall', 'upcoming', 'completed'],
+    ['recall', 'upcoming', 'awaiting', 'completed'],
     ['action', 'action_required'],
     ['discharged']
   ];
@@ -1638,7 +1742,7 @@
 
   function getActionsForStatus(status) {
     var viewDetails = { label: 'View details', actionId: 'view-patient' };
-    if (status === 'upcoming') return [ viewDetails, { label: 'Move to Awaiting Results', actionId: 'test-done', targetColumnIndex: 2 }, { label: 'Send reminder', actionId: 'remind' } ];
+    if (status === 'upcoming') return [ viewDetails, { label: 'Move to Awaiting Results', actionId: 'test-done', targetColumnIndex: 2 } ];
     if (status === 'awaiting') return [ viewDetails, { label: 'Move to Completed', actionId: 'complete', targetColumnIndex: 3 }, { label: 'Move to Review Required', actionId: 'review', targetColumnIndex: 4 } ];
     if (status === 'action') return [ viewDetails, { label: 'Move to Completed', actionId: 'complete', targetColumnIndex: 3 }, { label: 'Move to Follow-up Required', actionId: 'move-action-required', targetColumnIndex: 5 }, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
     if (status === 'action_required') return [ viewDetails, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
@@ -1672,14 +1776,23 @@
             var id = card.getAttribute('data-patient-id');
             if (id) window.location.hash = 'detail/' + id;
           } else if ((a.actionId === 'move-recall-off-board' || a.actionId === 'discharge-off-board') && card) {
+            dropdown.classList.remove('show');
             var id = card.getAttribute('data-patient-id');
-            var p = getPatientById(id);
-            if (p) {
-              p.status = a.actionId === 'discharge-off-board' ? 'discharged' : 'recall';
-              p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
-              renderBoard();
-              renderList();
-              showToaster(a.label);
+            var patient = getPatientById(id);
+            if (patient) {
+              var isDischarge = a.actionId === 'discharge-off-board';
+              showConfirm({
+                message: isDischarge ? 'Discharge this patient? They will be removed from the active board.' : 'Move this patient to Recall? They will no longer appear on the board.',
+                confirmLabel: a.label,
+                cancelLabel: 'Cancel',
+                onConfirm: function() {
+                  patient.status = isDischarge ? 'discharged' : 'recall';
+                  patient.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                  renderBoard();
+                  renderList();
+                  showToaster(a.label);
+                }
+              });
             }
           } else if (a.targetColumnIndex != null && card) {
             var id = card.getAttribute('data-patient-id');
@@ -1768,13 +1881,54 @@
   var customiseRows = [];
   var detailEscHandler = null;
 
-  function closeDetailModal() {
+  function doCloseDetailModal() {
     if (detailEscHandler) { document.removeEventListener('keydown', detailEscHandler); detailEscHandler = null; }
     document.getElementById('v2-detail-modal').classList.add('hidden');
     document.body.style.overflow = '';
     document.getElementById('v2-detail-view-content').classList.remove('hidden');
     document.getElementById('v2-detail-draft-content').classList.add('hidden');
     if (window.location.hash) window.location.hash = '';
+  }
+
+  function detailModalHasUnsavedChanges() {
+    var draftContent = document.getElementById('v2-detail-draft-content');
+    var viewContent = document.getElementById('v2-detail-view-content');
+    if (draftContent && !draftContent.classList.contains('hidden')) return 'draft';
+    if (viewContent && !viewContent.classList.contains('hidden')) {
+      var pathwayActions = document.getElementById('v2-detail-pathway-actions');
+      var scheduleEdit = document.getElementById('v2-detail-schedule-edit');
+      var thresholdActions = document.getElementById('v2-detail-threshold-actions');
+      var addPsaForm = document.getElementById('v2-detail-psa-add-form');
+      if (pathwayActions && pathwayActions.style.display !== 'none') return 'detail';
+      if (scheduleEdit && !scheduleEdit.classList.contains('hidden')) return 'detail';
+      if (thresholdActions && thresholdActions.style.display !== 'none') return 'detail';
+      if (addPsaForm && !addPsaForm.classList.contains('hidden')) return 'detail';
+    }
+    return false;
+  }
+
+  function closeDetailModal(skipGuard) {
+    if (skipGuard) { doCloseDetailModal(); return; }
+    var unsaved = detailModalHasUnsavedChanges();
+    if (unsaved === 'draft') {
+      showConfirm({
+        message: 'Discard new patient? Your pathway and schedule will be lost.',
+        confirmLabel: 'Discard',
+        cancelLabel: 'Cancel',
+        onConfirm: function() { doCloseDetailModal(); }
+      });
+      return;
+    }
+    if (unsaved === 'detail') {
+      showConfirm({
+        message: 'Discard unsaved changes?',
+        confirmLabel: 'Discard',
+        cancelLabel: 'Cancel',
+        onConfirm: function() { doCloseDetailModal(); }
+      });
+      return;
+    }
+    doCloseDetailModal();
   }
 
   function renderDetailScheduleTable(p) {
@@ -1831,9 +1985,15 @@
           p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
           renderDetailPSA(p);
           renderDetailNextBanner(p);
+          showToaster('PSA result updated');
         };
         document.getElementById('v2-detail-psa-edit-cancel').onclick = function() {
-          if (confirm('Discard edit?')) renderDetailPSA(p);
+          showConfirm({
+            message: 'Discard edit?',
+            confirmLabel: 'Discard',
+            cancelLabel: 'Cancel',
+            onConfirm: function() { renderDetailPSA(p); }
+          });
         };
       };
     });
@@ -1850,9 +2010,9 @@
     document.getElementById('v2-detail-view-content').classList.remove('hidden');
     document.getElementById('v2-detail-draft-content').classList.add('hidden');
     var rawId = (id != null && typeof id === 'string') ? id.replace(/^#?detail\/?/, '').trim() : '';
-    if (!rawId) { closeDetailModal(); return; }
+    if (!rawId) { doCloseDetailModal(); return; }
     var p = getPatientById(rawId);
-    if (!p) { closeDetailModal(); return; }
+    if (!p) { doCloseDetailModal(); return; }
     detailPatientId = p.id;
     document.body.style.overflow = 'hidden';
     document.getElementById('v2-detail-modal').classList.remove('hidden');
@@ -1860,7 +2020,8 @@
     document.getElementById('v2-detail-sidebar-nhs').textContent = p.nhs || '—';
     document.getElementById('v2-detail-copy-nhs').onclick = function() {
       var n = (p.nhs || '').replace(/\D/g, '');
-      if (n && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(n).catch(function() {});
+      if (!n || !navigator.clipboard || !navigator.clipboard.writeText) return;
+      navigator.clipboard.writeText(n).then(function() { showToaster('NHS number copied'); }).catch(function() { showToaster('Could not copy', 'error'); });
     };
     document.getElementById('v2-detail-sidebar-name').textContent = info.displayName;
     document.getElementById('v2-detail-sidebar-dob').textContent = p.dob || '—';
@@ -1917,6 +2078,7 @@
       document.getElementById('v2-detail-year-num').textContent = getPhaseYearFromAnchor(p.anchorDate);
       renderDetailNextBanner(p);
       updatePathwayActions();
+      showToaster('Pathway saved');
     };
     document.getElementById('v2-detail-pathway-cancel').onclick = function() {
       pathwaySelect.value = p.pathway;
@@ -1945,9 +2107,16 @@
         renderDetailScheduleEditTbody();
       };
       document.getElementById('v2-detail-schedule-edit-reset').onclick = function() {
-        if (!confirm('Reset schedule to protocol default for the selected pathway?')) return;
-        customiseRows = getProtocolScheduleRows(p.pathway);
-        renderDetailScheduleEditTbody();
+        showConfirm({
+          message: 'Reset schedule to protocol default for the selected pathway?',
+          confirmLabel: 'Reset schedule',
+          cancelLabel: 'Cancel',
+          onConfirm: function() {
+            customiseRows = getProtocolScheduleRows(p.pathway);
+            renderDetailScheduleEditTbody();
+            showToaster('Schedule reset to protocol default');
+          }
+        });
       };
       document.getElementById('v2-detail-schedule-edit-discard').onclick = function() {
         document.getElementById('v2-detail-schedule-edit').classList.add('hidden');
@@ -1962,6 +2131,7 @@
         document.getElementById('v2-detail-customise').classList.remove('hidden');
         renderDetailScheduleTable(p);
         renderDetailNextBanner(p);
+        showToaster('Schedule updated');
       };
     };
 
@@ -1978,11 +2148,92 @@
       p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
       renderDetailPSA(p);
       updateThresholdActions();
+      showToaster('Threshold saved');
     };
     document.getElementById('v2-detail-threshold-cancel').onclick = function() {
       threshInput.value = p.threshold || '';
       updateThresholdActions();
     };
+
+    var followupSection = document.getElementById('v2-detail-followup-reason-section');
+    var followupDisplay = document.getElementById('v2-detail-followup-reason-display');
+    var followupEditBtn = document.getElementById('v2-detail-followup-reason-edit-btn');
+    var followupEdit = document.getElementById('v2-detail-followup-reason-edit');
+    var followupSelect = document.getElementById('v2-detail-followup-reason-select');
+    var followupOtherWrap = document.getElementById('v2-detail-followup-other-wrap');
+    var followupOtherText = document.getElementById('v2-detail-followup-other-text');
+    var followupHint = document.getElementById('v2-detail-followup-reason-hint');
+    var followupNudge = document.getElementById('v2-detail-actions-nudge');
+    var REQUIRED_ACTION_HINTS = {
+      'Urgent Suspected Cancer': 'Urgent suspected cancer referral. Patient should be seen within 2 weeks.',
+      'Advice and guidance': 'Seek specialist advice before deciding on next steps.',
+      'Pending other results': 'Awaiting other results before deciding on follow-up.',
+      'Other': ''
+    };
+    if (p.status === 'action_required') {
+      if (followupSection) followupSection.style.display = '';
+      if (followupDisplay) followupDisplay.textContent = (p.required_action && p.required_action.trim()) ? p.required_action : '—';
+      if (followupEditBtn) followupEditBtn.style.display = '';
+      if (followupEdit) followupEdit.classList.add('hidden');
+      if (followupNudge) followupNudge.classList.toggle('hidden', !!(p.required_action && p.required_action.trim()));
+    } else {
+      if (followupSection) followupSection.style.display = 'none';
+      if (followupNudge) followupNudge.classList.add('hidden');
+    }
+    function syncFollowupFromPatient() {
+      if (!p.required_action || !p.required_action.trim()) {
+        if (followupSelect) followupSelect.value = '';
+        if (followupOtherText) followupOtherText.value = '';
+      } else if (p.required_action.indexOf('Other: ') === 0) {
+        if (followupSelect) followupSelect.value = 'Other';
+        if (followupOtherText) followupOtherText.value = p.required_action.slice(7);
+        if (followupOtherWrap) followupOtherWrap.style.display = '';
+      } else {
+        if (followupSelect) followupSelect.value = p.required_action;
+        if (followupOtherText) followupOtherText.value = '';
+        if (followupOtherWrap) followupOtherWrap.style.display = 'none';
+      }
+      if (followupHint) followupHint.textContent = REQUIRED_ACTION_HINTS[followupSelect && followupSelect.value] || '';
+    }
+    if (followupSelect) {
+      followupSelect.addEventListener('change', function() {
+        if (followupOtherWrap) followupOtherWrap.style.display = this.value === 'Other' ? '' : 'none';
+        if (followupHint) followupHint.textContent = REQUIRED_ACTION_HINTS[this.value] || '';
+      });
+    }
+    if (followupEditBtn) {
+      followupEditBtn.onclick = function() {
+        syncFollowupFromPatient();
+        if (followupDisplay) followupDisplay.style.display = 'none';
+        followupEditBtn.style.display = 'none';
+        if (followupEdit) followupEdit.classList.remove('hidden');
+        if (followupOtherWrap) followupOtherWrap.style.display = (followupSelect && followupSelect.value === 'Other') ? '' : 'none';
+      };
+    }
+    if (document.getElementById('v2-detail-followup-reason-save')) {
+      document.getElementById('v2-detail-followup-reason-save').onclick = function() {
+        var selVal = followupSelect ? followupSelect.value : '';
+        var val = selVal === 'Other' ? ('Other: ' + (followupOtherText ? followupOtherText.value.trim() : '')) : (selVal || '');
+        p.required_action = val;
+        p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        if (followupDisplay) { followupDisplay.textContent = val || '—'; followupDisplay.style.display = ''; }
+        followupEditBtn.style.display = '';
+        if (followupEdit) followupEdit.classList.add('hidden');
+        if (followupHint) followupHint.textContent = REQUIRED_ACTION_HINTS[selVal] || '';
+        if (followupNudge) followupNudge.classList.add('hidden');
+        showToaster('Follow-up reason saved');
+        renderBoard();
+        renderList();
+      };
+    }
+    if (document.getElementById('v2-detail-followup-reason-cancel')) {
+      document.getElementById('v2-detail-followup-reason-cancel').onclick = function() {
+        syncFollowupFromPatient();
+        if (followupEdit) followupEdit.classList.add('hidden');
+        if (followupDisplay) { followupDisplay.textContent = (p.required_action && p.required_action.trim()) ? p.required_action : '—'; followupDisplay.style.display = ''; }
+        followupEditBtn.style.display = (p.required_action && p.required_action.trim()) ? '' : 'none';
+      };
+    }
 
     renderDetailNextBanner(p);
     renderDetailPSA(p);
@@ -2002,7 +2253,12 @@
       addPsaBtn.classList.remove('hidden');
     }
     document.getElementById('v2-detail-psa-add-cancel').onclick = function() {
-      if (confirm('Discard new result?')) closeAddPsaForm();
+      showConfirm({
+        message: 'Discard new result?',
+        confirmLabel: 'Discard',
+        cancelLabel: 'Cancel',
+        onConfirm: function() { closeAddPsaForm(); }
+      });
     };
     document.getElementById('v2-detail-psa-add-submit').onclick = function() {
       var date = document.getElementById('v2-detail-psa-add-date').value;
@@ -2016,6 +2272,7 @@
         closeAddPsaForm();
         renderDetailPSA(p);
         renderDetailNextBanner(p);
+        showToaster('PSA result added');
       }
     };
 
@@ -2026,14 +2283,38 @@
       btn.type = 'button';
       btn.setAttribute('data-variant', 'secondary');
       btn.innerHTML = (icon ? '<span aria-hidden="true">' + icon + '</span> ' : '') + label;
-      btn.onclick = function() { p.status = status; p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' '); renderBoard(); renderList(); closeDetailModal(); };
+      btn.onclick = function() {
+        function doMove() {
+          p.status = status;
+          p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+          renderBoard();
+          renderList();
+          if (status === 'action_required') {
+            showDetail(p.id);
+            showToaster('Moved to Follow-up Required. Set the follow-up reason below.');
+          } else {
+            showToaster(label);
+            closeDetailModal(true);
+          }
+        }
+        if (status === 'recall') {
+          showConfirm({
+            message: 'Move this patient to Recall? They will no longer appear on the board.',
+            confirmLabel: label,
+            cancelLabel: 'Cancel',
+            onConfirm: doMove
+          });
+        } else {
+          doMove();
+        }
+      };
       footer.appendChild(btn);
     }
     if (p.status === 'upcoming') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
     else if (p.status === 'awaiting') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
     else if (p.status === 'completed') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
     else if (p.status === 'action') { addMoveBtn('Move to Follow-up Required', 'action_required', '?'); addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
-    else if (p.status === 'action_required') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
+    else if (p.status === 'action_required') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
     else if (p.status === 'recall') { addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
     var moreWrap = document.createElement('div');
     moreWrap.className = 'v2-more-menu';
@@ -2052,13 +2333,19 @@
       }
     };
     moreWrap.querySelector('#v2-detail-discharge').onclick = function() {
-      if (confirm('Discharge this patient?')) {
-        p.status = 'discharged';
-        p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
-        renderBoard();
-        renderList();
-        closeDetailModal();
-      }
+      showConfirm({
+        message: 'Discharge this patient? They will be removed from the active board.',
+        confirmLabel: 'Discharge',
+        cancelLabel: 'Cancel',
+        onConfirm: function() {
+          p.status = 'discharged';
+          p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+          renderBoard();
+          renderList();
+          showToaster('Discharge');
+          closeDetailModal(true);
+        }
+      });
     };
 
     document.getElementById('v2-detail-close').onclick = closeDetailModal;
