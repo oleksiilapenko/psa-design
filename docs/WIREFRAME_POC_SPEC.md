@@ -116,7 +116,7 @@
 
 ## Implementation notes (prototype evolution)
 
-The live prototype (`index.html`) has evolved from the original wireframe as follows:
+The prototype (`index.html`) has evolved from the original wireframe as follows:
 
 - **Naming:** All displays use “Lastname, Firstname (age)”.
 - **Wizard:** Close in header; Back on steps 2–3; primary button “Continue” (step 3: “Add patient” only). Step 2 uses **radio** protocol selection with **help text**; Step 2 includes optional **Diagnoses**; Step 3 includes **5‑ARI** and default threshold from selected protocol.

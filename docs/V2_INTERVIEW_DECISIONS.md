@@ -1,6 +1,8 @@
 # v2 Plan — Interview Decisions (resolved)
 
-Decisions from the product interview. Use these when building the v2 prototype.
+**Note:** The main prototype is now the single `index.html` (this design was implemented as “v2” and is now the sole version.)
+
+Decisions from the product interview. Use these when building or evolving the prototype.
 
 ---
 
@@ -43,7 +45,7 @@ Decisions from the product interview. Use these when building the v2 prototype.
 | Question | Decision |
 |----------|----------|
 | **Primary goal** | **Demonstrate** the new Add patient + details flow to stakeholders (click-through, no backend). |
-| **Risk** | **Both:** Phased build (each step runnable) **and** keep v1 (`index.html`) **untouched**. |
+| **Risk** | **Both:** Phased build (each step runnable) **and** preserve a fallback during development (v2 was built in a separate file until promoted to main). |
 | **Board/list refactor** | **Same structure** (board columns, list table) but **rebuild HTML/CSS with Oat** (or same approach if Oat is complex) for consistent look and behaviour. |
 | **Standardise** | **All:** Process doc + template + Cursor skill. |
 | **Dependencies** | **As vanilla as possible.** Oat only if integration is simple; if blockers, use the **same approach** without it (simple, OK by default, standard/safe for UX prototyping). |

@@ -54,6 +54,6 @@ The protocol defines a **default schedule** (phases with year ranges, schedule, 
 
 ## References
 
-- Wizard: [index.html](index.html) Step 3, `#wizard-protocol-table`, `buildWizardProtocolTable`, `getWizardScheduleRows`.
-- Detail: `#detail-protocol-tbody`, populated from `scheduleRows` when present.
-- Protocol presets: `protocolPhases`, `protocolConfig` in index.html.
+- Wizard: Step 3 and protocol table in [index.html](index.html) (pathway, schedule table, threshold).
+- Detail: protocol/schedule table populated from `scheduleRows` when present.
+- Protocol presets and schedule logic live in index.html.

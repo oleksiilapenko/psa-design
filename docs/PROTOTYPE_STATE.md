@@ -8,7 +8,7 @@
 
 - **Columns (5):** Upcoming → Awaiting Results → Completed → Review Required → Action Required. Recall and Discharged are **not** on the board.
 - **Cards:** NHS No, name • age, protocol + phase, sparkline, latest PSA vs threshold, next due / context. Review Required and Action Required show Δ vs threshold. Each card has 3-dot menu; click (outside menu) opens detail.
-- **Column copy:** Upcoming — “PSA due next 4 weeks… Move to Awaiting Results when test done.” Completed — “All completed cards appear here. They automatically move to Recall after 7 days.” (No 7-day timer in code.)
+- **Column copy:** Upcoming — “PSA due next 4 weeks… Move to Awaiting Results when test done.” Completed — “All completed cards appear here. They automatically move to Recall after 7 days.” (Move to Recall after 7 days when ready — manual in this prototype.)
 
 ---
 

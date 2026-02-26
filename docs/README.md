@@ -1,5 +1,7 @@
 # Documentation index
 
+The live prototype is `../index.html`.
+
 | Document | Purpose |
 |----------|---------|
 | [WIREFRAME_POC_SPEC.md](WIREFRAME_POC_SPEC.md) | Scope, screens, and user flows for the prototype. |

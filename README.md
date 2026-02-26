@@ -33,7 +33,7 @@ open index.html
 
 ### Conventions
 
-- **Names:** Lastname, Firstname (age). **Δ:** PSA − threshold (↑ above, ↓ below). **Completed:** cards stay 7 days then automatically move to Recall (copy; no timer in prototype). **Title case** for column names: Upcoming, Awaiting Results, Completed, Review Required, Action Required, Recall, Discharged.
+- **Names:** Lastname, Firstname (age). **Δ:** PSA − threshold (↑ above, ↓ below). **Completed:** move to Recall after 7 days when ready (manual in this prototype). **Title case** for column names: Upcoming, Awaiting Results, Completed, Review Required, Action Required, Recall, Discharged.
 
 ---
 
@@ -62,4 +62,4 @@ open index.html
 
 ## Tech
 
-Single-file HTML with embedded CSS and JavaScript. No build step or dependencies.
+Single-file HTML with embedded CSS and JavaScript. Uses [Oat](https://oat.ink) (CDN) for base components and styling. No build step; no other dependencies.

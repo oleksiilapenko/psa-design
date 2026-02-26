@@ -1,6 +1,6 @@
 # Cursor skill draft: Build a UX prototype (vanilla-first, demo-ready)
 
-**Status:** Draft. Promote to a real Cursor skill (e.g. `.cursor/skills/ux-prototype/SKILL.md`) once the v2 prototype is approved and this approach is validated.
+**Status:** Draft. Promote to a real Cursor skill (e.g. `.cursor/skills/ux-prototype/SKILL.md`) once the approach is validated. The main PSA prototype is now the single `index.html` (formerly v2).
 
 ---
 
@@ -64,7 +64,7 @@ Use this skill when the user asks to **build or refactor a UX/UI prototype** for
    - Phase 3+: Board, list, or other views that read from the same data. Each step runnable.
 
 5. **Keep reference intact**  
-   If evolving an existing prototype (e.g. v2), keep the previous version (e.g. `index.html`) untouched; create `index-v2.html` (or similar) so the user can always revert or compare.
+   If evolving an existing prototype, keep the previous version in a separate file (e.g. `index-v2.html`) until the new version is approved, so the user can revert or compare; then promote to main (e.g. rename to `index.html`) as needed.
 
 ---
 
