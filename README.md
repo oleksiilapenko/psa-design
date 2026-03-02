@@ -10,6 +10,8 @@ Open in a browser (no server required):
 open index.html
 ```
 
+MVP version: open **index-mvp.html** for a simplified 5-status list-only prototype.
+
 ---
 
 ## What’s in the prototype
