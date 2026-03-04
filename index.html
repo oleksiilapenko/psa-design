@@ -2430,8 +2430,10 @@
   document.querySelectorAll('[data-view]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var v = btn.getAttribute('data-view');
-      document.getElementById('v2-view-board').classList.toggle('hidden', v !== 'board');
-      document.getElementById('v2-view-list').classList.toggle('hidden', v !== 'list');
+      var boardEl = document.getElementById('v2-view-board');
+      var listEl = document.getElementById('v2-view-list');
+      if (boardEl) boardEl.classList.toggle('hidden', v !== 'board');
+      if (listEl) listEl.classList.toggle('hidden', v !== 'list');
       document.querySelectorAll('.v2-view-switch [data-view]').forEach(function(b) {
         var on = b.getAttribute('data-view') === v;
         b.classList.toggle('active', on);

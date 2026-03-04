@@ -1,6 +1,8 @@
 # Documentation index
 
-The live prototype is `../index.html`.
+Live prototypes: `../index.html` (MVP — list and detail only), `../index-p2.html` (full — board, list, wizard, full workflow).
+
+The table below applies to the full prototype unless stated. MVP has no Kanban board or list tabs; see root [README](../README.md).
 
 | Document | Purpose |
 |----------|---------|

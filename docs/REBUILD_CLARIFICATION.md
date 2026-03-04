@@ -1,6 +1,6 @@
 # v2 Rebuild — Clarification and translation plan
 
-**Note:** The main prototype is now the single `index.html` (formerly built as index-v2.html and promoted to main).
+**Note:** The default prototype is the MVP at `index.html`; the full board/list prototype (formerly v2) is at `index-p2.html`.
 
 This doc clarifies how the new requirements translate into the board and list, how we avoid getting stuck, and what “standardise this approach” means. It reflects your interview answers.
 
@@ -63,7 +63,7 @@ So: **requirements → data model first; board/list are views over that model.**
 
 ### 2.4 What we do *not* do
 
-- We did **not** refactor the original file in place; the new version was built in a separate file (e.g. `index-v2.html`) and is now the main `index.html`.
+- We did **not** refactor the original file in place; the new version was built in a separate file (e.g. `index-v2.html`) and is now the full prototype at `index-p2.html`; default `index.html` is the MVP.
 - We do **not** change the v2 data model shape for “easier” board/list rendering. Board/list adapt to the model.
 - We do **not** add a build step or npm unless we hit a hard blocker and you agree.
 

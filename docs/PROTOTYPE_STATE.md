@@ -1,6 +1,8 @@
 # Current prototype state
 
-**Purpose:** Snapshot of what is implemented in the live prototype (`index.html`) as of the latest iteration. Use for walkthroughs and to align docs.
+**Purpose:** Snapshot of what is implemented in the live prototype (`index-p2.html`, full board/list) as of the latest iteration. Default `index.html` is the MVP; this doc describes the full prototype. Use for walkthroughs and to align docs.
+
+**MVP (`index.html`):** List view only (no Kanban), no list tabs; 5 statuses — Recall, Awaiting Result, Review Required, Follow-up Required, Discharged. Patient detail and Add patient flow are included. Search and grouped list by status.
 
 ---
 
@@ -74,4 +76,4 @@ All “Move to…” actions update `detailData`, list row (data-tab, status bad
 
 See [CLINICAL_WORKFLOW_BASE_PLAN.md](CLINICAL_WORKFLOW_BASE_PLAN.md) for the full workflow spec and decisions.
 
-**Doc alignment:** List table (including Diagnoses column) and Δ on Review Required + Action Required match `index.html`. [WIREFRAME_POC_SPEC.md](WIREFRAME_POC_SPEC.md) and [PATIENT_CARD_STATE_MACHINE.md](PATIENT_CARD_STATE_MACHINE.md) were updated to match the prototype.
+**Doc alignment:** List table (including Diagnoses column) and Δ on Review Required + Action Required match `index-p2.html`. [WIREFRAME_POC_SPEC.md](WIREFRAME_POC_SPEC.md) and [PATIENT_CARD_STATE_MACHINE.md](PATIENT_CARD_STATE_MACHINE.md) were updated to match the prototype.

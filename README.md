@@ -10,11 +10,13 @@ Open in a browser (no server required):
 open index.html
 ```
 
-MVP version: open **index-mvp.html** for a simplified 5-status list-only prototype.
+Default **index.html** is the **MVP** (simplified 5-status list-only: Recall, Awaiting Result, Review Required, Follow-up Required, Discharged; list view and patient detail only). For the full board/list prototype (Kanban, list tabs, wizard, full workflow), open **index-p2.html**.
 
 ---
 
 ## What’s in the prototype
+
+The following describes the **full** prototype (`index-p2.html`). The MVP (`index.html`) is list + detail only; no board, no list tabs/filters.
 
 ### Dashboard
 

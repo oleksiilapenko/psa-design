@@ -116,7 +116,7 @@
 
 ## Implementation notes (prototype evolution)
 
-The prototype (`index.html`) has evolved from the original wireframe as follows:
+The prototype (`index-p2.html`) has evolved from the original wireframe as follows:
 
 - **Naming:** All displays use “Lastname, Firstname (age)”.
 - **Wizard:** Close in header; Back on steps 2–3; primary button “Continue” (step 3: “Add patient” only). Step 2 uses **radio** protocol selection with **help text**; Step 2 includes optional **Diagnoses**; Step 3 includes **5‑ARI** and default threshold from selected protocol.
@@ -141,6 +141,6 @@ For workflow and protocol decisions, see [CLINICAL_WORKFLOW_BASE_PLAN.md](CLINIC
 
 ## Deliverables
 
-- Implemented prototype: single-file `index.html` (screens 1–7 and Recall/Discharge as in §8).
+- Implemented prototype: single-file `index-p2.html` (screens 1–7 and Recall/Discharge as in §8).
 - Flows: Add Patient, Kanban movement, View toggle, card detail, Recall/Discharge.
 - Documentation: this spec, [CLINICAL_WORKFLOW_BASE_PLAN.md](CLINICAL_WORKFLOW_BASE_PLAN.md), [PROTOTYPE_STATE.md](PROTOTYPE_STATE.md).

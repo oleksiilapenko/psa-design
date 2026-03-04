@@ -54,6 +54,6 @@ The protocol defines a **default schedule** (phases with year ranges, schedule, 
 
 ## References
 
-- Wizard: Step 3 and protocol table in [index.html](index.html) (pathway, schedule table, threshold).
+- Wizard: Step 3 and protocol table in [index-p2.html](../index-p2.html) (pathway, schedule table, threshold).
 - Detail: protocol/schedule table populated from `scheduleRows` when present.
-- Protocol presets and schedule logic live in index.html.
+- Protocol presets and schedule logic live in index-p2.html.

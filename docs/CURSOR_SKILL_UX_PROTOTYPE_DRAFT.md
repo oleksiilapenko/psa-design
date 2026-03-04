@@ -1,6 +1,6 @@
 # Cursor skill draft: Build a UX prototype (vanilla-first, demo-ready)
 
-**Status:** Draft. Promote to a real Cursor skill (e.g. `.cursor/skills/ux-prototype/SKILL.md`) once the approach is validated. The main PSA prototype is now the single `index.html` (formerly v2).
+**Status:** Draft. Promote to a real Cursor skill (e.g. `.cursor/skills/ux-prototype/SKILL.md`) once the approach is validated. The main PSA prototypes are `index.html` (MVP) and `index-p2.html` (full board/list, formerly v2).
 
 ---
 

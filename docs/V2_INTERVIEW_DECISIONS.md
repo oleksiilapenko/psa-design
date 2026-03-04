@@ -1,6 +1,6 @@
 # v2 Plan — Interview Decisions (resolved)
 
-**Note:** The main prototype is now the single `index.html` (this design was implemented as “v2” and is now the sole version.)
+**Note:** The full v2 prototype (this design) is at `index-p2.html`; default `index.html` is the MVP.
 
 Decisions from the product interview. Use these when building or evolving the prototype.
 
