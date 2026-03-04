@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NHS PSA Monitoring — MVP</title>
+  <title>NHS PSA Monitoring — Prototype</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@knadh/oat/oat.min.css">
   <style>
     /* v2 theme: slight off-black primary */
@@ -42,7 +42,7 @@
     .v2-modal-close-btn:hover { background: var(--muted); }
     .v2-modal .v2-modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
     .v2-modal footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.5rem; }
-    .v2-detail-modal { max-width: 64rem; width: 100%; max-height: calc(100vh - 2rem); margin: auto; flex-shrink: 0; }
+    .v2-detail-modal { max-width: 56rem; width: 100%; max-height: calc(100vh - 2rem); margin: auto; flex-shrink: 0; }
     .v2-detail-layout { display: flex; min-height: 0; flex: 1; overflow: hidden; }
     .v2-detail-sidebar { width: 18rem; flex-shrink: 0; background: var(--muted); border-right: 1px solid var(--border); padding: 1rem 1.25rem; overflow: hidden; font-size: 0.8125rem; }
     .v2-detail-sidebar-fields { display: block; }
@@ -77,7 +77,7 @@
     .v2-detail-schedule-view { width: 100%; font-size: var(--text-7); border-collapse: collapse; }
     .v2-detail-schedule-view th, .v2-detail-schedule-view td { padding: 0.5rem 0.75rem; text-align: left; border: 1px solid var(--border); }
     .v2-detail-schedule-view th { font-weight: 600; color: var(--muted-foreground); }
-    .v2-detail-schedule-view th:nth-child(3), .v2-detail-schedule-view th:nth-child(4), .v2-detail-schedule-view th:nth-child(5), .v2-detail-schedule-view td:nth-child(3), .v2-detail-schedule-view td:nth-child(4), .v2-detail-schedule-view td:nth-child(5) { text-align: center; min-width: 2.75rem; }
+    .v2-detail-schedule-view th:nth-child(3), .v2-detail-schedule-view th:nth-child(4), .v2-detail-schedule-view td:nth-child(3), .v2-detail-schedule-view td:nth-child(4) { text-align: center; }
     .v2-detail-schedule-row-current { background: var(--v2-current-bg); border-left: 4px solid var(--v2-current); }
     .v2-detail-section-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
     .v2-detail-threshold-unit { font-size: var(--text-7); color: var(--muted-foreground); margin-left: 0.25rem; }
@@ -110,9 +110,6 @@
     .v2-embedded-form { background: var(--muted); border-radius: var(--radius-medium); }
     .v2-detail-footer-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .v2-detail-footer-actions button { display: inline-flex; align-items: center; gap: 0.35rem; }
-    .v2-detail-recall-due-preview { flex: 0 0 100%; width: 100%; margin: 0 0 0.5rem 0; font-size: var(--text-8); color: var(--muted-foreground); }
-    .v2-detail-awaiting-days { padding: 0.5rem 0.75rem; border-radius: var(--radius-small); font-size: var(--text-7); font-weight: 600; background: color-mix(in srgb, var(--v2-current) 12%, white); border-left: 4px solid var(--v2-current); }
-    .v2-detail-awaiting-days.v2-detail-awaiting-days--overdue { background: color-mix(in srgb, var(--v2-above) 15%, white); border-left-color: var(--v2-above); color: var(--v2-above); }
     .v2-more-menu { position: relative; }
     .v2-more-dropdown { position: absolute; right: 0; bottom: 100%; margin-bottom: 0.25rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-small); box-shadow: var(--shadow-medium); padding: 0.25rem; min-width: 10rem; z-index: 10; color: var(--foreground); }
     .v2-more-dropdown button { display: block; width: 100%; text-align: left; padding: 0.4rem 0.5rem; border: none; background: none; cursor: pointer; font-size: var(--text-7); border-radius: var(--radius-small); color: var(--foreground); }
@@ -123,8 +120,6 @@
     .v2-patient-card { padding: 1rem; background: var(--muted); border-radius: var(--radius-medium); margin: 1rem 0; position: relative; }
     .v2-patient-card .v2-clear { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.875rem; }
     .v2-year-badge { display: inline-block; padding: 0.25rem 0.5rem; background: var(--v2-current-bg); color: var(--v2-current); border-radius: var(--radius-small); font-size: var(--text-8); font-weight: 600; }
-    .v2-current-year-chip { display: flex; align-items: center; gap: 0.35rem; width: 100%; padding: 0.6rem 1rem; margin-bottom: var(--space-2); background: var(--v2-current-bg); color: var(--v2-current); border-left: 4px solid var(--v2-current); border-radius: var(--radius-small); font-size: var(--text-7); font-weight: 600; box-sizing: border-box; }
-    .v2-current-year-info { cursor: help; font-weight: 400; opacity: 0.9; }
     .v2-schedule-table { width: 100%; font-size: var(--text-7); }
     .v2-schedule-table th, .v2-schedule-table td { padding: 0.5rem 0.75rem; text-align: left; }
     .v2-schedule-table th { font-weight: 600; color: var(--muted-foreground); }
@@ -132,11 +127,10 @@
     .v2-schedule-edit-table { font-size: 1rem; width: 100%; border-collapse: collapse; }
     .v2-schedule-edit-table th, .v2-schedule-edit-table td { padding: 0.35rem 0.5rem; vertical-align: middle; line-height: 1.3; }
     .v2-schedule-edit-table th { padding: 0.35rem 0.5rem; font-weight: 600; color: var(--muted-foreground); text-align: left; }
-    .v2-schedule-edit-table th:nth-child(3), .v2-schedule-edit-table th:nth-child(4), .v2-schedule-edit-table th:nth-child(5) { text-align: center; min-width: 4.5rem; width: 4.5rem; white-space: nowrap; }
-    .v2-schedule-edit-table td:nth-child(3), .v2-schedule-edit-table td:nth-child(4), .v2-schedule-edit-table td:nth-child(5) { text-align: center; min-width: 4.5rem; width: 4.5rem; }
-    .v2-schedule-edit-table th:nth-child(1), .v2-schedule-edit-table td:nth-child(1) { min-width: 3rem; }
+    .v2-schedule-edit-table th:nth-child(3), .v2-schedule-edit-table th:nth-child(4) { text-align: center; }
+    .v2-schedule-edit-table td:nth-child(3), .v2-schedule-edit-table td:nth-child(4) { text-align: center; }
     .v2-schedule-edit-table td:nth-child(2), .v2-schedule-edit-table th:nth-child(2) { min-width: 13rem; }
-    .v2-schedule-edit-table td:nth-child(6) { text-align: right; width: 1%; white-space: nowrap; }
+    .v2-schedule-edit-table td:nth-child(5) { text-align: right; width: 1%; white-space: nowrap; }
     .v2-schedule-edit-table .v2-schedule-delete-btn { font-size: var(--text-8); padding: 0.2rem 0.4rem; }
     .v2-schedule-edit-table select { width: 100%; min-width: 11rem; padding: 0.35rem 0.4rem; padding-right: 1.5rem; margin: 0; height: 2rem; line-height: 1.25; font-size: inherit; border: none; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 0.25rem center no-repeat; border-radius: 0; box-shadow: none; appearance: none; }
     .v2-schedule-edit-table select:hover, .v2-schedule-edit-table select:focus { background: var(--muted); outline: none; }
@@ -199,11 +193,8 @@
     .v2-section-desc { margin: 0 0 var(--space-3); font-size: var(--text-7); color: var(--muted-foreground); line-height: 1.4; }
     .v2-due-custom-badge { font-size: var(--text-8); font-weight: 600; color: var(--muted-foreground); padding: 0.15rem 0.5rem; border-radius: var(--radius-medium); border: 1px solid var(--border); background: var(--muted); }
     .v2-due-badge { font-size: var(--text-8); font-weight: 600; padding: 0.15rem 0.5rem; border-radius: var(--radius-medium); border: 1px solid transparent; }
-    .v2-due-badge--suggested { color: var(--muted-foreground); background: var(--muted); border: 1px solid var(--border); }
-    .v2-due-badge--manual { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
-    .v2-due-banner { margin-top: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--radius-medium); background: var(--muted); border: 1px solid var(--border); font-size: var(--text-8); color: var(--muted-foreground); display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.75rem; }
-    .v2-due-banner .v2-due-banner-text { flex: 1 1 auto; min-width: 0; }
-    .v2-due-banner button { flex-shrink: 0; }
+    .v2-due-badge--suggested { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
+    .v2-due-badge--manual { color: var(--muted-foreground); background: var(--muted); border: 1px solid var(--border); }
     .v2-detail-due-reset-inline { font-weight: 600; margin-left: 0.25rem; }
     .v2-draft-due-reset-inline { font-weight: 600; margin-left: 0.25rem; }
     .v2-draft-content-wrap { padding: var(--space-4) 0 var(--space-5) 0; }
@@ -238,8 +229,6 @@
     .v2-list-table tbody tr:hover { background: color-mix(in srgb, var(--muted) 40%, transparent); }
     .v2-list-table .v2-cell-right { text-align: right; font-variant-numeric: tabular-nums; }
     .v2-list-table .v2-cell-num { font-variant-numeric: tabular-nums; text-align: right; }
-    .v2-list-due-overdue-cell, .v2-list-table td.v2-list-due-overdue-cell { color: var(--v2-above) !important; font-weight: 600; }
-    .v2-list-variance { margin-left: 0.25rem; font-weight: 700; cursor: help; }
     .v2-sparkline { width: 48px; height: 24px; display: inline-block; vertical-align: middle; }
     .v2-owner-badge { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; line-height: 1.2; }
     .v2-owner-gp { background: #2563eb; color: white; }
@@ -287,18 +276,50 @@
   <header class="v2-header">
     <h1>PSA Monitoring</h1>
     <nav class="v2-nav">
+      <div class="v2-view-switch" role="group" aria-label="View">
+        <button type="button" data-view="board" class="active" aria-pressed="true">Board</button>
+        <button type="button" data-view="list" aria-pressed="false">List</button>
+      </div>
       <button type="button" id="v2-add-patient-btn">+ Add patient</button>
     </nav>
   </header>
 
   <main class="v2-main">
     <div id="v2-view-dashboard">
-      <div id="v2-view-list">
+      <div id="v2-view-board">
+        <div class="v2-board" id="v2-board"></div>
+        <div id="v2-card-actions-dropdown" class="v2-card-actions-dropdown" role="menu" aria-label="Card actions"></div>
+      </div>
+      <div id="v2-view-list" class="hidden">
         <div class="v2-list-toolbar-row">
+          <div class="v2-list-tabs-row">
+            <div class="v2-list-tabs" id="v2-list-tabs"></div>
+          </div>
           <div class="v2-list-bar">
           <div class="v2-list-toolbar-group">
             <label for="v2-list-search">Search</label>
             <input type="search" id="v2-list-search" class="v2-list-search" placeholder="NHS# or name" aria-label="Search by NHS number or name">
+          </div>
+          <div class="v2-list-toolbar-group">
+            <label for="v2-list-protocol">Protocol</label>
+            <select id="v2-list-protocol" class="v2-list-protocol-select" aria-label="Filter by protocol">
+              <option value="">All protocols</option>
+            </select>
+          </div>
+          <div class="v2-list-toolbar-group">
+            <label for="v2-list-sort">Sort by</label>
+            <select id="v2-list-sort" class="v2-list-sort-select" aria-label="Sort list">
+              <option value="status" selected>Status</option>
+              <option value="last-updated">Last updated</option>
+              <option value="due-date">Due date</option>
+            </select>
+          </div>
+          <div class="v2-list-toolbar-group" id="v2-list-group-wrap">
+            <label class="v2-list-group-toggle" for="v2-list-group-check">
+              <input type="checkbox" id="v2-list-group-check" role="switch" aria-label="Group list by status" checked>
+              <span class="v2-toggle-track"><span class="v2-toggle-thumb"></span></span>
+              <span>Group</span>
+            </label>
           </div>
         </div>
         </div>
@@ -309,7 +330,7 @@
           </colgroup>
           <thead>
             <tr id="v2-list-thead-row">
-              <th>NHS#</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-right">Specimen date</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>
+              <th>NHS#</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-num">Variance</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>
             </tr>
           </thead>
           <tbody id="v2-list-tbody"></tbody>
@@ -433,7 +454,6 @@
                     <th>Frequency</th>
                     <th title="Monitoring Other Test">MOT <span aria-hidden="true">ⓘ</span></th>
                     <th title="Liver function test: required alongside PSA for this year">LFT <span aria-hidden="true">ⓘ</span></th>
-                    <th title="Urea &amp; Electrolytes">U&amp;E <span aria-hidden="true">ⓘ</span></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -465,6 +485,23 @@
           </div>
         </section>
 
+        <section class="v2-section" aria-labelledby="v2-detail-due-heading">
+          <h3 id="v2-detail-due-heading" class="v2-section-title">Next test due date</h3>
+          <div class="v2-form-row" style="align-items:center; flex-wrap: wrap; gap: 0.5rem;">
+            <input type="date" id="v2-detail-due-date" aria-label="Next test due date" style="max-width: 12rem;">
+            <span id="v2-detail-due-badge" class="v2-due-badge" style="display: none;" aria-hidden="true"></span>
+            <span id="v2-detail-due-helper" class="v2-detail-due-helper" style="font-size: var(--text-8); color: var(--muted-foreground); display: block;"></span>
+          </div>
+          <p id="v2-detail-due-relative" class="v2-section-desc" style="margin: 0.25rem 0 0; font-size: var(--text-8); color: var(--muted-foreground); display: none;"></p>
+          <div id="v2-detail-due-actions" style="margin-top: 0.25rem; display: none;">
+            <button type="button" id="v2-detail-due-reset" data-variant="secondary">Reset to suggested</button>
+            <button type="button" id="v2-detail-due-save">Save</button>
+            <button type="button" data-variant="secondary" id="v2-detail-due-cancel">Cancel</button>
+          </div>
+          <p id="v2-detail-due-validation" class="v2-detail-due-validation" style="margin-top: 0.25rem; font-size: var(--text-8); color: var(--v2-above); display: none;"></p>
+          <p id="v2-detail-upcoming-schedule" class="v2-section-desc" style="margin-top: 0.5rem; margin-bottom: 0;"></p>
+        </section>
+
         <section class="v2-section" aria-labelledby="v2-detail-psa-heading">
           <h3 id="v2-detail-psa-heading" class="v2-section-title">PSA Results</h3>
           <p class="v2-section-desc" id="v2-detail-psa-section-desc">Recorded PSA results and trend. Add or edit the latest result below.</p>
@@ -484,25 +521,6 @@
             </div>
             <p class="v2-section-desc" style="margin: 0.5rem 0 0; font-size: var(--text-8); color: var(--muted-foreground);">Specimen date must be on or after the pathway start date and not in the future.</p>
           </div>
-        </section>
-
-        <section class="v2-section" aria-labelledby="v2-detail-due-heading">
-          <h3 id="v2-detail-due-heading" class="v2-section-title">Next test due date</h3>
-          <div class="v2-form-row" style="align-items:center; flex-wrap: wrap; gap: 0.5rem;">
-            <input type="date" id="v2-detail-due-date" aria-label="Next test due date" style="max-width: 12rem;">
-            <span id="v2-detail-due-badge" class="v2-due-badge" style="display: none;" aria-hidden="true"></span>
-          </div>
-          <span id="v2-detail-due-helper" class="v2-detail-due-helper" style="font-size: var(--text-8); color: var(--muted-foreground); display: none;"></span>
-          <div id="v2-detail-due-banner" class="v2-due-banner" style="display: none;" role="status"></div>
-          <p id="v2-detail-due-relative" class="v2-section-desc" style="margin: 0.25rem 0 0; font-size: var(--text-8); color: var(--muted-foreground); display: none;"></p>
-          <div id="v2-detail-due-actions" style="margin-top: 0.25rem; display: none;">
-            <button type="button" id="v2-detail-due-reset" data-variant="secondary">Reset to suggested</button>
-            <button type="button" id="v2-detail-due-save">Save</button>
-            <button type="button" data-variant="secondary" id="v2-detail-due-cancel">Cancel</button>
-          </div>
-          <p id="v2-detail-due-validation" class="v2-detail-due-validation" style="margin-top: 0.25rem; font-size: var(--text-8); color: var(--v2-above); display: none;"></p>
-          <p id="v2-detail-awaiting-days" class="v2-detail-awaiting-days" style="display: none; margin-top: 0.5rem;"></p>
-          <p id="v2-detail-upcoming-schedule" class="v2-section-desc" style="margin-top: 0.5rem; margin-bottom: 0;"></p>
         </section>
 
         <section class="v2-section" id="v2-detail-followup-reason-section" aria-labelledby="v2-detail-followup-reason-heading" style="display: none;">
@@ -582,6 +600,7 @@
                 <label for="v2-draft-anchor-date">Date of surgery or start of treatment</label>
                 <div class="v2-form-row" style="align-items:center;">
                   <input type="date" id="v2-draft-anchor-date" style="flex:1;">
+                  <span class="v2-year-badge" id="v2-draft-year-badge" style="display:none;">Year <span id="v2-draft-year-num">1</span></span>
                 </div>
               </div>
             </div>
@@ -589,11 +608,8 @@
 
           <section class="v2-section">
             <h3 class="v2-section-title">Monitoring schedule</h3>
-            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">PSA testing frequency for each year after treatment.</p>
-            <div id="v2-draft-year-badge" class="v2-current-year-chip" style="display:none;" role="status">
-              <span>Current year: <span id="v2-draft-year-num">1</span></span>
-              <span class="v2-current-year-info" title="The monitoring year is calculated from the start date (date of surgery or treatment). Year 1 is the first 12 months after the start date, Year 2 is months 13–24, and so on. The current year is the one that contains today's date." aria-label="How current year is calculated">ⓘ</span>
-            </div>
+            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Set how often the patient should have a PSA test in each year after treatment. The first row is Year 1 from the start date above. You can add years, change frequency, or reset to the pathway default.</p>
+            <p style="margin:0 0 var(--space-2); font-size: var(--text-8); color: var(--muted-foreground);">Local guideline: <a href="https://www.nhs.uk/" target="_blank" rel="noopener" class="v2-link">Dorset PSA Follow-up Protocol <span aria-hidden="true">↗</span></a></p>
             <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-medium);">
               <table class="v2-schedule-table v2-schedule-edit-table" id="v2-draft-schedule-table" aria-label="Schedule by year">
                 <thead>
@@ -602,7 +618,6 @@
                     <th>Frequency</th>
                     <th title="Monitoring Other Test">MOT <span aria-hidden="true">ⓘ</span></th>
                     <th title="Liver function test: required alongside PSA for this year">LFT <span aria-hidden="true">ⓘ</span></th>
-                    <th title="Urea &amp; Electrolytes">U&amp;E <span aria-hidden="true">ⓘ</span></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -618,7 +633,7 @@
           </section>
           <section class="v2-section">
             <h3 class="v2-section-title">Threshold</h3>
-            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">PSA level (ng/mL) that triggers clinical review.</p>
+            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Results at or above this value (ng/mL) are flagged for clinical review. The default comes from the pathway; you can change it if needed.</p>
             <div class="v2-form-group">
               <div class="v2-form-row" style="align-items:center;">
                 <input type="text" id="v2-draft-threshold" value="" inputmode="decimal" placeholder="Set threshold" style="width:5rem;">
@@ -628,27 +643,28 @@
           </section>
           <section class="v2-section" aria-labelledby="v2-draft-baseline-heading">
             <h3 id="v2-draft-baseline-heading" class="v2-section-title">Last known PSA (optional)</h3>
-            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Adding the last specimen date helps set a more accurate first due date, especially for patients added retrospectively.</p>
+            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">If you have a recent result, add it here and we’ll set the first due date from the schedule. If you leave this blank, the first due is worked out from the start date and Year 1 frequency.</p>
             <div class="v2-form-row" style="align-items:center; flex-wrap: wrap; gap: 0.5rem;">
               <div class="v2-form-group"><label for="v2-draft-baseline-date">Specimen date</label><input type="date" id="v2-draft-baseline-date" aria-label="Baseline specimen date"></div>
               <div class="v2-form-group"><label for="v2-draft-baseline-value">PSA (ng/mL)</label><input type="text" id="v2-draft-baseline-value" inputmode="decimal" aria-label="Baseline PSA value" style="width:5rem;"></div>
             </div>
+            <p class="v2-section-desc" style="margin: 0.5rem 0 0; font-size: var(--text-8); color: var(--muted-foreground);">Specimen date must be on or after the start date and not in the future. This is only used to calculate the first recall date.</p>
           </section>
           <section class="v2-section" aria-labelledby="v2-draft-due-heading">
             <h3 id="v2-draft-due-heading" class="v2-section-title">Next test due date</h3>
-            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">Calculated from the schedule or from the last known PSA above. You can change it if needed.</p>
+            <p class="v2-section-desc" style="margin-bottom: var(--space-2);">The first date the patient is due a PSA test. It updates as you change the start date, schedule, or last known PSA above. You can override it if needed.</p>
             <div class="v2-form-group">
               <div class="v2-form-row" style="align-items:center; flex-wrap: wrap; gap: 0.5rem;">
                 <input type="date" id="v2-draft-due-date" aria-label="Next test due date" style="max-width: 12rem;">
                 <span id="v2-draft-due-badge" class="v2-due-badge" style="display: none;" aria-hidden="true"></span>
+                <span id="v2-draft-due-helper" class="v2-detail-due-helper" style="font-size: var(--text-8); color: var(--muted-foreground); display: block;"></span>
               </div>
-              <span id="v2-draft-due-helper" class="v2-detail-due-helper" style="font-size: var(--text-8); color: var(--muted-foreground); display: none;"></span>
-              <div id="v2-draft-due-banner" class="v2-due-banner" style="display: none; margin-top: 0.5rem;" role="status"></div>
             </div>
             <p id="v2-draft-due-overdue" class="v2-section-desc" style="margin-top: 0.25rem; margin-bottom: 0; font-size: var(--text-8); color: var(--v2-above); display: none;"></p>
+            <p id="v2-draft-upcoming-schedule" class="v2-section-desc" style="margin-top: 0.5rem; margin-bottom: 0;"></p>
           </section>
           <footer class="v2-draft-footer">
-            <p class="v2-draft-footer-caption">Review the details above, then add the patient to start monitoring.</p>
+            <p class="v2-draft-footer-caption">This patient is not on the board yet. When you’re happy with the plan, add them to start monitoring.</p>
             <button type="button" id="v2-draft-add-patient-submit" class="v2-draft-add-btn">+ Add patient</button>
           </footer>
         </div>
@@ -715,7 +731,6 @@
   <script>
 (function() {
   'use strict';
-  // MVP: 5 statuses only (Recall, Awaiting, Review Required, Follow-up Required, Discharged). No automation. Intended rule for later: move to Awaiting 2 weeks before due date (not implemented here).
   function _dbg() { /* no-op unless debug flag enabled */ }
 
   // ---------- v2 data model ----------
@@ -738,25 +753,25 @@
     { value: 'annual', label: 'Annually' }
   ];
 
-  // Protocol defaults: one row per year. Each protocol returns array of { yearFrom, yearTo, schedule, mot, lft, ue }.
+  // Protocol defaults: one row per year. Each protocol returns array of { yearFrom, yearTo, schedule, mot, lft }.
   function getProtocolScheduleRows(protocolKey) {
     var p = protocolKey || 'radical';
     var rows = [];
     if (p === 'radical') {
-      rows = [ { y: 1, s: '4-monthly', mot: false, lft: false, ue: false }, { y: 2, s: '6-monthly', mot: false, lft: false, ue: false }, { y: 3, s: '6-monthly', mot: false, lft: false, ue: false }, { y: 4, s: '6-monthly', mot: false, lft: false, ue: false }, { y: 5, s: '6-monthly', mot: false, lft: false, ue: false }, { y: 6, s: 'annual', mot: false, lft: false, ue: false }, { y: 7, s: 'annual', mot: false, lft: false, ue: false }, { y: 8, s: 'annual', mot: false, lft: false, ue: false }, { y: 9, s: 'annual', mot: false, lft: false, ue: false }, { y: 10, s: 'annual', mot: false, lft: false, ue: false } ];
+      rows = [ { y: 1, s: '4-monthly', mot: false, lft: false }, { y: 2, s: '6-monthly', mot: false, lft: false }, { y: 3, s: '6-monthly', mot: false, lft: false }, { y: 4, s: '6-monthly', mot: false, lft: false }, { y: 5, s: '6-monthly', mot: false, lft: false }, { y: 6, s: 'annual', mot: false, lft: false }, { y: 7, s: 'annual', mot: false, lft: false }, { y: 8, s: 'annual', mot: false, lft: false }, { y: 9, s: 'annual', mot: false, lft: false }, { y: 10, s: 'annual', mot: false, lft: false } ];
     } else if (p === 'ebrt' || p === 'brachytherapy') {
-      for (var y = 1; y <= 5; y++) rows.push({ y: y, s: p === 'brachytherapy' && y === 1 ? '3-monthly' : '6-monthly', mot: false, lft: false, ue: false });
-      for (var y2 = 6; y2 <= 10; y2++) rows.push({ y: y2, s: 'annual', mot: false, lft: false, ue: false });
+      for (var y = 1; y <= 5; y++) rows.push({ y: y, s: p === 'brachytherapy' && y === 1 ? '3-monthly' : '6-monthly', mot: false, lft: false });
+      for (var y2 = 6; y2 <= 10; y2++) rows.push({ y: y2, s: 'annual', mot: false, lft: false });
     } else {
-      for (var y3 = 1; y3 <= 10; y3++) rows.push({ y: y3, s: '6-monthly', mot: false, lft: false, ue: false });
+      for (var y3 = 1; y3 <= 10; y3++) rows.push({ y: y3, s: '6-monthly', mot: false, lft: false });
     }
-    return rows.map(function(r) { return { yearFrom: r.y, yearTo: r.y, schedule: r.s, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false }; });
+    return rows.map(function(r) { return { yearFrom: r.y, yearTo: r.y, schedule: r.s, mot: r.mot, lft: r.lft }; });
   }
 
   function getBlankScheduleRows(count) {
     var rows = [];
     for (var y = 1; y <= (count || 10); y++) {
-      rows.push({ yearFrom: y, yearTo: y, schedule: '', mot: false, lft: false, ue: false });
+      rows.push({ yearFrom: y, yearTo: y, schedule: '', mot: false, lft: false });
     }
     return rows;
   }
@@ -774,14 +789,6 @@
     var d = new Date(s);
     return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
   }
-  /** Parse nextDue string (e.g. '15 Apr 2025' or '2025-09-15') to YYYY-MM-DD, or null. */
-  function parseNextDueToISO(s) {
-    if (!s || typeof s !== 'string') return null;
-    var trimmed = s.trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-    var d = new Date(trimmed);
-    return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
-  }
   function psaResultsFromLegacy(psaHistory, psaDate) {
     var history = psaHistory || [];
     if (history.length === 0) return [];
@@ -795,7 +802,7 @@
     var out = [];
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
-      for (var y = r.yearFrom; y <= r.yearTo; y++) out.push({ yearFrom: y, yearTo: y, schedule: r.schedule, mot: r.mot || false, lft: r.lft || false, ue: r.ue !== undefined ? r.ue : false });
+      for (var y = r.yearFrom; y <= r.yearTo; y++) out.push({ yearFrom: y, yearTo: y, schedule: r.schedule, mot: r.mot || false, lft: r.lft || false });
     }
     return out;
   }
@@ -885,7 +892,7 @@
       dueDateBasis: { source: 'post_result', lastSpecimenDate: specimenDate, monitoringYear: year, frequency: intervalMonths, guarded: guarded }
     };
   }
-  /** Get suggested due for display: stored or computed. When no PSA results, use next schedule slot from today (assumed). */
+  /** Get suggested due for display: stored or computed. */
   function getSuggestedDue(p) {
     if (!p) return null;
     if (p.suggestedDue) return p.suggestedDue;
@@ -893,7 +900,7 @@
       var r = computeSuggestedDueAfterResult(p);
       return r.suggestedDue;
     }
-    return computeSuggestedDueFromToday(p.anchorDate, p.scheduleRows);
+    return computeSuggestedDueAtCreation(p.anchorDate, p.scheduleRows);
   }
   /** Get active due: custom if set, else suggested (ISO), or null for label-only statuses. */
   function getActiveDueISO(p) {
@@ -917,56 +924,50 @@
 
   (function seedFromV1() {
     var v1 = [
-      // ——— Recall: varied pathways and frequencies ———
-      // psaDate = date of most recent PSA result; suggestedDue is computed as psaDate + current-year interval
-      { id: 'john-smith', name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2026', protocol: 'Radical Prostatectomy', anchor: '15 Dec 2024', psa: '0.02', psaDate: '2025-12-14', threshold: '0.03', status: 'recall', psaHistory: [0.028,0.024,0.02], diagnoses: 'Localised', nextDue: '14 Apr 2026', ownership: 'GP', scheduleByYear: { 1: '4-monthly' } },
-      { id: 'alan-jones', name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2026', protocol: 'EBRT', anchor: '10 Sep 2024', psa: '1.1', psaDate: '2025-09-09', threshold: '2.0', status: 'recall', psaHistory: [1.4,1.2,1.1], diagnoses: 'Localised', nextDue: '9 Mar 2026', ownership: 'Urology', scheduleByYear: { 1: '6-monthly' } },
-      { id: 'kevin-shaw', name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2026', protocol: 'Radical Prostatectomy', anchor: '14 Nov 2023', psa: '0.02', psaDate: '2025-11-13', threshold: '0.03', status: 'recall', psaHistory: [0.026,0.023,0.02], diagnoses: 'Localised', nextDue: '13 Mar 2026', ownership: 'Urology', scheduleByYear: { 1: '4-monthly', 2: '4-monthly' } },
-      { id: 'james-taylor', name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2026', protocol: 'Radical Prostatectomy', anchor: '30 Aug 2023', psa: '0.02', psaDate: '2025-07-29', threshold: '0.03', status: 'recall', psaHistory: [0.05,0.03,0.02], diagnoses: 'Localised', nextDue: '29 Jan 2026', ownership: 'GP', scheduleByYear: { 1: '6-monthly', 2: '6-monthly' } },
-      { id: 'stephen-webb', name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2026', protocol: 'Brachytherapy', anchor: '25 Jun 2024', psa: '0.4', psaDate: '2025-12-25', threshold: '2.0', status: 'recall', psaHistory: [0.52,0.46,0.4], diagnoses: 'Localised', nextDue: '25 Jun 2026', ownership: 'Urology', scheduleByYear: { 1: '3-monthly' } },
-      { id: 'sandra-mills', name: 'Mills, Sandra (66)', nhs: '100 200 3001', dob: '4 Mar 1958', lastUpdated: '1 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '4 Sep 2022', psa: '0.02', psaDate: '2025-09-03', threshold: '0.03', status: 'recall', psaHistory: [0.035,0.026,0.02], diagnoses: 'Localised', nextDue: '3 Mar 2026', ownership: 'GP', scheduleByYear: { 1: '4-monthly', 2: '6-monthly', 3: '6-monthly' } },
-      { id: 'raymond-fox', name: 'Fox, Raymond (73)', nhs: '101 201 3012', dob: '11 Jul 1951', lastUpdated: '5 Feb 2026', protocol: 'EBRT', anchor: '11 Jan 2022', psa: '1.6', psaDate: '2026-01-10', threshold: '2.0', status: 'recall', psaHistory: [1.85,1.72,1.6], diagnoses: 'Localised', nextDue: '10 Jul 2026', ownership: 'GP', scheduleByYear: { 1: '6-monthly', 2: '6-monthly', 3: 'annual' } },
-      { id: 'george-walsh', name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '18 Jul 2022', psa: '0.01', psaDate: '2025-07-17', threshold: '0.03', status: 'recall', psaHistory: [0.022,0.018,0.01], diagnoses: 'Localised', nextDue: '17 Jan 2026', ownership: 'GP', scheduleByYear: { 1: '4-monthly', 2: '6-monthly', 3: '6-monthly' } },
-      { id: 'ian-collins', name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2026', protocol: 'Primary ADT', anchor: '1 Apr 2023', psa: '2.5', psaDate: '2025-10-01', threshold: '4.0', status: 'recall', psaHistory: [3.0,2.8,2.5], diagnoses: 'Locally advanced', nextDue: '1 Apr 2026', ownership: 'GP', scheduleByYear: { 1: '6-monthly', 2: '6-monthly' } },
-      { id: 'frank-wright', name: 'Wright, Frank (76)', nhs: '400 500 6003', dob: '22 Jan 1948', lastUpdated: '5 Feb 2026', protocol: 'Watchful Waiting', anchor: '1 Jun 2023', psa: '18', psaDate: '2025-06-01', threshold: '30.0', status: 'recall', psaHistory: [22,20,18], diagnoses: 'Localised', nextDue: '1 Jun 2026', ownership: 'GP', scheduleByYear: { 1: 'annual', 2: 'annual', 3: 'annual' } },
-      { id: 'nicholas-bell', name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2026', protocol: 'Brachytherapy', anchor: '7 Dec 2024', psa: '0.15', psaDate: '2025-12-06', threshold: '2.0', status: 'recall', psaHistory: [0.22,0.18,0.15], diagnoses: 'Localised', nextDue: '6 Mar 2026', ownership: 'Urology', scheduleByYear: { 1: '3-monthly' } },
-      { id: 'emma-reid', name: 'Reid, Emma (63)', nhs: '700 800 9012', dob: '19 May 1961', lastUpdated: '6 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '6 Nov 2024', psa: '0.018', psaDate: '2025-11-05', threshold: '0.02', status: 'recall', psaHistory: [0.022,0.02,0.018], diagnoses: 'Localised', nextDue: '5 Mar 2026', scheduleByYear: { 1: '4-monthly' }, title: 'Ms.', gender: 'F' },
-      { id: 'harry-nelson', name: 'Nelson, Harry (69)', nhs: '500 600 7004', dob: '14 Oct 1955', lastUpdated: '6 Feb 2026', protocol: 'Active Surveillance', anchor: '1 Nov 2024', psa: '8.2', psaDate: '2026-02-01', threshold: '15.0', status: 'recall', psaHistory: [9.0,8.5,8.2], diagnoses: 'Localised', nextDue: '1 Aug 2026', ownership: 'GP', scheduleByYear: { 1: '3-monthly' } },
-      { id: 'tom-bishop', name: 'Bishop, Tom (70)', nhs: '104 204 3045', dob: '22 Feb 1954', lastUpdated: '2 Feb 2026', protocol: 'Primary ADT', anchor: '22 Aug 2024', psa: '3.2', psaDate: '2025-11-22', threshold: '4.0', status: 'recall', psaHistory: [4.0,3.5,3.2], diagnoses: 'Locally advanced', nextDue: '22 May 2026', ownership: 'Urology', scheduleByYear: { 1: '3-monthly' } },
-      { id: 'oliver-ward', name: 'Ward, Oliver (68)', nhs: '105 205 3056', dob: '15 Sep 1956', lastUpdated: '4 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '15 Jun 2021', psa: '0.025', psaDate: '2025-12-15', threshold: '0.03', status: 'recall', psaHistory: [0.032,0.028,0.025], diagnoses: 'Localised', nextDue: '15 Dec 2026', ownership: 'GP', scheduleByYear: { 1: '4-monthly', 2: '6-monthly', 3: '6-monthly', 4: 'annual', 5: 'annual' } },
-      // ——— Awaiting results: past PSA results shown on detail page; list shows Last PSA = ? ———
-      { id: 'david-brown', name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '20 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '22 Mar 2022', psa: '', psaDate: '2025-08-15', threshold: '0.03', status: 'awaiting', psaHistory: [0.032, 0.028], diagnoses: 'Localised', nextDue: 'Awaiting result', daysAwaiting: 5, ownership: 'GP', scheduleByYear: { 1: '4-monthly', 2: '6-monthly', 3: '6-monthly' } },
-      { id: 'robert-wilson', name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '5 Feb 2026', protocol: 'EBRT', anchor: '8 Nov 2023', psa: '', psaDate: '2025-08-01', threshold: '2.0', status: 'awaiting', psaHistory: [1.4, 1.2], diagnoses: 'Localised', nextDue: 'Awaiting result', daysAwaiting: 18, ownership: 'Urology', scheduleByYear: { 1: '6-monthly', 2: '6-monthly' } },
-      { id: 'david-patel', name: 'Patel, David (61)', nhs: '300 400 5002', dob: '12 Aug 1963', lastUpdated: '20 Feb 2026', protocol: 'Intermittent Hormones', anchor: '1 Sep 2024', psa: '', psaDate: '2025-08-10', threshold: '10.0', status: 'awaiting', psaHistory: [7.2, 6.5], diagnoses: 'Prostate Ca', nextDue: 'Awaiting result', daysAwaiting: 3, ownership: 'GP', scheduleByYear: { 1: '6-monthly' } },
-      // ——— Review Required (above threshold) ———
-      { id: 'michael-clark', name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2026', protocol: 'Radical Prostatectomy', anchor: '20 Jan 2023', psa: '0.06', psaDate: '2026-01-28', threshold: '0.03', status: 'action', psaHistory: [0.02,0.035,0.06], diagnoses: 'Localised', nextDue: 'Review', reviewReason: 'PSA above threshold (0.06 > 0.03). Consider bounce vs biochemical recurrence.', scheduleRows: [{ yearFrom:1, yearTo:1, schedule:'4-monthly', mot:false, lft:false, ue:false },{ yearFrom:2, yearTo:5, schedule:'6-monthly', mot:true, lft:false, ue:false },{ yearFrom:6, yearTo:10, schedule:'annual', mot:false, lft:false, ue:false }], ownership: 'Urology' },
-      // ——— Follow-up Required ———
-      { id: 'philip-hayes', name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2026', protocol: 'EBRT', anchor: '10 May 2023', psa: '2.4', psaDate: '2026-01-09', threshold: '2.0', status: 'action_required', psaHistory: [1.5,1.8,2.0,2.4], diagnoses: 'Localised', nextDue: 'Urgent Suspected Cancer', required_action: 'Urgent Suspected Cancer', ownership: 'Urology', scheduleByYear: { 1: '6-monthly', 2: '6-monthly' } },
-      // ——— Discharged ———
-      { id: 'peter-green', name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '15 May 2014', psa: '0.02', psaDate: '2025-05-14', threshold: '0.03', status: 'discharged', psaHistory: [0.025,0.022,0.02], diagnoses: 'Localised', nextDue: 'Discharged' },
-      { id: 'terence-bennett', name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2026', protocol: 'EBRT', anchor: '2 Mar 2013', psa: '0.8', psaDate: '2025-02-01', threshold: '2.0', status: 'discharged', psaHistory: [0.88,0.84,0.8], diagnoses: 'Localised, BPH', nextDue: 'Discharged' },
-      { id: 'arthur-discharged', name: 'Smith, Arthur (72)', nhs: '600 700 8005', dob: '20 Apr 1952', lastUpdated: '1 Feb 2026', protocol: 'Radical Prostatectomy', anchor: '20 May 2019', psa: '0.01', psaDate: '2025-05-20', threshold: '0.03', status: 'discharged', psaHistory: [0.012,0.01], diagnoses: 'Localised', nextDue: 'Discharged' },
-      { id: 'graham-hunt', name: 'Hunt, Graham (71)', nhs: '102 202 3023', dob: '8 Aug 1953', lastUpdated: '28 Jan 2026', protocol: 'Brachytherapy', anchor: '8 Feb 2018', psa: '0.2', psaDate: '2025-01-08', threshold: '2.0', status: 'discharged', psaHistory: [0.32,0.26,0.2], diagnoses: 'Localised', nextDue: 'Discharged' },
-      { id: 'maurice-cooper', name: 'Cooper, Maurice (69)', nhs: '103 203 3034', dob: '19 Nov 1955', lastUpdated: '3 Feb 2026', protocol: 'Watchful Waiting', anchor: '19 Jun 2020', psa: '35', psaDate: '2025-06-19', threshold: '30.0', status: 'discharged', psaHistory: [30,33,35], diagnoses: 'Localised', nextDue: 'Discharged' },
-      { id: 'derek-lewis', name: 'Lewis, Derek (70)', nhs: '106 206 3067', dob: '3 Jan 1954', lastUpdated: '30 Jan 2026', protocol: 'Radical Prostatectomy', anchor: '3 May 2020', psa: '0.05', psaDate: '2025-05-03', threshold: '0.03', status: 'discharged', psaHistory: [0.04,0.048,0.05], diagnoses: 'Localised', nextDue: 'Discharged' }
+      { id: 'john-smith', name: 'Smith, John (68)', nhs: '123 456 7890', dob: '12 Apr 1956', lastUpdated: '28 Jan 2025', protocol: 'Radical Prostatectomy', anchor: '15 Dec 2024', psa: '0.02', threshold: '0.03', status: 'recall', psaHistory: [0.028,0.024,0.02], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'GP' },
+      { id: 'alan-jones', name: 'Jones, Alan (72)', nhs: '987 654 3210', dob: '3 Jul 1952', lastUpdated: '5 Feb 2025', protocol: 'EBRT', anchor: '10 Sep 2024', psa: '1.1', threshold: '2.0', status: 'recall', psaHistory: [1.4,1.2,1.1], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'Urology' },
+      { id: 'david-brown', name: 'Brown, David (65)', nhs: '555 111 2233', dob: '22 Jan 1959', lastUpdated: '2 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '22 Mar 2022', psa: '0.025', psaDate: '2025-02-02', threshold: '0.03', status: 'awaiting', psaHistory: [0.032,0.028,0.025], diagnoses: 'Localised', nextDue: 'Awaiting result', daysAwaiting: 5, ownership: 'GP' },
+      { id: 'robert-wilson', name: 'Wilson, Robert (70)', nhs: '444 555 6677', dob: '8 Sep 1954', lastUpdated: '27 Jan 2025', protocol: 'EBRT', anchor: '8 Nov 2023', psa: '', threshold: '2.0', status: 'awaiting', psaHistory: [], diagnoses: 'Localised', nextDue: 'Awaiting result', daysAwaiting: 15, ownership: 'Urology' },
+      { id: 'michael-clark', name: 'Clark, Michael (69)', nhs: '777 888 9900', dob: '19 Nov 1955', lastUpdated: '28 Jan 2025', protocol: 'Radical Prostatectomy', anchor: '20 Jan 2023', psa: '0.06', psaDate: '2025-01-28', threshold: '0.03', status: 'action', psaHistory: [0.02,0.035,0.06], diagnoses: 'Localised', nextDue: 'Review', reviewReason: 'PSA above threshold (0.06 > 0.03). Consider bounce vs biochemical recurrence.', scheduleRows: [{ yearFrom:1, yearTo:1, schedule:'4-monthly', mot:false, lft:false },{ yearFrom:2, yearTo:5, schedule:'6-monthly', mot:true, lft:false },{ yearFrom:6, yearTo:10, schedule:'annual', mot:false, lft:false }], ownership: 'Urology' },
+      { id: 'george-walsh', name: 'Walsh, George (69)', nhs: '111 222 3344', dob: '18 Aug 1955', lastUpdated: '3 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '18 Jul 2022', psa: '0.01', threshold: '0.03', status: 'completed', psaHistory: [0.022,0.018,0.01], diagnoses: 'Localised', nextDue: '2025-09-15', ownership: 'GP' },
+      { id: 'kevin-shaw', name: 'Shaw, Kevin (66)', nhs: '888 999 0011', dob: '14 May 1958', lastUpdated: '15 Jan 2025', protocol: 'Radical Prostatectomy', anchor: '14 Nov 2023', psa: '0.02', threshold: '0.03', status: 'recall', psaHistory: [0.026,0.023,0.02], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'Urology', scheduleByYear: { 1: '4-monthly', 2: '4-monthly' } },
+      { id: 'ian-collins', name: 'Collins, Ian (64)', nhs: '200 300 4001', dob: '3 May 1960', lastUpdated: '4 Feb 2025', protocol: 'Primary ADT', anchor: '1 Apr 2023', psa: '2.5', threshold: '4.0', status: 'completed', psaHistory: [3.0,2.8,2.5], diagnoses: 'Locally advanced', nextDue: '2025-04-01', ownership: 'GP' },
+      { id: 'frank-wright', name: 'Wright, Frank (76)', nhs: '400 500 6003', dob: '22 Jan 1948', lastUpdated: '5 Feb 2025', protocol: 'Watchful Waiting', anchor: '1 Jun 2023', psa: '18', threshold: '30.0', status: 'completed', psaHistory: [22,20,18], diagnoses: 'Localised', nextDue: '2025-06-01', ownership: 'GP', scheduleByYear: { 1: 'annual', 2: 'annual' } },
+      { id: 'philip-hayes', name: 'Hayes, Philip (68)', nhs: '555 666 7788', dob: '10 Mar 1956', lastUpdated: '29 Jan 2025', protocol: 'EBRT', anchor: '10 May 2023', psa: '2.4', threshold: '2.0', status: 'action_required', psaHistory: [1.5,1.8,2.0,2.4], diagnoses: 'Localised', nextDue: 'Urgent Suspected Cancer', required_action: 'Urgent Suspected Cancer', ownership: 'Urology' },
+      { id: 'james-taylor', name: 'Taylor, James (71)', nhs: '666 777 8899', dob: '30 Jun 1953', lastUpdated: '30 Jan 2025', protocol: 'Radical Prostatectomy', anchor: '30 Aug 2023', psa: '0.02', threshold: '0.03', status: 'recall', psaHistory: [0.05,0.03,0.02], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'GP' },
+      { id: 'stephen-webb', name: 'Webb, Stephen (70)', nhs: '999 000 1122', dob: '25 Aug 1954', lastUpdated: '4 Feb 2025', protocol: 'Brachytherapy', anchor: '25 Jun 2024', psa: '0.4', threshold: '2.0', status: 'recall', psaHistory: [0.52,0.46,0.4], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'Urology' },
+      { id: 'sandra-mills', name: 'Mills, Sandra (66)', nhs: '100 200 3001', dob: '4 Mar 1958', lastUpdated: '1 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '4 Sep 2022', psa: '0.02', threshold: '0.03', status: 'recall', psaHistory: [0.035,0.026,0.02], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'GP' },
+      { id: 'raymond-fox', name: 'Fox, Raymond (73)', nhs: '101 201 3012', dob: '11 Jul 1951', lastUpdated: '5 Feb 2025', protocol: 'EBRT', anchor: '11 Jan 2022', psa: '1.6', threshold: '2.0', status: 'recall', psaHistory: [1.85,1.72,1.6], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'GP' },
+      { id: 'peter-green', name: 'Green, Peter (67)', nhs: '222 333 4455', dob: '5 Feb 1957', lastUpdated: '5 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '15 May 2014', psa: '0.02', threshold: '0.03', status: 'discharged', psaHistory: [0.025,0.022,0.02], diagnoses: 'Localised', nextDue: 'Discharged' },
+      { id: 'terence-bennett', name: 'Bennett, Terence (74)', nhs: '333 444 5566', dob: '2 Dec 1950', lastUpdated: '1 Feb 2025', protocol: 'EBRT', anchor: '2 Mar 2013', psa: '0.8', threshold: '2.0', status: 'discharged', psaHistory: [0.88,0.84,0.8], diagnoses: 'Localised, BPH', nextDue: 'Discharged' },
+      { id: 'arthur-discharged', name: 'Smith, Arthur (72)', nhs: '600 700 8005', dob: '20 Apr 1952', lastUpdated: '1 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '20 May 2019', psa: '0.01', threshold: '0.03', status: 'discharged', psaHistory: [0.012,0.01], diagnoses: 'Localised', nextDue: 'Discharged' },
+      { id: 'graham-hunt', name: 'Hunt, Graham (71)', nhs: '102 202 3023', dob: '8 Aug 1953', lastUpdated: '28 Jan 2025', protocol: 'Brachytherapy', anchor: '8 Feb 2018', psa: '0.2', threshold: '2.0', status: 'discharged', psaHistory: [0.32,0.26,0.2], diagnoses: 'Localised', nextDue: 'Discharged' },
+      { id: 'maurice-cooper', name: 'Cooper, Maurice (69)', nhs: '103 203 3034', dob: '19 Nov 1955', lastUpdated: '3 Feb 2025', protocol: 'Watchful Waiting', anchor: '19 Jun 2020', psa: '35', threshold: '30.0', status: 'discharged', psaHistory: [30,33,35], diagnoses: 'Localised', nextDue: 'Discharged' },
+      { id: 'derek-lewis', name: 'Lewis, Derek (70)', nhs: '106 206 3067', dob: '3 Jan 1954', lastUpdated: '30 Jan 2025', protocol: 'Radical Prostatectomy', anchor: '3 May 2020', psa: '0.05', threshold: '0.03', status: 'discharged', psaHistory: [0.04,0.048,0.05], diagnoses: 'Localised', nextDue: 'Discharged' },
+      { id: 'nicholas-bell', name: 'Bell, Nicholas (67)', nhs: '111 333 5555', dob: '7 Nov 1957', lastUpdated: '6 Feb 2025', protocol: 'Brachytherapy', anchor: '7 Dec 2024', psa: '0.15', threshold: '2.0', status: 'recall', psaHistory: [0.22,0.18,0.15], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'Urology', scheduleByYear: { 1: '3-monthly' } },
+      { id: 'david-patel', name: 'Patel, David (61)', nhs: '300 400 5002', dob: '12 Aug 1963', lastUpdated: '4 Feb 2025', protocol: 'Intermittent Hormones', anchor: '1 Sep 2024', psa: '6.0', threshold: '10.0', status: 'awaiting', psaHistory: [7.2,6.5,6.0], diagnoses: 'Prostate Ca', nextDue: 'Awaiting result', daysAwaiting: 3, ownership: 'GP' },
+      { id: 'harry-nelson', name: 'Nelson, Harry (69)', nhs: '500 600 7004', dob: '14 Oct 1955', lastUpdated: '6 Feb 2025', protocol: 'Active Surveillance', anchor: '1 Nov 2024', psa: '8.2', threshold: '15.0', status: 'upcoming', psaHistory: [9.0,8.5,8.2], diagnoses: 'Localised', nextDue: '1 May 2025', ownership: 'GP', scheduleByYear: { 1: '3-monthly' } },
+      { id: 'emma-reid', name: 'Reid, Emma (63)', nhs: '700 800 9012', dob: '19 May 1961', lastUpdated: '6 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '6 Nov 2024', psa: '0.018', threshold: '0.02', status: 'recall', psaHistory: [0.022,0.02,0.018], diagnoses: 'Localised', nextDue: 'Recall', scheduleByYear: { 1: '4-monthly' }, title: 'Ms.', gender: 'F' },
+      { id: 'tom-bishop', name: 'Bishop, Tom (70)', nhs: '104 204 3045', dob: '22 Feb 1954', lastUpdated: '2 Feb 2025', protocol: 'Primary ADT', anchor: '22 Aug 2024', psa: '3.2', threshold: '4.0', status: 'upcoming', psaHistory: [4.0,3.5,3.2], diagnoses: 'Locally advanced', nextDue: '20 Feb 2025', ownership: 'Urology', scheduleByYear: { 1: '3-monthly' } },
+      { id: 'oliver-ward', name: 'Ward, Oliver (68)', nhs: '105 205 3056', dob: '15 Sep 1956', lastUpdated: '4 Feb 2025', protocol: 'Radical Prostatectomy', anchor: '15 Jun 2021', psa: '0.025', threshold: '0.03', status: 'recall', psaHistory: [0.032,0.028,0.025], diagnoses: 'Localised', nextDue: 'Recall', ownership: 'GP' }
     ];
     var keyToLabel = {};
     PATHWAY_OPTIONS.forEach(function(o) { keyToLabel[o.value] = o.label; });
     patients = v1.map(function(d) {
       var protocolKey = PROTOCOL_NAME_TO_KEY[d.protocol] || 'radical';
       var anchorIso = parseAnchorToISO(d.anchor);
+      var psaDate = d.psaDate || (anchorIso || '');
+      var psaRes = (d.psaResults && d.psaResults.length) ? d.psaResults : psaResultsFromLegacy(d.psaHistory, psaDate);
       var sched = d.scheduleRows ? expandToYearlyRows(d.scheduleRows) : getProtocolScheduleRows(protocolKey);
       if (d.scheduleByYear) {
         sched = sched.map(function(r) {
           var over = d.scheduleByYear[r.yearFrom];
-          return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: over || r.schedule, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false };
+          return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: over || r.schedule, mot: r.mot, lft: r.lft };
         });
       }
-      var psaDate = d.psaDate || anchorIso || '';
-      var psaRes = (d.psaResults && d.psaResults.length) ? d.psaResults : psaResultsFromLegacy(d.psaHistory, psaDate);
       var fakeP = { anchorDate: anchorIso, scheduleRows: sched, psaResults: psaRes };
       var suggestedDue = psaRes.length ? computeSuggestedDueAfterResult(fakeP).suggestedDue : computeSuggestedDueAtCreation(anchorIso, sched);
-      var customDueDate = null;
+      var customDueDate = d.id === 'george-walsh' ? '2025-10-01' : null;
       var activeDue = /awaiting|action|action_required|discharged/i.test(d.status) ? undefined : (customDueDate || suggestedDue || undefined);
       return {
         id: d.id,
@@ -1010,15 +1011,15 @@
     var run = null;
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
-      var key = (r.schedule || '') + '|' + !!r.mot + '|' + !!r.lft + '|' + !!(r.ue !== undefined ? r.ue : false);
+      var key = (r.schedule || '') + '|' + !!r.mot + '|' + !!r.lft;
       if (run && run.key === key) {
         run.yearTo = r.yearTo;
       } else {
-        run = { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false, key: key };
+        run = { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft, key: key };
         out.push(run);
       }
     }
-    return out.map(function(x) { return { yearFrom: x.yearFrom, yearTo: x.yearTo, schedule: x.schedule, mot: x.mot, lft: x.lft, ue: x.ue }; });
+    return out.map(function(x) { return { yearFrom: x.yearFrom, yearTo: x.yearTo, schedule: x.schedule, mot: x.mot, lft: x.lft }; });
   }
 
   function scheduleToLabel(s) {
@@ -1332,39 +1333,18 @@
       var thNum = thVal ? parseFloat(thVal) : NaN;
       if (!thVal || isNaN(thNum) || thNum <= 0) errors.push({ el: draftThreshold, message: 'Enter a valid threshold' });
       var anchorIso = draftAnchor.value ? draftAnchor.value.trim() : '';
-      var currentYear = anchorIso ? getPhaseYearFromAnchorAsOf(anchorIso, todayIso) : 1;
-      var baselineDate = draftBaselineDateEl && draftBaselineDateEl.value ? draftBaselineDateEl.value.trim().split(/[T\s]/)[0] : '';
-      if (anchorIso && scheduleRows.length) {
-        if (currentYear === 1) {
-          var year1Row = scheduleRows.filter(function(r) { return 1 >= r.yearFrom && 1 <= r.yearTo; })[0];
-          if (!year1Row || !year1Row.schedule) {
-            var scheduleTable = document.getElementById('v2-draft-schedule-table');
-            errors.push({ el: scheduleTable, message: 'Set frequency for Year 1' });
-          }
-        } else {
-          if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
-            var specimenYear = getPhaseYearFromAnchorAsOf(anchorIso, baselineDate);
-            var specimenYearRow = scheduleRows.filter(function(r) { return specimenYear >= r.yearFrom && specimenYear <= r.yearTo; })[0];
-            if (!specimenYearRow || !specimenYearRow.schedule) {
-              var scheduleTable = document.getElementById('v2-draft-schedule-table');
-              errors.push({ el: scheduleTable, message: 'Set frequency for Year ' + specimenYear + ' (year of specimen date)' });
-            }
-          }
+      if (anchorIso) {
+        var currentYear = getPhaseYearFromAnchorAsOf(anchorIso, todayIso);
+        var currentYearRow = scheduleRows.filter(function(r) { return currentYear >= r.yearFrom && currentYear <= r.yearTo; })[0];
+        if (!currentYearRow || !currentYearRow.schedule) {
+          var scheduleTable = document.getElementById('v2-draft-schedule-table');
+          errors.push({ el: scheduleTable, message: 'Set frequency for the current monitoring year (Year ' + currentYear + ')' });
         }
       }
       var dueInput = document.getElementById('v2-draft-due-date');
       var dueVal = dueInput && dueInput.value ? dueInput.value.trim() : '';
-      if (!dueVal) {
-        if (currentYear > 1 && !baselineDate) {
-          var assumedDue = anchorIso && scheduleRows.length ? computeSuggestedDueFromToday(anchorIso, scheduleRows) : null;
-          if (!assumedDue) errors.push({ el: dueInput, message: 'Enter last PSA specimen date or set a due date manually' });
-        } else {
-          errors.push({ el: dueInput, message: 'A due date is needed' });
-        }
-      } else {
-        if (anchorIso && dueVal < anchorIso) errors.push({ el: dueInput, message: 'Due date must not be before start date.' });
-        if (baselineDate && dueVal < baselineDate) errors.push({ el: dueInput, message: 'Due date must not be before specimen date.' });
-      }
+      if (!dueVal) errors.push({ el: dueInput, message: 'A due date is needed' });
+      var baselineDate = draftBaselineDateEl && draftBaselineDateEl.value ? draftBaselineDateEl.value.trim().split(/[T\s]/)[0] : '';
       if (baselineDate) {
         if (baselineDate > todayIso) errors.push({ el: draftBaselineDateEl, message: 'Specimen date cannot be in the future' });
         else if (anchorIso && baselineDate < anchorIso) errors.push({ el: draftBaselineDateEl, message: 'Specimen date must be on or after the start date' });
@@ -1376,108 +1356,82 @@
       var val = draftAnchor.value;
       if (!val) { draftYearBadge.style.display = 'none'; return; }
       draftYearNum.textContent = getPhaseYearFromAnchor(val);
-      draftYearBadge.style.display = 'inline-flex';
+      draftYearBadge.style.display = 'inline-block';
     }
     function updateDraftDischargeBanner() {
+      var hasAnyFreq = scheduleRows.some(function(r) { return !!r.schedule; });
       var bannerEl = document.getElementById('v2-draft-discharge-banner');
-      if (bannerEl) bannerEl.style.display = '';
+      if (bannerEl) bannerEl.style.display = hasAnyFreq ? '' : 'none';
       var last = scheduleRows.length ? scheduleRows[scheduleRows.length - 1] : null;
-      draftDischargeYear.textContent = last ? last.yearTo : '10';
+      draftDischargeYear.textContent = last ? last.yearTo : '1';
     }
     function updateDraftDueDate(forceSyncDue) {
       var dueInput = document.getElementById('v2-draft-due-date');
       var helperEl = document.getElementById('v2-draft-due-helper');
-      var draftDueBannerEl = document.getElementById('v2-draft-due-banner');
       var overdueEl = document.getElementById('v2-draft-due-overdue');
       var dueBadge = document.getElementById('v2-draft-due-badge');
+      var upcomingEl = document.getElementById('v2-draft-upcoming-schedule');
       if (!dueInput || !helperEl) return;
-      if (draftDueBannerEl) draftDueBannerEl.style.display = 'none';
       var anchorIso = (draftAnchor.value || '').trim();
       var sched = scheduleRows && scheduleRows.length ? scheduleRows : [];
       var todayIso = new Date().toISOString().slice(0, 10);
-      var baselineDate = draftBaselineDateEl && draftBaselineDateEl.value ? draftBaselineDateEl.value.trim().split(/[T\s]/)[0] : '';
       if (!anchorIso) {
         dueInput.value = '';
-        helperEl.textContent = 'Set a start date first.';
-        helperEl.style.display = 'block';
+        helperEl.textContent = 'Set start date to see suggested due date.';
         if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
         if (dueBadge) dueBadge.style.display = 'none';
+        if (upcomingEl) upcomingEl.textContent = '';
         return;
       }
       if (!sched.length) {
         dueInput.value = '';
-        helperEl.textContent = 'Add a monitoring schedule first.';
-        helperEl.style.display = 'block';
+        helperEl.textContent = 'Set monitoring schedule to see suggested due date.';
         if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
         if (dueBadge) dueBadge.style.display = 'none';
+        if (upcomingEl) upcomingEl.textContent = '';
         return;
       }
       var currentYear = getPhaseYearFromAnchorAsOf(anchorIso, todayIso);
-      var suggestedDue = null;
-      var fromBaseline = false;
-      var fromToday = false;
-      var draftContextLine = '';
-
-      if (currentYear === 1) {
-        var year1Row = sched.filter(function(r) { return 1 >= r.yearFrom && 1 <= r.yearTo; })[0];
-        if (!year1Row || !year1Row.schedule) {
-          dueInput.value = '';
-          helperEl.textContent = 'Set Year 1 frequency to calculate.';
-          helperEl.style.display = 'block';
-          if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
-          if (dueBadge) dueBadge.style.display = 'none';
-          return;
-        }
-        var y1Months = SCHEDULE_TO_MONTHS[year1Row.schedule] || 6;
-        if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
-          var candidateDueY1 = addMonthsDateOnly(baselineDate, y1Months);
-          var targetDueY1 = getNextAnchoredTargetDue(anchorIso, sched, baselineDate);
-          suggestedDue = (targetDueY1 && candidateDueY1 < targetDueY1) ? targetDueY1 : candidateDueY1;
-          fromBaseline = true;
-          draftContextLine = 'Year 1, every ' + y1Months + ' months from ' + formatDateShort(baselineDate) + ' (last specimen date).';
-        } else {
-          suggestedDue = addMonthsDateOnly(anchorIso, y1Months);
-          draftContextLine = 'Year 1, every ' + y1Months + ' months from ' + formatDateShort(anchorIso) + ' (treatment start).';
-        }
-      } else {
-        if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
-          var specimenYear = getPhaseYearFromAnchorAsOf(anchorIso, baselineDate);
-          var specimenYearRow = sched.filter(function(r) { return specimenYear >= r.yearFrom && specimenYear <= r.yearTo; })[0];
-          if (!specimenYearRow || !specimenYearRow.schedule) {
-            dueInput.value = '';
-            helperEl.textContent = 'Set Year ' + specimenYear + ' frequency to calculate (year of specimen).';
-            helperEl.style.display = 'block';
-            if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
-            if (dueBadge) dueBadge.style.display = 'none';
-            return;
-          }
-          var specMonths = SCHEDULE_TO_MONTHS[specimenYearRow.schedule] || 6;
-          var candidateDueSpec = addMonthsDateOnly(baselineDate, specMonths);
-          var targetDueSpec = getNextAnchoredTargetDue(anchorIso, sched, baselineDate);
-          suggestedDue = (targetDueSpec && candidateDueSpec < targetDueSpec) ? targetDueSpec : candidateDueSpec;
-          fromBaseline = true;
-          draftContextLine = 'Year ' + specimenYear + ', every ' + specMonths + ' months from ' + formatDateShort(baselineDate) + ' (last specimen date).';
-        } else {
-          suggestedDue = computeSuggestedDueFromToday(anchorIso, sched);
-          fromToday = true;
-          if (suggestedDue) {
-            var y = getPhaseYearFromAnchorAsOf(anchorIso, todayIso);
-            var freq = (sched.filter(function(r) { return y >= r.yearFrom && y <= r.yearTo; })[0] && SCHEDULE_TO_MONTHS[sched.filter(function(r) { return y >= r.yearFrom && y <= r.yearTo; })[0].schedule]) || 6;
-            draftContextLine = 'Year ' + y + ', every ' + freq + ' months from today (next schedule slot; add last specimen date above to base the due date on that result).';
-          }
-        }
-      }
-
-      if (!suggestedDue) {
+      var currentYearRow = sched.filter(function(r) { return currentYear >= r.yearFrom && currentYear <= r.yearTo; })[0];
+      if (!currentYearRow || !currentYearRow.schedule) {
         dueInput.value = '';
-        helperEl.textContent = 'Could not calculate — check schedule.';
-        helperEl.style.display = 'block';
+        helperEl.textContent = 'Set frequency for the current monitoring year (Year ' + currentYear + ') to see suggested due date.';
         if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
         if (dueBadge) dueBadge.style.display = 'none';
+        if (upcomingEl) upcomingEl.textContent = '';
         return;
       }
-      var currentValue = (dueInput.value || '').trim();
-      if (forceSyncDue || !currentValue || (fromBaseline && !draftDueManuallySet)) {
+      var suggestedDue = null;
+      var fromBaseline = false;
+      var draftContextLine = '';
+      var baselineDate = draftBaselineDateEl && draftBaselineDateEl.value ? draftBaselineDateEl.value.trim().split(/[T\s]/)[0] : '';
+      if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
+        var fakeP = { anchorDate: anchorIso, scheduleRows: sched, psaResults: [{ date: baselineDate, value: 0 }] };
+        var res = computeSuggestedDueAfterResult(fakeP);
+        if (res && res.suggestedDue) {
+          suggestedDue = res.suggestedDue;
+          fromBaseline = true;
+          var specimenYear = getPhaseYearFromAnchorAsOf(anchorIso, baselineDate);
+          var specMonths = getFrequencyMonthsForYear({ scheduleRows: sched }, specimenYear);
+          draftContextLine = 'Year ' + specimenYear + ', every ' + specMonths + ' months from ' + formatDateShort(baselineDate) + ' (last specimen date).';
+        }
+      }
+      if (suggestedDue === null) {
+        suggestedDue = computeSuggestedDueFromToday(anchorIso, sched);
+        if (suggestedDue) {
+          var freqMonths = getFrequencyMonthsForYear({ scheduleRows: sched }, currentYear);
+          draftContextLine = 'Year ' + currentYear + ', every ' + freqMonths + ' months from today (assuming previous test done).';
+        }
+      }
+      if (!suggestedDue) {
+        dueInput.value = '';
+        helperEl.textContent = 'Could not calculate suggested due date.';
+        if (overdueEl) { overdueEl.style.display = 'none'; overdueEl.textContent = ''; }
+        if (dueBadge) dueBadge.style.display = 'none';
+        if (upcomingEl) upcomingEl.textContent = '';
+        return;
+      }
+      if (forceSyncDue || !dueInput.value) {
         skipNextDueInputChange = true;
         dueInput.value = suggestedDue;
         setTimeout(function() { skipNextDueInputChange = false; }, 0);
@@ -1489,27 +1443,32 @@
         dueBadge.textContent = isCustomDraftDue ? 'MANUALLY SET' : 'SUGGESTED';
         dueBadge.className = 'v2-due-badge ' + (isCustomDraftDue ? 'v2-due-badge--manual' : 'v2-due-badge--suggested');
       }
-      helperEl.style.display = 'none';
-      if (draftDueBannerEl) {
+      if (isCustomDraftDue) {
         var suggestedLabel = fromBaseline ? 'Suggested by last PSA result' : 'Suggested by schedule';
-        var bannerText = suggestedLabel + ': ' + formatDateShort(suggestedDue) + '. ' + draftContextLine;
-        draftDueBannerEl.innerHTML = '<span class="v2-due-banner-text">' + bannerText + '</span>' + (isCustomDraftDue ? ' <button type="button" id="v2-draft-due-reset-inline" data-variant="secondary" class="v2-draft-due-reset-inline">Reset to suggested</button>' : '');
-        draftDueBannerEl.style.display = 'flex';
+        helperEl.innerHTML = suggestedLabel + ': ' + formatDateShort(suggestedDue) + '. ' + draftContextLine + ' <button type="button" id="v2-draft-due-reset-inline" data-variant="secondary" class="v2-draft-due-reset-inline">Reset to suggested</button>';
         var draftResetInline = document.getElementById('v2-draft-due-reset-inline');
         if (draftResetInline) draftResetInline.onclick = function() {
           draftDueManuallySet = false;
           dueInput.value = suggestedDue;
           updateDraftDueDate();
         };
+      } else {
+        var suggestedLabel = fromBaseline ? 'Suggested by last PSA result. ' : 'Suggested by schedule. ';
+        helperEl.textContent = suggestedLabel + draftContextLine;
       }
       if (overdueEl) {
         if (displayDue < todayIso) {
-          overdueEl.textContent = 'This date is in the past — patient will appear overdue.';
+          overdueEl.textContent = 'This date is in the past — patient will appear overdue until the test is done.';
           overdueEl.style.display = '';
         } else {
           overdueEl.style.display = 'none';
           overdueEl.textContent = '';
         }
+      }
+      if (upcomingEl) {
+        var fakeP = { anchorDate: anchorIso, scheduleRows: sched };
+        var preview = getUpcomingSchedulePreview(fakeP, displayDue);
+        upcomingEl.textContent = preview.length ? 'Upcoming: ' + preview.map(function(iso) { return formatDateShort(iso); }).join(' · ') : '';
       }
     }
     function renderDraftScheduleTable() {
@@ -1522,23 +1481,8 @@
         var placeholderOpt = '<option value="" disabled' + (!row.schedule ? ' selected' : '') + '>Set frequency</option>';
         var freqOpts = placeholderOpt + FREQUENCY_OPTIONS.map(function(o) { return '<option value="' + o.value + '"' + (o.value === row.schedule ? ' selected' : '') + '>' + o.label + '</option>'; }).join('');
         var delCell = idx === scheduleRows.length - 1 && scheduleRows.length > 1 ? '<td><button type="button" class="v2-schedule-delete-btn" data-variant="secondary" data-delete-row="' + idx + '" aria-label="Delete year">Delete</button></td>' : '<td></td>';
-        tr.innerHTML = '<td>' + row.yearFrom + '</td><td><select data-row="' + idx + '" data-field="schedule">' + freqOpts + '</select></td><td><input type="checkbox" data-row="' + idx + '" data-field="mot"' + (row.mot ? ' checked' : '') + ' aria-label="MOT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="lft"' + (row.lft ? ' checked' : '') + ' aria-label="LFT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="ue"' + ((row.ue !== undefined ? row.ue : false) ? ' checked' : '') + ' aria-label="U&E"></td>' + delCell;
+        tr.innerHTML = '<td>' + row.yearFrom + '</td><td><select data-row="' + idx + '" data-field="schedule">' + freqOpts + '</select></td><td><input type="checkbox" data-row="' + idx + '" data-field="mot"' + (row.mot ? ' checked' : '') + ' aria-label="MOT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="lft"' + (row.lft ? ' checked' : '') + ' aria-label="LFT"></td>' + delCell;
         draftTbody.appendChild(tr);
-      });
-      draftTbody.querySelectorAll('select[data-field="schedule"]').forEach(function(el) {
-        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].schedule = el.value; });
-      });
-      draftTbody.querySelectorAll('input[data-field="mot"]').forEach(function(el) {
-        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].mot = el.checked; });
-      });
-      draftTbody.querySelectorAll('input[data-field="lft"]').forEach(function(el) {
-        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].lft = el.checked; });
-      });
-      draftTbody.querySelectorAll('input[data-field="ue"]').forEach(function(el) {
-        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].ue = el.checked; });
-      });
-      draftTbody.querySelectorAll('[data-delete-row]').forEach(function(btn) {
-        btn.addEventListener('click', function() { var i = parseInt(btn.getAttribute('data-delete-row'), 10); scheduleRows.splice(i, 1); renderDraftScheduleTable(); updateDraftDischargeBanner(); updateDraftDueDate(!draftDueManuallySet); });
       });
       draftTbody.querySelectorAll('select[data-field="schedule"]').forEach(function(el) {
         el.addEventListener('change', function() {
@@ -1548,8 +1492,19 @@
           if (st) st.classList.remove('v2-field-error');
           var se = document.getElementById('v2-draft-schedule-error');
           if (se) { se.style.display = 'none'; se.textContent = ''; }
-          updateDraftDueDate(!draftDueManuallySet);
         });
+      });
+      draftTbody.querySelectorAll('input[data-field="mot"]').forEach(function(el) {
+        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].mot = el.checked; });
+      });
+      draftTbody.querySelectorAll('input[data-field="lft"]').forEach(function(el) {
+        el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (scheduleRows[i]) scheduleRows[i].lft = el.checked; });
+      });
+      draftTbody.querySelectorAll('[data-delete-row]').forEach(function(btn) {
+        btn.addEventListener('click', function() { var i = parseInt(btn.getAttribute('data-delete-row'), 10); scheduleRows.splice(i, 1); renderDraftScheduleTable(); updateDraftDischargeBanner(); updateDraftDueDate(!draftDueManuallySet); });
+      });
+      draftTbody.querySelectorAll('select[data-field="schedule"]').forEach(function(el) {
+        el.addEventListener('change', function() { updateDraftDueDate(!draftDueManuallySet); });
       });
     }
     renderDraftScheduleTable();
@@ -1560,9 +1515,8 @@
     draftPathway.onchange = function() {
       clearDraftFieldError(draftPathway);
       if (draftPathway.value) {
-        // Prefilling disabled for testing: configure schedule and threshold from scratch.
-        // scheduleRows = getProtocolScheduleRows(draftPathway.value);
-        // draftThreshold.value = getProtocolThreshold(draftPathway.value);
+        scheduleRows = getProtocolScheduleRows(draftPathway.value);
+        draftThreshold.value = getProtocolThreshold(draftPathway.value);
       } else {
         scheduleRows = getBlankScheduleRows(10);
         draftThreshold.value = '';
@@ -1571,22 +1525,10 @@
       updateDraftDischargeBanner();
       updateDraftDueDate(!draftDueManuallySet);
     };
+    draftAnchor.onchange = function() { clearDraftFieldError(draftAnchor); updateDraftYearBadge(); renderDraftScheduleTable(); updateDraftDueDate(!draftDueManuallySet); };
     draftOwnership.onchange = function() { clearDraftFieldError(draftOwnership); };
     draftThreshold.addEventListener('input', function() { clearDraftFieldError(draftThreshold); });
     draftThreshold.addEventListener('change', function() { clearDraftFieldError(draftThreshold); });
-    draftAnchor.onchange = function() {
-      clearDraftFieldError(draftAnchor);
-      var newAnchor = (draftAnchor.value || '').trim();
-      var dueInput = document.getElementById('v2-draft-due-date');
-      var dueVal = dueInput && dueInput.value ? dueInput.value.trim() : '';
-      if (newAnchor && dueVal && dueVal < newAnchor) {
-        draftDueManuallySet = false;
-        if (dueInput) setDraftFieldError(dueInput, 'Due date must not be before start date.');
-      }
-      updateDraftYearBadge();
-      renderDraftScheduleTable();
-      updateDraftDueDate(!draftDueManuallySet);
-    };
     var draftDueInput = document.getElementById('v2-draft-due-date');
     if (draftDueInput) {
       draftDueInput.addEventListener('change', function() {
@@ -1603,32 +1545,15 @@
     var draftBaselineDateEl = document.getElementById('v2-draft-baseline-date');
     var draftBaselineValueEl = document.getElementById('v2-draft-baseline-value');
     if (draftBaselineDateEl) {
-      draftBaselineDateEl.addEventListener('change', function() {
-        clearDraftFieldError(draftBaselineDateEl);
-        var newBaseline = (draftBaselineDateEl.value || '').trim().split(/[T\s]/)[0];
-        var dueInput = document.getElementById('v2-draft-due-date');
-        var dueVal = dueInput && dueInput.value ? dueInput.value.trim() : '';
-        if (newBaseline && dueVal && dueVal < newBaseline) {
-          draftDueManuallySet = false;
-          if (dueInput) setDraftFieldError(dueInput, 'Due date must not be before specimen date.');
-        }
-        updateDraftDueDate();
-      });
-      draftBaselineDateEl.addEventListener('input', function() {
-        clearDraftFieldError(draftBaselineDateEl);
-        var newBaseline = (draftBaselineDateEl.value || '').trim().split(/[T\s]/)[0];
-        var dueInput = document.getElementById('v2-draft-due-date');
-        var dueVal = dueInput && dueInput.value ? dueInput.value.trim() : '';
-        if (newBaseline && dueVal && dueVal < newBaseline) draftDueManuallySet = false;
-        updateDraftDueDate();
-      });
+      draftBaselineDateEl.addEventListener('change', function() { clearDraftFieldError(draftBaselineDateEl); updateDraftDueDate(); });
+      draftBaselineDateEl.addEventListener('input', function() { clearDraftFieldError(draftBaselineDateEl); updateDraftDueDate(); });
     }
     if (draftBaselineValueEl) { draftBaselineValueEl.addEventListener('change', updateDraftDueDate); draftBaselineValueEl.addEventListener('input', updateDraftDueDate); }
     document.getElementById('v2-draft-add-year').onclick = function() {
       var last = scheduleRows.length ? scheduleRows[scheduleRows.length - 1] : null;
       var nextY = last ? last.yearTo + 1 : 1;
       var s = (last && last.schedule) ? last.schedule : '';
-      scheduleRows.push({ yearFrom: nextY, yearTo: nextY, schedule: s, mot: last ? last.mot : false, lft: last ? last.lft : false, ue: last ? (last.ue !== undefined ? last.ue : false) : false });
+      scheduleRows.push({ yearFrom: nextY, yearTo: nextY, schedule: s, mot: last ? last.mot : false, lft: last ? last.lft : false });
       renderDraftScheduleTable();
       updateDraftDischargeBanner();
       updateDraftDueDate();
@@ -1667,7 +1592,7 @@
       }
       var protocolLabel = PATHWAY_OPTIONS.filter(function(o) { return o.value === draftPathway.value; })[0];
       var newId = generateId();
-      var sched = scheduleRows.map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false }; });
+      var sched = scheduleRows.map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft }; });
       var anchorIso = draftAnchor.value || null;
       var thresholdStr = (draftThreshold.value || '').trim() || getProtocolThreshold(draftPathway.value);
       var draftDueInput = document.getElementById('v2-draft-due-date');
@@ -1681,32 +1606,13 @@
         var valNum = parseFloat(baselineVal);
         psaResultsInitial = [{ date: baselineDate, value: isNaN(valNum) ? 0 : valNum }];
       }
-      var todayIso = new Date().toISOString().slice(0, 10);
-      var currentYear = anchorIso ? getPhaseYearFromAnchorAsOf(anchorIso, todayIso) : 1;
       var suggestedDue = null;
-      if (currentYear === 1) {
-        var year1Row = sched.filter(function(r) { return 1 >= r.yearFrom && 1 <= r.yearTo; })[0];
-        if (year1Row && year1Row.schedule) {
-          var y1MonthsSubmit = SCHEDULE_TO_MONTHS[year1Row.schedule] || 6;
-          if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
-            var candY1 = addMonthsDateOnly(baselineDate, y1MonthsSubmit);
-            var tgtY1 = getNextAnchoredTargetDue(anchorIso, sched, baselineDate);
-            suggestedDue = (tgtY1 && candY1 < tgtY1) ? tgtY1 : candY1;
-          } else {
-            suggestedDue = addMonthsDateOnly(anchorIso, y1MonthsSubmit);
-          }
-        }
-      } else if (baselineDate && baselineDate <= todayIso && baselineDate >= anchorIso) {
-        var specimenYear = getPhaseYearFromAnchorAsOf(anchorIso, baselineDate);
-        var specimenYearRow = sched.filter(function(r) { return specimenYear >= r.yearFrom && specimenYear <= r.yearTo; })[0];
-        if (specimenYearRow && specimenYearRow.schedule) {
-          var candSpec = addMonthsDateOnly(baselineDate, SCHEDULE_TO_MONTHS[specimenYearRow.schedule] || 6);
-          var tgtSpec = getNextAnchoredTargetDue(anchorIso, sched, baselineDate);
-          suggestedDue = (tgtSpec && candSpec < tgtSpec) ? tgtSpec : candSpec;
-        }
-      } else {
-        suggestedDue = computeSuggestedDueFromToday(anchorIso, sched);
+      if (baselineDate && baselineDate <= new Date().toISOString().slice(0, 10) && baselineDate >= anchorIso) {
+        var fakeP = { anchorDate: anchorIso, scheduleRows: sched, psaResults: psaResultsInitial.length ? psaResultsInitial : [{ date: baselineDate, value: 0 }] };
+        var res = computeSuggestedDueAfterResult(fakeP);
+        if (res && res.suggestedDue) suggestedDue = res.suggestedDue;
       }
+      if (suggestedDue === null) suggestedDue = computeSuggestedDueFromToday(anchorIso, sched);
       var activeDue = draftDueVal || suggestedDue || undefined;
       var customDueDate = (draftDueVal && suggestedDue && draftDueVal !== suggestedDue) ? draftDueVal : undefined;
       var nextDueDisplay = activeDue ? formatDateShort(activeDue) : 'Recall';
@@ -1760,15 +1666,25 @@
     if (e.target === addModal) addModal.classList.add('hidden');
   });
 
-  // ---------- MVP: 5 statuses only ----------
+  // ---------- Board ----------
+  // List tabs and list grouping: all statuses
   var STATUS_COLUMNS = [
     { id: 'action', label: 'Review Required', icon: '\u26a0' },
     { id: 'action_required', label: 'Follow-up Required', icon: '\u2691' },
     { id: 'awaiting', label: 'Awaiting Result', icon: '\u29d7' },
     { id: 'recall', label: 'Recall', icon: '\u21bb' },
+    { id: 'upcoming', label: 'Upcoming', icon: '\uD83D\uDCC5' },
+    { id: 'completed', label: 'Completed', icon: '\u2713' },
     { id: 'discharged', label: 'Discharged', icon: '\u25a0' }
   ];
-  var LIST_ORDER_FOR_ALL = ['action', 'action_required', 'awaiting', 'recall', 'discharged'];
+  // All list only: section order (Recall before Discharged)
+  var LIST_ORDER_FOR_ALL = ['action', 'action_required', 'awaiting', 'upcoming', 'completed', 'recall', 'discharged'];
+  // List tab order with subsections: All | Recall, Upcoming, Awaiting, Completed | Review, Follow-up | Discharged
+  var LIST_TAB_ORDER = [
+    ['recall', 'upcoming', 'awaiting', 'completed'],
+    ['action', 'action_required'],
+    ['discharged']
+  ];
   var listViewGrouped = true;
   var listProtocolFilter = '';
   var listSortKey = 'status';
@@ -1852,14 +1768,6 @@
     p.customDueDate = undefined;
     p.nextDue = suggested ? formatDateShort(suggested) : (p.nextDue || 'Recall');
   }
-  (function mvpMigrateUpcomingCompleted() {
-    patients.forEach(function(p) {
-      if (p.status === 'upcoming' || p.status === 'completed') {
-        p.status = 'recall';
-        refreshNextDueForRecall(p);
-      }
-    });
-  })();
   (function normaliseRecallNextDue() {
     patients.forEach(function(p) { if (p.status === 'recall') refreshNextDueForRecall(p); });
   })();
@@ -1909,7 +1817,7 @@
     return 'In ' + Math.ceil(diffMonths / 12) + ' y';
   }
 
-  /** Returns { text, isOverdue } for list Next Due: "In X d/mo/y" or "X d/mo/y ago". */
+  /** Returns { text, isOverdue } for list/detail: "In X d/mo/y" or "X d/mo/y ago". */
   function formatDueRelativeForList(iso) {
     if (!iso || String(iso).trim().length < 10) return { text: '—', isOverdue: false };
     var isoStr = String(iso).trim().slice(0, 10);
@@ -2060,51 +1968,30 @@
   }
 
   function renderListRow(p, threshNum, showStatusColumn) {
-    var lastPsaRaw = (p.status === 'awaiting') ? '?' : ((p.psaResults && p.psaResults.length) ? p.psaResults[p.psaResults.length - 1].value : null);
+    var lastPsaRaw = (p.psaResults && p.psaResults.length) ? p.psaResults[p.psaResults.length - 1].value : (p.status === 'awaiting' ? '?' : null);
     var lastPsa = lastPsaRaw === '?' ? '?' : formatPsaCell(lastPsaRaw);
-    var thresh = threshNum ? threshNum(p) : parseFloat(p.threshold);
-    var varianceHtml = '';
-    if (lastPsaRaw !== '?' && lastPsaRaw != null && !isNaN(parseFloat(lastPsaRaw)) && thresh != null && !isNaN(thresh)) {
-      var diff = parseFloat(lastPsaRaw) - thresh;
-      var absVal = Math.abs(diff).toFixed(3);
-      if (diff > 0) varianceHtml = ' <span class="v2-list-variance v2-variance-above" title="' + absVal + ' above threshold">\u2191</span>';
-      else if (diff < 0) varianceHtml = ' <span class="v2-list-variance v2-variance-below" title="' + absVal + ' below threshold">\u2193</span>';
+    var lastPsaNum = (p.psaResults && p.psaResults.length) ? parseFloat(p.psaResults[p.psaResults.length - 1].value) : null;
+    var thr = threshNum(p);
+    var varianceHtml = '—';
+    if (p.status !== 'upcoming' && p.status !== 'awaiting' && lastPsaNum != null && thr != null) {
+      var diff = lastPsaNum - thr;
+      if (diff !== 0) {
+        var vClass = diff > 0 ? 'v2-variance-above' : 'v2-variance-below';
+        varianceHtml = '<span class="' + vClass + '">' + Math.abs(diff).toFixed(3) + (diff > 0 ? ' \u2191' : ' \u2193') + '</span>';
+      }
     }
     var ownerClass = (p.ownership || 'GP') === 'Urology' ? 'v2-owner-uro' : 'v2-owner-gp';
     var ownerLabel = (p.ownership || 'GP') === 'Urology' ? 'URO' : 'GP';
     var ageStr = getAgeFromDob(p.dob);
     var ageDisplay = ageStr ? ageStr.replace(/y$/, '') : '—';
     var thresholdCell = p.threshold ? formatPsaCell(p.threshold) : '—';
-    var lastSpecimenIso = (p.status === 'awaiting') ? '' : ((p.psaResults && p.psaResults.length) ? (p.psaResults[p.psaResults.length - 1].date || '').trim().split(/[T\s]/)[0] : '');
-    var specimenDateStr = lastSpecimenIso ? formatDateShort(lastSpecimenIso) : '—';
     var statusCell = showStatusColumn ? '<td><span class="v2-status-pill v2-status-' + (p.status || '') + '">' + getStatusLabel(p.status) + '</span></td>' : '';
-    var dueCell;
-    var dueCellClass = '';
-    var todayIso = new Date().toISOString().slice(0, 10);
-    if (p.status === 'awaiting') {
-      var cycleDue = getSuggestedDue(p);
-      var cycleDueIso = cycleDue ? String(cycleDue).trim().slice(0, 10) : '';
-      if (cycleDueIso && cycleDueIso.length >= 10) {
-        dueCell = formatDateShort(cycleDueIso);
-        if (cycleDueIso < todayIso) { dueCellClass = ' v2-list-due-overdue-cell'; }
-      } else {
-        dueCell = '—';
-      }
-    } else if (/action|action_required|discharged/i.test(p.status)) {
-      dueCell = (p.nextDue || '').trim() || '—';
-    } else {
-      var activeIso = getActiveDueISO(p);
-      if (activeIso) {
-        dueCell = formatDateShort(activeIso);
-        if (activeIso < todayIso) { dueCellClass = ' v2-list-due-overdue-cell'; }
-      } else {
-        dueCell = (p.nextDue || '').trim() || '—';
-      }
-    }
+    var dueText = formatNextDueForList(p);
+    var dueCell = dueText;
     var tr = document.createElement('tr');
     tr.setAttribute('data-patient-id', p.id);
     tr.style.cursor = 'pointer';
-    tr.innerHTML = '<td>' + (p.nhs || '—') + '</td>' + statusCell + '<td><strong>' + nameWithoutAge(p.name) + '</strong></td><td class="v2-cell-right">' + (p.dob || '—') + '</td><td class="v2-cell-right">' + ageDisplay + '</td><td><span class="v2-owner-badge ' + ownerClass + '">' + ownerLabel + '</span></td><td>' + (p.pathwayLabel || p.pathway) + '</td><td class="v2-cell-num">' + lastPsa + varianceHtml + '</td><td class="v2-cell-num">' + thresholdCell + '</td><td class="v2-cell-right">' + specimenDateStr + '</td><td class="' + dueCellClass.trim() + '">' + dueCell + '</td><td>' + formatFreqShort(getEffectiveSchedule(p)) + '</td><td class="v2-cell-right">' + formatRelativeTime(p.lastUpdated) + '</td>';
+    tr.innerHTML = '<td>' + (p.nhs || '—') + '</td>' + statusCell + '<td><strong>' + nameWithoutAge(p.name) + '</strong></td><td class="v2-cell-right">' + (p.dob || '—') + '</td><td class="v2-cell-right">' + ageDisplay + '</td><td><span class="v2-owner-badge ' + ownerClass + '">' + ownerLabel + '</span></td><td>' + (p.pathwayLabel || p.pathway) + '</td><td class="v2-cell-num">' + lastPsa + '</td><td class="v2-cell-num">' + thresholdCell + '</td><td class="v2-cell-num">' + varianceHtml + '</td><td>' + dueCell + '</td><td>' + formatFreqShort(getEffectiveSchedule(p)) + '</td><td class="v2-cell-right">' + formatRelativeTime(p.lastUpdated) + '</td>';
     return tr;
   }
 
@@ -2167,10 +2054,10 @@
     var colgroup = document.getElementById('v2-list-table').querySelector('colgroup');
     if (theadRow) {
       if (showStatusColumn) {
-        theadRow.innerHTML = '<th>NHS#</th><th>Status</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-right">Specimen date</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>';
+        theadRow.innerHTML = '<th>NHS#</th><th>Status</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-num">Variance</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>';
         if (colgroup) colgroup.innerHTML = '<col><col><col><col><col><col><col><col><col><col><col><col><col>';
       } else {
-        theadRow.innerHTML = '<th>NHS#</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-right">Specimen date</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>';
+        theadRow.innerHTML = '<th>NHS#</th><th>Patient</th><th class="v2-cell-right">DOB</th><th class="v2-cell-right">Age</th><th>Care</th><th>Pathway</th><th class="v2-cell-num">Last PSA</th><th class="v2-cell-num">Threshold</th><th class="v2-cell-num">Variance</th><th>Next Due</th><th>Freq.</th><th class="v2-cell-right">Updated</th>';
         if (colgroup) colgroup.innerHTML = '<col><col><col><col><col><col><col><col><col><col><col><col>';
       }
     }
@@ -2290,7 +2177,6 @@
 
   function renderBoard() {
     var boardEl = document.getElementById('v2-board');
-    if (!boardEl) return;
     boardEl.innerHTML = '';
     BOARD_COLUMNS.forEach(function(col) {
       var colDiv = document.createElement('div');
@@ -2344,19 +2230,19 @@
 
   function getActionsForStatus(status) {
     var viewDetails = { label: 'View details', actionId: 'view-patient' };
-    if (status === 'awaiting') return [ viewDetails, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
-    if (status === 'action') return [ viewDetails, { label: 'Move to Follow-up Required', actionId: 'move-action-required', targetColumnIndex: 5 }, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
+    if (status === 'upcoming') return [ viewDetails, { label: 'Move to Awaiting Results', actionId: 'test-done', targetColumnIndex: 2 } ];
+    if (status === 'awaiting') return [ viewDetails, { label: 'Move to Completed', actionId: 'complete', targetColumnIndex: 3 }, { label: 'Move to Review Required', actionId: 'review', targetColumnIndex: 4 } ];
+    if (status === 'action') return [ viewDetails, { label: 'Move to Completed', actionId: 'complete', targetColumnIndex: 3 }, { label: 'Move to Follow-up Required', actionId: 'move-action-required', targetColumnIndex: 5 }, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
     if (status === 'action_required') return [ viewDetails, { label: 'Move to Recall', actionId: 'move-recall-off-board' }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
-    if (status === 'recall') return [ viewDetails, { label: 'Move to Awaiting Results', actionId: 'test-done', targetColumnIndex: 2 }, { label: 'Discharge', actionId: 'discharge-off-board' } ];
+    if (status === 'completed') return [ viewDetails, { label: 'Move to Recall', actionId: 'move-recall-off-board' } ];
     return [ viewDetails ];
   }
 
   function wireCardActionsDropdown() {
     var dropdown = document.getElementById('v2-card-actions-dropdown');
-    var boardEl = document.getElementById('v2-board');
-    if (!dropdown || !boardEl) return;
+    if (!dropdown) return;
     var statusByColIndex = { 1: 'upcoming', 2: 'awaiting', 3: 'completed', 4: 'action', 5: 'action_required' };
-    boardEl.addEventListener('click', function(e) {
+    document.getElementById('v2-board').addEventListener('click', function(e) {
       var btn = e.target.closest('.v2-card-actions-btn');
       if (!btn) return;
       e.preventDefault();
@@ -2542,13 +2428,12 @@
     var rows = p.scheduleRows && p.scheduleRows.length ? p.scheduleRows : getProtocolScheduleRows(p.pathway);
     var collapsed = collapseScheduleRows(rows);
     var currentYear = getPhaseYearFromAnchor(p.anchorDate);
-    var thead = '<thead><tr><th>Phase</th><th>Frequency</th><th title="Monitoring Other Test">MOT <span aria-hidden="true">&#9432;</span></th><th title="Liver function test: required alongside PSA for this year">LFT <span aria-hidden="true">&#9432;</span></th><th title="Urea &amp; Electrolytes">U&amp;E <span aria-hidden="true">&#9432;</span></th></tr></thead>';
+    var thead = '<thead><tr><th>Phase</th><th>Frequency</th><th title="Monitoring Other Test">MOT <span aria-hidden="true">&#9432;</span></th><th title="Liver function test: required alongside PSA for this year">LFT <span aria-hidden="true">&#9432;</span></th></tr></thead>';
     var tbody = '<tbody>' + collapsed.map(function(r) {
       var phase = r.yearFrom === r.yearTo ? 'Year ' + r.yearFrom : 'Year ' + r.yearFrom + '-' + r.yearTo;
       var isCurrent = currentYear >= r.yearFrom && currentYear <= r.yearTo;
       var trClass = isCurrent ? ' class="v2-detail-schedule-row-current"' : '';
-      var ueVal = r.ue !== undefined ? r.ue : false;
-      return '<tr' + trClass + '><td>' + phase + '</td><td>' + scheduleToLabel(r.schedule) + '</td><td>' + (r.mot ? '&#10003;' : '—') + '</td><td>' + (r.lft ? '&#10003;' : '—') + '</td><td>' + (ueVal ? '&#10003;' : '—') + '</td></tr>';
+      return '<tr' + trClass + '><td>' + phase + '</td><td>' + scheduleToLabel(r.schedule) + '</td><td>' + (r.mot ? '&#10003;' : '—') + '</td><td>' + (r.lft ? '&#10003;' : '—') + '</td></tr>';
     }).join('') + '</tbody>';
     wrap.innerHTML = '<table class="v2-detail-schedule-view v2-schedule-table">' + thead + tbody + '</table>';
   }
@@ -2611,7 +2496,6 @@
           var thr = parseFloat(p.threshold);
           var isFlagged = !isNaN(thr) && !isNaN(row.value) && row.value >= thr;
           if (!isFlagged) {
-            if (!p.scheduleRows || !p.scheduleRows.length) p.scheduleRows = getProtocolScheduleRows(p.pathway || 'radical');
             var res = computeSuggestedDueAfterResult(p);
             p.suggestedDue = res.suggestedDue;
             p.dueDateBasis = res.dueDateBasis;
@@ -2640,54 +2524,25 @@
   function renderDetailDueBlock(p) {
     var dateInput = document.getElementById('v2-detail-due-date');
     var helperEl = document.getElementById('v2-detail-due-helper');
-    var bannerEl = document.getElementById('v2-detail-due-banner');
     var dueBadge = document.getElementById('v2-detail-due-badge');
     var dueRelativeEl = document.getElementById('v2-detail-due-relative');
     var actionsEl = document.getElementById('v2-detail-due-actions');
     var validationEl = document.getElementById('v2-detail-due-validation');
     var upcomingEl = document.getElementById('v2-detail-upcoming-schedule');
-    var awaitingDaysEl = document.getElementById('v2-detail-awaiting-days');
     if (!dateInput || !helperEl) return;
-    if (awaitingDaysEl) awaitingDaysEl.style.display = 'none';
     if (dueRelativeEl) dueRelativeEl.style.display = 'none';
-    if (bannerEl) bannerEl.style.display = 'none';
     var isLabelOnly = /awaiting|action|action_required|discharged/i.test(p.status);
-    if (p.status === 'awaiting') {
-      if (dueBadge) dueBadge.style.display = 'none';
-      dateInput.style.display = '';
-      var cycleDue = getSuggestedDue(p);
-      var cycleDueIso = cycleDue ? (cycleDue.indexOf('T') !== -1 ? cycleDue.slice(0, 10) : cycleDue) : '';
-      dateInput.value = cycleDueIso || '';
-      dateInput.disabled = true;
-      helperEl.textContent = cycleDueIso ? 'Due date for this cycle. Next due will be set when the result is added.' : 'Next due will be set when the result is added.';
-      helperEl.style.display = '';
-      if (actionsEl) actionsEl.style.display = 'none';
-      if (validationEl) validationEl.style.display = 'none';
-      if (upcomingEl) upcomingEl.textContent = '';
-      var days = p.daysAwaiting;
-      if ((days == null || days === '') && p.lastUpdated) {
-        var lastUp = (p.lastUpdated || '').trim().split(/[T\s]/)[0];
-        if (lastUp && lastUp.length >= 10) {
-          var today = new Date().toISOString().slice(0, 10);
-          var a = new Date(lastUp), b = new Date(today);
-          days = Math.max(0, Math.floor((b - a) / (24 * 60 * 60 * 1000)));
-        }
-      }
-      if (awaitingDaysEl) {
-        var n = parseInt(days, 10);
-        var isOverdue = !isNaN(n) && n > OVERDUE_DAYS_THRESHOLD;
-        awaitingDaysEl.textContent = (days != null && days !== '' && !isNaN(n) && n >= 0) ? (isOverdue ? n + ' days overdue' : 'Waiting for ' + n + ' days') : 'Awaiting result';
-        awaitingDaysEl.classList.toggle('v2-detail-awaiting-days--overdue', isOverdue);
-        awaitingDaysEl.style.display = '';
-      }
-      return;
-    }
     if (isLabelOnly) {
       if (dueBadge) dueBadge.style.display = 'none';
       dateInput.style.display = 'none';
       dateInput.removeAttribute('value');
-      dateInput.disabled = false;
       var labelText = (p.nextDue || '').trim() || '—';
+      if (p.status === 'awaiting') {
+        var cycleDue = getSuggestedDue(p);
+        var cycleDueStr = cycleDue ? formatDateShort(cycleDue) : null;
+        var awaitingCopy = formatAwaitingCopy(p.daysAwaiting);
+        labelText = cycleDueStr ? 'Due date for this cycle: ' + cycleDueStr + '. ' + awaitingCopy + '.' : awaitingCopy + '. Next due will be set when the result is added.';
+      }
       helperEl.textContent = labelText;
       helperEl.style.display = '';
       if (actionsEl) actionsEl.style.display = 'none';
@@ -2717,46 +2572,42 @@
       var freq = getFrequencyMonthsForYear(p, y);
       if (suggested && (!p.psaResults || !p.psaResults.length)) {
         var fromToday = p.anchorDate && p.scheduleRows && computeSuggestedDueFromToday(p.anchorDate, p.scheduleRows) === suggestedIso;
-        if (fromToday) return 'Year ' + y + ', every ' + freq + ' months from today (next schedule slot; add a PSA result to base the due date on the last test).';
+        if (fromToday) return 'Year ' + y + ', every ' + freq + ' months from today (assuming previous test done).';
         y = p.anchorDate ? getPhaseYearFromAnchor(p.anchorDate) : 1;
         freq = getFrequencyMonthsForYear(p, y);
         return 'Year ' + y + ', every ' + freq + ' months from ' + formatDateShort(p.anchorDate) + ' (treatment start).';
       }
       return p.anchorDate ? 'Year ' + y + ', every ' + freq + ' months from ' + formatDateShort(p.anchorDate) + ' (treatment start).' : '';
     }
-    var bannerText = '';
-    var showResetInBanner = false;
     if (p.dueDateBasis && p.dueDateBasis.source === 'post_result') {
       var basis = p.dueDateBasis;
       var context = 'Year ' + basis.monitoringYear + ', every ' + basis.frequency + ' months from ' + formatDateShort(basis.lastSpecimenDate) + ' (last specimen date).' + (basis.guarded ? ' Guarded to next schedule milestone.' : '');
-      bannerText = 'Suggested by last PSA result: ' + formatDateShort(suggestedIso) + '. ' + context;
-      showResetInBanner = hasCustom && suggested;
+      if (hasCustom && suggested) {
+        helperEl.innerHTML = 'Suggested by last PSA result: ' + formatDateShort(suggestedIso) + '. ' + context + ' <button type="button" id="v2-detail-due-reset-inline" class="v2-detail-due-reset-inline" data-variant="secondary">Reset to suggested</button>';
+      } else {
+        helperEl.textContent = 'Suggested by last PSA result. ' + context;
+      }
     } else if (hasCustom && suggested) {
       var ctx = contextLineFromBasis();
-      bannerText = 'Suggested by schedule: ' + formatDateShort(suggestedIso) + '. ' + ctx;
-      showResetInBanner = true;
+      helperEl.innerHTML = 'Suggested by schedule: ' + formatDateShort(suggestedIso) + '. ' + ctx + ' <button type="button" id="v2-detail-due-reset-inline" class="v2-detail-due-reset-inline" data-variant="secondary">Reset to suggested</button>';
     } else {
       var ctx = contextLineFromBasis();
       if (suggested && (!p.psaResults || !p.psaResults.length)) {
-        bannerText = 'Suggested by schedule. ' + ctx + ' Add a PSA result to base the due date on the last test.';
-      } else if (suggested) {
-        bannerText = 'Suggested by schedule. ' + ctx;
+        helperEl.textContent = 'Suggested by schedule. ' + ctx + ' Add a PSA result to base the due date on the last test.';
+      } else {
+        helperEl.textContent = suggested ? 'Suggested by schedule. ' + ctx : '—';
       }
     }
-    if (bannerEl && bannerText) {
-      bannerEl.innerHTML = '<span class="v2-due-banner-text">' + bannerText + '</span>' + (showResetInBanner ? ' <button type="button" id="v2-detail-due-reset-inline" class="v2-detail-due-reset-inline" data-variant="secondary">Reset to suggested</button>' : '');
-      bannerEl.style.display = 'flex';
-      var resetInline = document.getElementById('v2-detail-due-reset-inline');
-      if (resetInline) resetInline.onclick = function() {
-        p.customDueDate = undefined;
-        p.activeDue = getSuggestedDue(p);
-        renderDetailDueBlock(p);
-        renderBoard();
-        renderList();
-        showToaster('Reset to suggested due date');
-      };
-    }
-    helperEl.style.display = 'none';
+    var resetInline = document.getElementById('v2-detail-due-reset-inline');
+    if (resetInline) resetInline.onclick = function() {
+      p.customDueDate = undefined;
+      p.activeDue = getSuggestedDue(p);
+      renderDetailDueBlock(p);
+      renderBoard();
+      renderList();
+      showToaster('Reset to suggested due date');
+    };
+    helperEl.style.display = '';
     if (actionsEl) actionsEl.style.display = 'none';
     if (validationEl) validationEl.style.display = 'none';
     if (dueRelativeEl && activeIso) {
@@ -2871,7 +2722,7 @@
     renderDetailScheduleTable(p);
 
     document.getElementById('v2-detail-customise').onclick = function() {
-      customiseRows = (p.scheduleRows || []).map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false }; });
+      customiseRows = (p.scheduleRows || []).map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft }; });
       if (customiseRows.length === 0) customiseRows = getProtocolScheduleRows(p.pathway);
       document.getElementById('v2-detail-schedule-table-wrap').classList.add('hidden');
       document.getElementById('v2-detail-customise').classList.add('hidden');
@@ -2881,7 +2732,7 @@
         var last = customiseRows.length ? customiseRows[customiseRows.length - 1] : null;
         var nextY = last ? last.yearTo + 1 : 1;
         var s = last ? last.schedule : '6-monthly';
-        customiseRows.push({ yearFrom: nextY, yearTo: nextY, schedule: s, mot: last ? last.mot : false, lft: last ? last.lft : false, ue: last ? (last.ue !== undefined ? last.ue : false) : false });
+        customiseRows.push({ yearFrom: nextY, yearTo: nextY, schedule: s, mot: last ? last.mot : false, lft: last ? last.lft : false });
         renderDetailScheduleEditTbody();
       };
       document.getElementById('v2-detail-schedule-edit-reset').onclick = function() {
@@ -2902,7 +2753,7 @@
         document.getElementById('v2-detail-customise').classList.remove('hidden');
       };
       document.getElementById('v2-detail-schedule-edit-update').onclick = function() {
-        p.scheduleRows = customiseRows.map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft, ue: r.ue !== undefined ? r.ue : false }; });
+        p.scheduleRows = customiseRows.map(function(r) { return { yearFrom: r.yearFrom, yearTo: r.yearTo, schedule: r.schedule, mot: r.mot, lft: r.lft }; });
         p.lastUpdated = new Date().toISOString().slice(0, 16).replace('T', ' ');
         var hadCustom = !!(p.customDueDate && /^\d{4}-\d{2}-\d{2}$/.test(String(p.customDueDate).trim()));
         if (p.psaResults && p.psaResults.length) {
@@ -2910,7 +2761,7 @@
           p.suggestedDue = res.suggestedDue;
           p.dueDateBasis = res.dueDateBasis;
         } else {
-          p.suggestedDue = computeSuggestedDueFromToday(p.anchorDate, p.scheduleRows);
+          p.suggestedDue = computeSuggestedDueAtCreation(p.anchorDate, p.scheduleRows);
           p.dueDateBasis = null;
         }
         if (!hadCustom) p.activeDue = p.suggestedDue;
@@ -3136,14 +2987,13 @@
         p.reviewReason = 'PSA above threshold (' + val + ' \u2265 ' + p.threshold + '). Review and choose action.';
         showToaster('PSA result added. Result is above threshold — review required.');
       } else {
-        if (!p.scheduleRows || !p.scheduleRows.length) p.scheduleRows = getProtocolScheduleRows(p.pathway || 'radical');
         var res = computeSuggestedDueAfterResult(p);
         p.suggestedDue = res.suggestedDue;
         p.dueDateBasis = res.dueDateBasis;
         if (!p.customDueDate) p.activeDue = res.suggestedDue;
         var activeDueIso = getActiveDueISO(p);
         p.nextDue = activeDueIso ? formatDateShort(activeDueIso) : p.nextDue;
-        // MVP: do not set status to completed or recall; leave as awaiting; user must click Move to Recall
+        if (p.status === 'awaiting') p.status = 'completed';
         showToaster('PSA result added');
       }
       document.getElementById('v2-detail-psa-add-date').value = '';
@@ -3193,17 +3043,12 @@
       };
       footer.appendChild(btn);
     }
-    if (p.status === 'awaiting') { addMoveBtn('Move to Review Required', 'action', '?'); addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
-    else if (p.status === 'action') { addMoveBtn('Move to Follow-up Required', 'action_required', '?'); addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
+    if (p.status === 'upcoming') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
+    else if (p.status === 'awaiting') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
+    else if (p.status === 'completed') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
+    else if (p.status === 'action') { addMoveBtn('Move to Follow-up Required', 'action_required', '?'); addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
     else if (p.status === 'action_required') { addMoveBtn('Move to Recall', 'recall', '\u21bb'); }
     else if (p.status === 'recall') { addMoveBtn('Move to Awaiting results', 'awaiting', ''); }
-    if (p.status === 'awaiting' || p.status === 'action' || p.status === 'action_required') {
-      var previewDue = getSuggestedDue(p);
-      var previewEl = document.createElement('p');
-      previewEl.className = 'v2-detail-recall-due-preview';
-      previewEl.innerHTML = previewDue ? 'After move, next due: <strong>' + formatDateShort(previewDue) + '</strong>' : 'Next due will be set from schedule when moved.';
-      footer.insertBefore(previewEl, footer.firstChild);
-    }
     var moreWrap = document.createElement('div');
     moreWrap.className = 'v2-more-menu';
     moreWrap.innerHTML = '<button type="button" class="ghost icon" id="v2-detail-more-btn" aria-label="More actions">&#8230;</button><div id="v2-detail-more-dropdown" class="v2-more-dropdown hidden"><button type="button" id="v2-detail-discharge">Discharge</button></div>';
@@ -3252,7 +3097,7 @@
       var tr = document.createElement('tr');
       var freqOpts = FREQUENCY_OPTIONS.map(function(o) { return '<option value="' + o.value + '"' + (o.value === row.schedule ? ' selected' : '') + '>' + o.label + '</option>'; }).join('');
       var delCell = (idx === customiseRows.length - 1 && customiseRows.length > 1) ? '<td><button type="button" class="v2-schedule-delete-btn" data-variant="secondary" data-detail-edit-delete aria-label="Delete year">Delete</button></td>' : '<td></td>';
-      tr.innerHTML = '<td>' + row.yearFrom + '</td><td><select data-row="' + idx + '" data-field="schedule">' + freqOpts + '</select></td><td><input type="checkbox" data-row="' + idx + '" data-field="mot"' + (row.mot ? ' checked' : '') + ' aria-label="MOT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="lft"' + (row.lft ? ' checked' : '') + ' aria-label="LFT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="ue"' + ((row.ue !== undefined ? row.ue : false) ? ' checked' : '') + ' aria-label="U&E"></td>' + delCell;
+      tr.innerHTML = '<td>' + row.yearFrom + '</td><td><select data-row="' + idx + '" data-field="schedule">' + freqOpts + '</select></td><td><input type="checkbox" data-row="' + idx + '" data-field="mot"' + (row.mot ? ' checked' : '') + ' aria-label="MOT"></td><td><input type="checkbox" data-row="' + idx + '" data-field="lft"' + (row.lft ? ' checked' : '') + ' aria-label="LFT"></td>' + delCell;
       tbody.appendChild(tr);
     });
     tbody.querySelectorAll('select[data-field="schedule"]').forEach(function(el) {
@@ -3263,9 +3108,6 @@
     });
     tbody.querySelectorAll('input[data-field="lft"]').forEach(function(el) {
       el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (customiseRows[i]) customiseRows[i].lft = el.checked; });
-    });
-    tbody.querySelectorAll('input[data-field="ue"]').forEach(function(el) {
-      el.addEventListener('change', function() { var i = parseInt(el.getAttribute('data-row'), 10); if (customiseRows[i]) customiseRows[i].ue = el.checked; });
     });
     tbody.querySelectorAll('[data-detail-edit-delete]').forEach(function(btn) {
       btn.addEventListener('click', function() { customiseRows.pop(); renderDetailScheduleEditTbody(); });
